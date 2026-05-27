@@ -57,6 +57,12 @@ APG passive capture at 19200:
 cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1 -Baud 19200 -DurationSeconds 120
 ```
 
+Alternate APG passive mode while troubleshooting external frames:
+
+```powershell
+cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1 -Baud 19200 -DurationSeconds 120 -Mode Listen
+```
+
 APG headless send, bench only:
 
 ```powershell
@@ -123,5 +129,5 @@ Active bench proof command flow is automated by `tools/active-bench-proof.ps1`.
 
 ## Known Tooling Gaps
 
-- APG passive monitor logged zero rows for XIAO-generated active frames during the May 27 active test, even while XIAO self-receive parsed valid `0x0C` frames. Follow-up: inspect NetworkAnalyser passive/display-all behavior for externally generated frames.
+- APG passive monitor logged zero rows for XIAO-generated active frames during the May 27 active test, even while XIAO self-receive parsed valid `0x0C` frames. `monitor-apg-lin-bus.ps1` now supports `-Mode DisplayAll` and `-Mode Listen` and prints APG receive mode/option flags for diagnosis; both modes still need external-frame validation.
 - XIAO WiFi was unavailable on the bench (`NO_AP_FOUND`). USB serial telemetry is the reliable fallback.

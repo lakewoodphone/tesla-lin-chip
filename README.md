@@ -161,7 +161,7 @@ cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -
 
 | Issue | Current understanding |
 |---|---|
-| APG passive monitor logs zero rows for XIAO-generated active frames | XIAO self-receive proves bus frames; APG passive external-frame logging remains tooling follow-up |
+| APG passive monitor logs zero rows for XIAO-generated active frames | XIAO self-receive proves bus frames; monitor now has `-Mode DisplayAll`/`-Mode Listen` diagnostics, but APG external-frame logging remains tooling follow-up |
 | XIAO WiFi reports `NO_AP_FOUND` | Use USB serial and `serial-to-lin-events.ps1` unless WiFi credentials are repaired |
 | `PermissionError` on COM4 | A serial monitor is holding the port; stop PlatformIO/terminal process |
 | Direct `send-apg-lin-frame.ps1` baud looks wrong | Use NetworkAnalyser-based tools for real validation |

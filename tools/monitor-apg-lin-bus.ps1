@@ -4,7 +4,7 @@
     Run this on car day to capture real Tesla frame IDs and payloads.
 
 .DESCRIPTION
-    Puts the APGDT001 into SetModeDisplayAll (receive-only, no transmit).
+    Puts the APGDT001 into DisplayAll or Listen mode (receive-only, no transmit).
     Subscribes to the PICkitS.LIN OnReceive and OnAnswer events using a C# delegate
     wrapper (required because GUINotifierOR is a custom delegate type).
     Logs every frame to the console and to a timestamped CSV/text log file.
@@ -20,6 +20,10 @@
 
 .PARAMETER DurationSeconds
     Stop after this many seconds. Default 0 = run until Ctrl+C.
+
+.PARAMETER Mode
+    Passive receive mode: DisplayAll (default) or Listen. Use Listen while
+    troubleshooting externally generated frames.
 
 .EXAMPLE
     # Full capture session at 19200 baud
@@ -37,7 +41,9 @@
 param(
     [UInt16] $Baud            = 19200,
     [string] $LogDir          = "C:\Users\ezabz\Code\xiao-lin-bench\logs",
-    [int]    $DurationSeconds = 0
+    [int]    $DurationSeconds = 0,
+    [ValidateSet("DisplayAll", "Listen")]
+    [string] $Mode            = "DisplayAll"
 )
 
 $ErrorActionPreference = "Stop"
@@ -46,7 +52,7 @@ $ErrorActionPreference = "Stop"
 if ([IntPtr]::Size -ne 4) {
     Write-Host "Relaunching in 32-bit PowerShell (required for PICkitS.dll)..." -ForegroundColor Yellow
     $args32 = @("-STA", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $PSCommandPath,
-                "-Baud", $Baud, "-LogDir", $LogDir, "-DurationSeconds", $DurationSeconds)
+                "-Baud", $Baud, "-LogDir", $LogDir, "-DurationSeconds", $DurationSeconds, "-Mode", $Mode)
     & "$env:WINDIR\SysWOW64\WindowsPowerShell\v1.0\powershell.exe" @args32
     exit $LASTEXITCODE
 }
@@ -157,7 +163,7 @@ $oaDelegate = [System.Delegate]::CreateDelegate(
 Write-Host ""
 Write-Host "=====================================================" -ForegroundColor Yellow
 Write-Host "  LIN Bus Monitor - APGDT001 Passive Capture"         -ForegroundColor Yellow
-Write-Host "  Baud: $Baud   Vehicle: any (3/Y/X)"                 -ForegroundColor Yellow
+Write-Host "  Baud: $Baud   Mode: $Mode   Vehicle: any (3/Y/X)"     -ForegroundColor Yellow
 Write-Host "  Log:  $logFile"                                      -ForegroundColor Yellow
 Write-Host "=====================================================" -ForegroundColor Yellow
 Write-Host ""
@@ -183,9 +189,29 @@ if ($getBaudMethod) {
 }
 
 # Passive receive - do NOT call SetModeTransmit
-$modeOk = [PICkitS.LIN]::SetModeDisplayAll()
-Write-Host "SetModeDisplayAll: $modeOk"
+if ($Mode -eq "Listen") {
+    $modeOk = [PICkitS.LIN]::SetModeListen()
+    Write-Host "SetModeListen: $modeOk"
+} else {
+    $modeOk = [PICkitS.LIN]::SetModeDisplayAll()
+    Write-Host "SetModeDisplayAll: $modeOk"
+}
 $null = [PICkitS.LIN]::Set_LIN_Options($false, $true, $false)
+
+$chipSelectHi = $false
+$receiveEnable = $false
+$autoBaud = $false
+try {
+    $null = [PICkitS.LIN]::Get_LIN_Options([ref]$chipSelectHi, [ref]$receiveEnable, [ref]$autoBaud)
+    Write-Host "LIN options: chipSelectHi=$chipSelectHi receiveEnable=$receiveEnable autoBaud=$autoBaud"
+} catch {
+    Write-Host "LIN options: unavailable ($($_.Exception.Message))" -ForegroundColor DarkYellow
+}
+try {
+    Write-Host "Mode flags: displayAll=$([PICkitS.LIN]::DisplayAll_mode_Is_Set()) listen=$([PICkitS.LIN]::Listen_mode_Is_Set()) transmit=$([PICkitS.LIN]::Transmit_mode_Is_Set())"
+} catch {
+    Write-Host "Mode flags: unavailable ($($_.Exception.Message))" -ForegroundColor DarkYellow
+}
 
 Write-Host ""
 Write-Host "Listening on LIN bus at $Baud baud. Press Ctrl+C to stop." -ForegroundColor Green
@@ -197,7 +223,7 @@ $stopAt = if ($DurationSeconds -gt 0) { $sessionStart.Elapsed.TotalSeconds + $Du
 try {
     while ($sessionStart.Elapsed.TotalSeconds -lt $stopAt) {
         Start-Sleep -Milliseconds 50
-        # Events fire on the background USB thread via the delegate; no polling needed
+        [System.Windows.Forms.Application]::DoEvents()
     }
 } finally {
     # --- Unsubscribe delegates ---

@@ -22,7 +22,7 @@ For the complete handoff, read `START_HERE.md` first.
 ## Next Work
 
 1. Keep root docs current and use `docs/archive/` for historical handoffs.
-2. Improve APG passive monitor behavior for XIAO-generated active frames; it still logs zero rows even while XIAO self-receive parses valid bus frames.
+2. Improve APG passive monitor behavior for XIAO-generated active frames; `DisplayAll` and `Listen` modes now print receive diagnostics, but both still log zero rows while XIAO self-receive parses valid bus frames.
 3. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
 4. Before any vehicle session, run passive quick evidence and pack the bench kit.
 5. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
