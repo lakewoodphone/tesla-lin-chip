@@ -29,7 +29,7 @@ HardwareSerial LIN(1);
 #define RING_BUF_SIZE           128
 // Active TX mode: enables UART1 TX with break field, anti-nag frame scheduler.
 // Uncomment to build the active injector firmware (bench use only).
-#define ACTIVE_MODE
+// #define ACTIVE_MODE
 
 #ifdef ACTIVE_MODE
 #define TX_ANTINAG_PERIOD_MS    300
