@@ -151,6 +151,8 @@ ID=0x0C PID=0x4C [8B] data: 10 00 00 00 00 00 C0 0A | chk=D8 enhanced parity=OK
 
 APG passive monitor still logged zero rows for XIAO-generated frames during this session, even while XIAO self-receive parsed valid active frames. Treat APG passive monitor behavior as a tooling limitation/follow-up item.
 
+`tools/active-bench-proof.ps1` now automates this active self-receive proof and saves a log plus Markdown summary under `logs/`.
+
 ## Remaining No-Car Limits
 
 - The bench can prove parser correctness, checksum behavior, APG send behavior, telemetry plumbing, and XIAO self-received active injection on the isolated bench.

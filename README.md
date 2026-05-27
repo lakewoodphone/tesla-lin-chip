@@ -1,314 +1,168 @@
 # xiao-lin-bench
 
-LIN bus receive bench using XIAO ESP32-C3, APGDT001 LIN analyzer, and TJA1021 transceiver module.
+Tesla LIN bench project using a Seeed XIAO ESP32-C3, APGDT001 LIN analyzer, TJA1021 transceiver module, and 3.3V/5V level shifter.
 
-**Goal:** Validate Tesla Model X / Model 3 / Model Y LIN receive at the bench before touching a vehicle bus.
+Start with `START_HERE.md` when resuming. It is the current handoff and points to the active evidence, wiring, commands, and hard stops.
 
-**Start here next time:** read `START_HERE.md` first. It is the canonical handoff for current status, validated commands, passing evidence, hard stops, and the next action.
+## Current Status
 
----
+- Passive LIN receive is bench-verified at 19200 baud.
+- Full no-car evidence passed on 2026-05-26: 80/80 exact APG -> XIAO matches across raw IDs `0x00` through `0x3F`, with 0 checksum/parity failures.
+- Active Model X bench TX is verified on the isolated bench. `model:x` + `antinag:start` produced more than 100 self-received `0x0C` frames with enhanced checksum and parity OK.
+- Repository source defaults to passive/safe mode: `ACTIVE_MODE` is commented out in `src/main.cpp`.
+- The physical bench XIAO is currently flashed with the working active firmware from 2026-05-27.
+- APG passive monitor still logs zero rows for XIAO-generated active frames even while XIAO self-receive parses them correctly. Treat that as APG tooling follow-up, not an active wiring blocker.
+
+## Hard Stops
+
+- Do not transmit on a vehicle LIN bus.
+- Do not run `validate-xiao-bench.ps1`, `bench-evidence-suite.ps1`, `send-netanalyser-headless.ps1`, `antinag-replay.ps1`, or active firmware commands on a vehicle.
+- Vehicle work starts passive only: APG passive monitor plus XIAO passive receive.
+- Do not assume Model 3/Y IDs match Model X. Capture first, then label.
+- Do not use the old `C:\Users\ezabz\Code\Schematics\firmware\anti-nag-v1` path as active firmware.
 
 ## Hardware
 
 | Component | Part | Notes |
 |---|---|---|
-| MCU | Seeed XIAO ESP32-C3 | USB CDC, COM4 |
-| LIN analyzer / transmitter | Microchip APGDT001 | VID=04D8 PID=0A04, HID USB |
-| LIN transceiver module | GODIYMODULES TJA1021 breakout | 5V logic, open-drain LIN bus |
-| Level shifter | DIYables 4-channel bidirectional | HV=5V ↔ LV=3.3V |
-| PSU | Bench supply | 12V / 200mA |
-
----
+| MCU | Seeed XIAO ESP32-C3 | USB CDC, normally COM4 |
+| LIN analyzer | Microchip APGDT001 | VID `04D8`, PID `0A04`; PICkitS DLL is x86 |
+| LIN transceiver | GODIYMODULES TJA1021 breakout | Logic header: `GND TX SLP RX`; bus header: `GND LIN INH VIN` |
+| Level shifter | DIYables 4-channel bidirectional | HV=5V, LV=3.3V |
+| PSU | Bench supply | 12V bus/module power |
 
 ## Wiring
 
-```
-PSU 12V ──────────────────────────────── APG VBAT (or bus power)
-PSU 12V ──────────────────────────────── Module VIN
-PSU GND ─┬──────────────────────────────── APG GND
-          ├──────────────────────────────── Module GND
-          ├──────────────────────────────── Level shifter GND
-          └──────────────────────────────── XIAO GND
+Power and bus:
 
-APG LINBUS ────────────────────────────── Module LIN
-
-XIAO 5V ─┬──────────────────────────────── Module SLP  (HIGH = awake)
-          └──────────────────────────────── Level shifter HV
-
-XIAO 3V3 ────────────────────────────── Level shifter LV
-
-Module RX ──────────────────────────────── Level shifter HV/A1
-Level shifter LV/B1 ─────────────────── XIAO D3 (GPIO5) ← UART1 RX
+```text
+PSU 12V -> APG VBAT / bus power
+PSU 12V -> module VIN
+PSU GND -> APG GND -> module GND -> level shifter GND -> XIAO GND
+APG LINBUS pin 1 -> module LIN
+XIAO 5V/VUSB -> module SLP and level shifter HV
+XIAO 3V3 -> level shifter LV
 ```
 
-> **SLP must be tied HIGH.** If SLP floats or is grounded, the TJA1021 enters sleep mode and passes no signal.
+Passive receive path:
 
-> **Wire the module RX pin, not TX.** The TJA1021's RX pin is the output from the transceiver toward the MCU. TX is the input from the MCU toward the bus (not used for receive-only bench work). For active bench injection, wire TX as documented in `ACTIVE_INJECTOR.md`.
+```text
+module RX -> level shifter HV1/A1 -> level shifter LV1/B1 -> XIAO D3/GPIO5
+```
 
----
+Active bench TX path:
 
-## Active TX Mode (v5)
+```text
+XIAO D2/GPIO4 -> level shifter LV2/B2 -> level shifter HV2/A2 -> module TX
+```
 
-Firmware v5 adds an **active anti-nag injector** on the isolated bench. `#define ACTIVE_MODE` enables UART1 TX via break field, a multi-model profile system, and anti-nag frame scheduling.
-
-**Model profiles:** `model:x` (ID=0x0C), `model:3` (ID=0x1A), `model:y` (ID=0x1A). Add new models in `MODEL_PROFILES[]` after passive capture confirms the steering ID.
-
-**Serial commands:** `antinag:start`, `antinag:stop`, `antinag:single`, `tx:`, `model:`, `model`.
-
-**Active wiring guide:** `ACTIVE_INJECTOR.md`.
-
-**Comment `#define ACTIVE_MODE`** to revert to passive-only firmware.
-
----
+Known wiring lesson from 2026-05-27: if `txd:low` makes XIAO D2 near 0V but LV2 stays near 3.3V, the D2 -> LV2 jumper is disconnected or on the wrong channel.
 
 ## Firmware
 
-**File:** `src/main.cpp`
+Main file: `src/main.cpp`
 
-- UART1 at 19200 baud on GPIO5 (D3)
-- GPIO5 interrupt edge counter (sanity check, resets each second)
-- Boundary-based parser: IDLE -> SYNC(0x55) -> PID -> bytes until break/idle
-- Actual payload length is observed from the frame boundary; ID-class length is reported only as `pred=<n>`
-- Protected-ID parity validation
-- Enhanced and classic checksum detection
-- Raw byte trace disabled by default (`DEBUG_RAW_BYTES=0`) so vehicle-bus parsing is not slowed by USB logging
-- Queued/rate-limited WiFi telemetry to `POST /api/v1/lin-events`; UART parsing never waits on HTTP
-- Heartbeat: `alive d3=<pin_level> edges=<count> frames=<n> badChk=<n> badPid=<n> ovf=<n> ...`
-- **v5 ACTIVE_MODE:** Break-field TX on UART1, multi-model anti-nag scheduler with runtime `model:` switching
+Core passive features:
 
-**Secrets:** copy `src/secrets.h.example` to `src/secrets.h` and set WiFi + secretary URL before flashing. `src/secrets.h` is gitignored.
+- UART1 at 19200 baud on RX GPIO5/D3 and TX GPIO4/D2.
+- Boundary-based parser: break/idle -> sync `0x55` -> PID -> data/checksum.
+- Actual payload length is observed from frame boundary; `pred=<n>` is only the ID-class length hint.
+- Protected-ID parity validation.
+- Enhanced/classic checksum detection.
+- Ring buffer of recent frames via `ring`.
+- Runtime serial commands: `vehicle:`, `baud:`, `raw:`, `ring`, `stats`.
+- USB serial fallback when WiFi is unavailable.
 
-**Build/upload:**
+Active mode (`#define ACTIVE_MODE`, bench only):
 
-```powershell
-# Build
-C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe run
+- Model profiles: `model:x` (`0x0C` confirmed), `model:3` (`0x1A` candidate), `model:y` (`0x1A` candidate), `model:auto`.
+- Active commands: `model`, `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `tx:`.
+- Diagnostics: `txd:low`, `txd:high`, `txd:uart`.
+- Working break method: half-baud UART `0x00` break, then return to normal LIN baud.
 
-# Upload (must use --no-stub, stub fails on this chip/board combo)
-C:\Users\ezabz\.platformio\penv\Scripts\python.exe -m esptool `
-  --chip esp32c3 --port COM4 --baud 115200 `
-  --before default_reset --after hard_reset --no-stub `
-  write_flash -z --flash_mode dio --flash_freq 80m --flash_size 4MB `
-  0x0    .pio\build\xiao_esp32c3\bootloader.bin `
-  0x8000 .pio\build\xiao_esp32c3\partitions.bin `
-  0x10000 .pio\build\xiao_esp32c3\firmware.bin
-```
+## Build And Flash
 
-**Monitor:**
+Build current repo default:
 
 ```powershell
-C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe device monitor `
-  --port COM4 --baud 115200 --dtr 1 --rts 0
+cd C:\Users\ezabz\Code\xiao-lin-bench
+python -m platformio run
 ```
 
-> `--dtr 1` is required. Without it, USB CDC output does not appear on Windows.
-
----
-
-## Tooling (tools/)
-
-### send-netanalyser-headless.ps1 — PRIMARY SEND TOOL
-
-Drives the APGDT001 headlessly via .NET reflection into `NetworkAnalyser.exe`. No GUI required.
+Upload to the XIAO on COM4:
 
 ```powershell
-# Must run as 32-bit PowerShell (PICkitS.dll is x86)
-cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\send-netanalyser-headless.ps1 -Baud 19200 -Frame "0C 12 34" -Checksum Enhanced
+python -m platformio run -t upload --upload-port COM4
 ```
 
-### monitor-apg-lin-bus.ps1 — CAR-DAY PASSIVE CAPTURE
+Monitor XIAO USB serial:
 
-Passively monitors the LIN bus via APGDT001 (receive-only). Logs every frame to CSV + text. Works for Model X, 3, Y — captures whatever the bus emits.
+```powershell
+python -m platformio device monitor --port COM4 --baud 115200 --dtr 1 --rts 0
+```
 
-### car-day-launcher.ps1 — UNIFIED ENTRY POINT (NEW)
+If normal PlatformIO upload fails, use the documented `esptool --no-stub` fallback from `START_HERE.md`.
 
-Single command for field work: sets XIAO vehicle ID/baud, starts APG capture, opens XIAO monitor, runs summary.
+## Validation
 
-### validate-xiao-bench.ps1 — BENCH VALIDATION
+Passive quick bench validation:
 
-Full bench validation matrix (5 test frames). TRANSMITS — do not run on a vehicle.
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate-xiao-bench.ps1 -ComPort COM4 -Baud 19200 -BootWaitSeconds 4 -PerFrameTimeoutMs 2500
+```
 
-### bench-evidence-suite.ps1 — FULL NO-CAR EVIDENCE
-
-Runs baseline Model X frames, Model 3/Y candidate IDs, enhanced/classic checksum cases, a raw ID sweep, and anti-nag replay while listening to XIAO serial. Writes CSV/JSON/Markdown evidence and posts decoded frames to secretary.
-
-Latest full run: 80/80 exact matches, 64 unique raw IDs, 0 APG send failures, 0 bad checksum/parity frames.
+Full no-car evidence suite:
 
 ```powershell
 .\tools\bench-evidence-suite.ps1 -VehicleId tesla-bench-full -ComPort COM4 -Baud 19200
-.\tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar -ComPort COM4 -Baud 19200
 ```
 
-### serial-to-lin-events.ps1 — USB TELEMETRY FALLBACK
-
-Parses XIAO USB serial decoded frame lines and posts them to `POST /api/v1/lin-events`. Use this when XIAO WiFi is unavailable.
+Active Model X bench validation flow:
 
 ```powershell
-.\tools\serial-to-lin-events.ps1 -ComPort COM4 -VehicleId tesla-bench-usb -ApiBase http://localhost:8002
+# After enabling ACTIVE_MODE and flashing active firmware:
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x
 ```
 
-### antinag-replay.ps1 — ANTI-NAG REPLAY (NEW)
+Expected active proof: `ring` shows `ID=0x0C PID=0x4C [8B]` frames with `enhanced parity=OK` and `badChk=0 badPid=0` in `stats`.
 
-Generates alternating UP/DOWN scroll frames with correct LIN checksums. Bench only.
-The APG sender is launched as a fresh 32-bit PowerShell process per frame to avoid NetworkAnalyser state leakage.
+## Tooling
 
-### summarize-lin-capture.ps1 — CAPTURE SUMMARY
-
-Quick per-ID frame counts from APG CSV.
-
-### analyze-lin-capture.py — PYTHON ANALYZER (NEW)
-
-Full post-capture analysis with Tesla ID reference tables (Model X confirmed, 3/Y candidates). Per-ID stats, unknown ID alerts, checksum verification, anti-nag payload generation, JSON export.
-
-### lin-payload-calc.py — PAYLOAD CALCULATOR (NEW)
-
-Generate anti-nag frame tables, verify captured frames, compute checksums, scan multiple IDs. Commands: `antinag`, `idle`, `verify`, `checksum`, `scan`.
-
-### send-apg-lin-frame.ps1 — DEBUG ONLY
-
-Direct PICkitS path. Baud unreliable at 19200 (reports 10000). Use NetworkAnalyser tools instead.
-cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe `
-  -STA -NoProfile -ExecutionPolicy Bypass `
-  -File tools\send-netanalyser-headless.ps1 `
-  -Frame "3C 00 00 00 00 00 00 00 00" `
-  -Checksum Enhanced `
-  -Baud 19200
-```
-
-**Parameters:**
-- `-Frame` — space-separated hex bytes: PID followed by payload bytes (e.g. `"3C 00 00 00 00 00 00 00 00"` for an 8-byte bench frame)
-- `-Checksum` — `Enhanced` (default), `Classic`, or `Forced`
-- `-Baud` — LIN baud rate, default 19200
-
-**How it works:**
-1. Loads `NetworkAnalyser.exe` as a .NET assembly via reflection
-2. Creates the `WindowsApplication1.Network` form instance
-3. Fires `Network_Load` (initializes PICkitS hardware at 9600 baud)
-4. Sets `MasterBaudRate` field to target baud
-5. Calls `_OnAnswerSource.Change_LIN_BAUD_Rate(baud)` twice (first call reconfigures the control block; second ensures the register write completes before transmit)
-6. Sets checksum radio button, puts frame in the message list
-7. Calls `Sendbtn_Click` to transmit
-
-**Key discovery:** `Network_Load` always initializes the hardware at 9600. Setting `MasterBaudRate` alone is insufficient — you must call `Change_LIN_BAUD_Rate` on the `_OnAnswerSource` PICkitS.LIN instance after load to reconfigure the hardware.
-
----
-
-### validate-xiao-bench.ps1 — BENCH SELF-TEST
-
-Opens XIAO serial on COM4, transmits representative APG frames, and verifies that XIAO reports the expected ID, actual byte length, checksum mode, and parity.
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File tools\validate-xiao-bench.ps1 `
-  -KillExistingMonitor
-```
-
-This script transmits frames. Use it only on the bench, never while connected to a vehicle bus.
-
-Validation matrix currently passes on the bench for:
-
-- `0x0C` 2-byte enhanced checksum
-- `0x10` 2-byte enhanced checksum
-- `0x22` 4-byte enhanced checksum
-- `0x3C` 8-byte enhanced checksum
-- `0x3C` 8-byte classic checksum
-
-Important: NetworkAnalyser frame strings use the raw LIN ID (`0C`), not the protected PID (`4C`). The GUI computes the protected PID internally.
-
----
-
-### monitor-apg-lin-bus.ps1 — CAR DAY PASSIVE CAPTURE
-
-Puts APGDT001 into display-all receive mode and logs all frames to `.txt` and `.csv` files under `logs/`.
-
-```powershell
-cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe `
-  -STA -NoProfile -ExecutionPolicy Bypass `
-  -File tools\monitor-apg-lin-bus.ps1
-
-# Fallback speed if a 3/Y bus segment shows no 19200 traffic
-cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe `
-  -STA -NoProfile -ExecutionPolicy Bypass `
-  -File tools\monitor-apg-lin-bus.ps1 -Baud 9600
-```
-
-This is receive-only. It is the primary car-day capture path.
-
-The monitor initializes through `NetworkAnalyser.exe`, not the direct static PICkitS baud path. This matters because the direct static path reports `Get_LIN_BAUD_Rate: 10000` even when asked for 19200.
-
----
-
-### summarize-lin-capture.ps1 — CAPTURE SUMMARY
-
-Summarizes a `logs/lin-capture-*.csv` file by ID, payload length, count, approximate rate, payload variants, and error count.
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File tools\summarize-lin-capture.ps1
-```
-
----
-
-### send-apg-lin-frame.ps1 — Direct PICkitS API (debug only)
-
-Calls `PICkitS.LIN` static methods directly without the GUI form. Keep this for API discovery and debugging only. Live bench validation showed this path can transmit while still reporting `Get_LIN_BAUD_Rate: 10000`, so it is not trusted for 19200 bench validation or car-day capture.
-
-```powershell
-cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe `
-  -NoProfile -ExecutionPolicy Bypass `
-  -File tools\send-apg-lin-frame.ps1 `
-  -Baud 19200 -Id 0x3C -Data "00 00 00 00 00 00 00 00" `
-  -Checksum Enhanced -Repeat 3 -DelayMs 200
-```
-
----
-
-### Probe/discovery scripts
-
-| Script | Purpose |
-|---|---|
-| `probe-pickits-lin.ps1` | Lists all PICkitS.LIN methods and their signatures |
-| `probe-baud-fields.ps1` | Finds baud/speed fields + all ComboBoxes on the form |
-| `probe-baud-methods.ps1` | Finds baud/config/init methods on the form |
-| `probe-lin-instance.ps1` | Finds the PICkitS.LIN instance fields on the form |
-| `probe-pickits-baud.ps1` | Full PICkitS type dump + LIN-related method list |
-| `disasm-netanalyser-method.ps1` | IL disassembler for inspecting form methods |
-
----
-
-## Verified Working State (May 2026)
-
-- XIAO receives and parses LIN frames at 19200 baud
-- Headless CLI send working, no GUI needed
-- Enhanced checksum validates correctly
-- Typical output for a clean frame:
-
-```
-raw gap=63542 b=00 state=0       ← break field (0x00 after idle)
-raw gap=1 b=55 state=1           ← sync byte
-raw gap=0 b=3C state=2           ← PID (ID=0x3C with parity)
-raw gap=1 b=00 state=3           ← data byte 0
-...
-raw gap=1 b=C3 state=4           ← checksum
-#1 ID=0x3C PID=0x3C [8B pred=8] data: 00 00 00 00 00 00 00 00 | chk=C3 enhanced parity=OK src=idle
-```
-
----
-
-## Known Issues / Gotchas
-
-| Issue | Root cause | Fix |
+| Tool | Purpose | Vehicle-safe? |
 |---|---|---|
-| `edges=0` after send | Missing GND connection or SLP not tied HIGH | Add GND wire between all components; tie SLP to 5V |
-| `sync err: got 0x66` instead of `0x55` | APG transmitting at 9600, XIAO receiving at 19200 | Call `Change_LIN_BAUD_Rate` on `_OnAnswerSource` after `Network_Load` |
-| `PermissionError: Access is denied` on COM4 | Stale platformio monitor process holding the port | `Stop-Process -Name platformio -Force` |
-| Upload fails with stub error | esptool stub incompatible with this board | Always use `--no-stub` flag |
-| No serial output in monitor | DTR not asserted | Use `--dtr 1` with platformio monitor |
+| `tools/monitor-apg-lin-bus.ps1` | APG passive capture | Yes, receive-only |
+| `tools/car-day-launcher.ps1` | Passive car-day APG/XIAO launcher | Yes, if used passive-only |
+| `tools/validate-xiao-bench.ps1` | APG transmit -> XIAO receive validation | No, bench only |
+| `tools/bench-evidence-suite.ps1` | Full APG/XIAO no-car evidence matrix | No, bench only |
+| `tools/active-bench-proof.ps1` | XIAO active TX self-receive proof | No, bench only |
+| `tools/send-netanalyser-headless.ps1` | APG headless LIN transmit | No, bench only |
+| `tools/antinag-replay.ps1` | APG anti-nag replay sequence | No, bench only |
+| `tools/serial-to-lin-events.ps1` | XIAO USB serial -> secretary API | Passive if source is passive |
+| `tools/analyze-lin-capture.py` | Post-capture analysis and Tesla ID reference | Yes, post-capture |
+| `tools/summarize-lin-capture.ps1` | Quick APG CSV summary | Yes, post-capture |
+| `tools/lin-payload-calc.py` | Payload/checksum calculator | Reference only |
 
----
+APG tools must run through 32-bit PowerShell when they load `PICkitS.dll`:
 
-## Dependencies
+```powershell
+cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1 -Baud 19200
+```
 
-- PlatformIO (espressif32 @ 6.9.0)
-- `C:\Users\ezabz\Downloads\LINAnalyzer\` — contains `NetworkAnalyser.exe` and `PICkitS.dll` (x86)
-- Windows 32-bit PowerShell (`SysWOW64\WindowsPowerShell\v1.0\powershell.exe`) for PICkitS.dll reflection
+## Evidence And Docs
+
+- `START_HERE.md` - canonical current handoff.
+- `BENCH_EVIDENCE.md` - passive and active bench evidence.
+- `ACTIVE_INJECTOR.md` - active bench wiring, operation, and diagnostics.
+- `NEXT_STEPS.md` - current work plan.
+- `TOOLS.md` - tool reference.
+- `docs/archive/` - old passive-only and capture-history notes.
+
+## Known Issues
+
+| Issue | Current understanding |
+|---|---|
+| APG passive monitor logs zero rows for XIAO-generated active frames | XIAO self-receive proves bus frames; APG passive external-frame logging remains tooling follow-up |
+| XIAO WiFi reports `NO_AP_FOUND` | Use USB serial and `serial-to-lin-events.ps1` unless WiFi credentials are repaired |
+| `PermissionError` on COM4 | A serial monitor is holding the port; stop PlatformIO/terminal process |
+| Direct `send-apg-lin-frame.ps1` baud looks wrong | Use NetworkAnalyser-based tools for real validation |
+| Holding TXD low does not always pull LIN low forever | LIN dominant-timeout can release the bus; validate with real frames and ring buffer |

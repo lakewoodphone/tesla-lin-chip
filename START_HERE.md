@@ -30,10 +30,11 @@ START_HERE.md                             This handoff
 BENCH_EVIDENCE.md                         Full no-car evidence summary
 ACTIVE_INJECTOR.md                        Bench-only active TX wiring, operation, and TXD diagnostics
 README.md                                 Wiring, firmware, tools, gotchas
-NEXT_STEPS.md                             Pre-car checklist and car-day flow (v4)
+NEXT_STEPS.md                             Current work plan and passive car-day flow
 src/main.cpp                              XIAO firmware v5 — multi-model, ring buf, cmds, optional active TX
 src/secrets.h.example                     Template for WiFi/API settings
 tools/bench-evidence-suite.ps1            No-car evidence matrix + API posting
+tools/active-bench-proof.ps1              Active Model X bench TX proof runner
 tools/serial-to-lin-events.ps1            USB serial -> secretary fallback telemetry
 tools/car-day-launcher.ps1                Unified car-day entry point (NEW)
 tools/send-netanalyser-headless.ps1       Proven APG transmit path
@@ -45,7 +46,7 @@ tools/analyze-lin-capture.py              Python analyzer with Tesla ID referenc
 
 ## What Was Built
 
-### Firmware v4 (upgraded May 26)
+### Firmware v4/v5 (upgraded May 26-27)
 
 `src/main.cpp` — major upgrade:
 
@@ -60,6 +61,9 @@ tools/analyze-lin-capture.py              Python analyzer with Tesla ID referenc
 | Telemetry queue | 64 frames (was 16) — less drop at high rates |
 | Heartbeat | +baud, short frames, sync error counters |
 | LED indicator | GPIO status on LIN activity |
+| Active TX mode | Optional `ACTIVE_MODE`: half-baud break, model profiles, anti-nag scheduler, TXD diagnostics |
+
+Active mode is bench-only and source-controlled behind `#define ACTIVE_MODE`. The repository default keeps it commented out. The physical bench XIAO is currently flashed active from the May 27 validation session.
 
 ### Secretary API
 
@@ -198,7 +202,7 @@ Before the car arrives:
 
 1. Keep the current bench wiring intact; passive RX and active Model X TX are proven on the isolated bench.
 2. Before future active tests, confirm XIAO D2 -> LV2 -> HV2 -> module TX using `txd:low`; the May 27 fault was a disconnected D2 -> LV2 jumper.
-3. Use XIAO `stats` + `ring` after `model:x` / `antinag:start` to verify active frames. APG passive monitor still logged zero rows for XIAO-generated frames and needs tooling follow-up.
+3. Use `tools\active-bench-proof.ps1` to verify active frames. APG passive monitor still logged zero rows for XIAO-generated frames and needs tooling follow-up.
 4. If WiFi telemetry is needed, set real WiFi/hotspot credentials in `src/secrets.h`, rebuild, and flash.
 5. If WiFi remains unavailable, use `tools/serial-to-lin-events.ps1`; USB telemetry is proven.
 6. Run the quick no-car suite before packing: `tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`.

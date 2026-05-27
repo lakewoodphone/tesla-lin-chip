@@ -67,18 +67,22 @@ APG passive monitor still logged zero rows for XIAO-generated frames in this ses
 
 1. Wire TX as above. APG must be in LINBUS mode on the isolated bench.
 2. Uncomment `#define ACTIVE_MODE`, build, and flash. The repository default keeps active mode commented out.
-3. Open serial: `platformio device monitor --port COM4 --baud 115200 --dtr 1 --rts 0`
-4. Run `model:x` then `antinag:start`.
-5. Dump XIAO `stats` and `ring` to verify injected frames are being received back from the LIN bus:
+3. Run the proof script:
+   ```powershell
+   powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x
+   ```
+4. Or open serial manually: `platformio device monitor --port COM4 --baud 115200 --dtr 1 --rts 0`.
+5. Run `model:x` then `antinag:start`.
+6. Dump XIAO `stats` and `ring` to verify injected frames are being received back from the LIN bus:
    ```
    stats
    ring
    ```
-6. Optional: start APG passive monitor as an independent observer. Current APG passive logging did not capture XIAO-generated frames even when XIAO self-receive parsed them correctly:
+7. Optional: start APG passive monitor as an independent observer. Current APG passive logging did not capture XIAO-generated frames even when XIAO self-receive parsed them correctly:
    ```
    cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1
    ```
-7. Verify alternating `0x0C` frames with `B0=0x11/0x0F` and neutral `B0=0x10`, with enhanced checksum/parity OK.
+8. Verify alternating `0x0C` frames with `B0=0x11/0x0F` and neutral `B0=0x10`, with enhanced checksum/parity OK.
 
 ## TX Path Debug Checklist
 

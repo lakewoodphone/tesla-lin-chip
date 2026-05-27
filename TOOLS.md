@@ -1,134 +1,127 @@
 # xiao-lin-bench Tools Reference
 
-_Updated: May 27, 2026 — Firmware v5, passive tools ready for Model 3/Y/X, active bench TX verified for Model X_
+Updated: 2026-05-27. Firmware v5 is current. Passive tools are ready for Model X/3/Y. Active Model X bench TX is verified on the isolated bench.
 
 ## Tool Inventory
 
 | Tool | Purpose | Vehicle-safe? | Notes |
 |---|---|---|---|
-| `car-day-launcher.ps1` | Unified car-day entry point | PASSIVE only | Launches APG monitor + XIAO + summary |
-| `monitor-apg-lin-bus.ps1` | APG passive LIN capture | ✅ Yes (receive only) | Requires 32-bit PowerShell |
-| `send-netanalyser-headless.ps1` | APG headless transmit | ❌ No — bench only | Proven at 19200 baud |
-| `validate-xiao-bench.ps1` | Bench validation matrix | ❌ No — bench only | Transmits 5 test frames |
-| `bench-evidence-suite.ps1` | Full no-car APG/XIAO evidence matrix | ❌ No — bench only | Baseline, candidates, checksums, raw ID sweep, anti-nag, API post |
-| `antinag-replay.ps1` | Anti-nag scroll replay | ❌ No — bench only | Alternating UP/DOWN with correct checksums |
-| `serial-to-lin-events.ps1` | XIAO USB serial -> secretary API | ✅ Passive if capture source is passive | WiFi fallback telemetry bridge |
-| `send-apg-lin-frame.ps1` | Direct PICkitS transmit | ❌ No — debug only | Baud unreliable at 19200 |
-| `summarize-lin-capture.ps1` | Basic CSV summary | ✅ Post-capture | Per-ID counts |
-| `analyze-lin-capture.py` | Full analysis + ID ref | ✅ Post-capture | Tesla ID reference tables, checksum verify |
-| `lin-payload-calc.py` | PAYLOAD generator/verify | ✅ Reference | anti-nag/idle/verify/checksum/scan commands |
+| `tools/monitor-apg-lin-bus.ps1` | APG passive LIN capture | Yes | Receive-only; use 32-bit PowerShell |
+| `tools/car-day-launcher.ps1` | Passive car-day APG/XIAO launcher | Yes, passive-only | Starts capture/monitor/summary flow |
+| `tools/validate-xiao-bench.ps1` | APG transmit -> XIAO receive validation | No | Bench only |
+| `tools/bench-evidence-suite.ps1` | Full no-car APG/XIAO evidence matrix | No | Bench only; baseline, candidates, checksums, ID sweep |
+| `tools/active-bench-proof.ps1` | XIAO active TX self-receive proof | No | Bench only; saves log and Markdown summary |
+| `tools/send-netanalyser-headless.ps1` | APG headless LIN transmit | No | Bench only; preferred APG send path |
+| `tools/antinag-replay.ps1` | APG-generated anti-nag sequence | No | Bench only |
+| `tools/serial-to-lin-events.ps1` | XIAO USB serial -> secretary API | Passive if source is passive | WiFi fallback telemetry bridge |
+| `tools/summarize-lin-capture.ps1` | Summarize APG CSV logs | Yes | Post-capture only |
+| `tools/analyze-lin-capture.py` | Full capture analysis and Tesla ID reference | Yes | Post-capture only |
+| `tools/lin-payload-calc.py` | Payload/checksum calculator | Reference only | Generates/validates frame payloads |
+| `tools/send-apg-lin-frame.ps1` | Direct PICkitS transmit | No | Debug only; baud reporting is unreliable |
 
-## Traffic Light — Which Tool Is For What
+## Traffic Light
 
-```
-CAR DAY (vehicle bus):
-    monitor-apg-lin-bus.ps1         ✅ PASSIVE CAPTURE ONLY
-    car-day-launcher.ps1            ✅ Automates APG + XIAO passive
-    XIAO firmware (via USB serial)  ✅ PASSIVE RECEIVE ONLY
-    → admin must NOT send TX frames
+Vehicle bus:
 
-BENCH (isolated bench only):
-    send-netanalyser-headless.ps1   ✅ Send specific frames
-    validate-xiao-bench.ps1         ✅ Full validation matrix
-    bench-evidence-suite.ps1        ✅ Full no-car evidence matrix
-    antinag-replay.ps1              ✅ Anti-nag scroll sequence
-    send-apg-lin-frame.ps1          ✅ Debug only
+```text
+USE:
+  monitor-apg-lin-bus.ps1
+  car-day-launcher.ps1 in passive mode
+  XIAO passive firmware/serial monitor
 
-POST-CAPTURE (anywhere):
-    serial-to-lin-events.ps1         ✅ USB fallback to secretary API
-    summarize-lin-capture.ps1       ✅ Quick per-ID counts
-    analyze-lin-capture.py           ✅ Full analysis + reference
-    lin-payload-calc.py              ✅ Checksum verification + generation
+DO NOT USE:
+  validate-xiao-bench.ps1
+  bench-evidence-suite.ps1
+  active-bench-proof.ps1
+  send-netanalyser-headless.ps1
+  antinag-replay.ps1
+  ACTIVE_MODE transmit commands
 ```
 
-## Fast Command Reference
+Isolated bench:
 
-### Car day
+```text
+USE:
+  validate-xiao-bench.ps1
+  bench-evidence-suite.ps1
+  send-netanalyser-headless.ps1
+  antinag-replay.ps1
+  active firmware commands after enabling ACTIVE_MODE
+```
+
+## Common Commands
+
+APG passive capture at 19200:
+
 ```powershell
-cd C:\Users\ezabz\Code\xiao-lin-bench
-
-# Full session (APG + XIAO + summary)
-.\tools\car-day-launcher.ps1 -VehicleId tesla-model-3 -DurationSeconds 180 -Baud 19200
-
-# APG only (high volume)
-cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1 -Baud 19200
-
-# XIAO only (real-time decode)
-C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe device monitor --port COM4 --baud 115200 --dtr 1 --rts 0
+cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1 -Baud 19200 -DurationSeconds 120
 ```
 
-### XIAO serial commands (type into monitor)
-```
-vehicle:tesla-model-3       Set vehicle ID at runtime
-baud:19200                  Switch LIN baud (no reflash)
-raw:1                       Enable raw byte debug
-ring                        Dump last 128 frames
-stats                       Print cumulative statistics
-```
+APG headless send, bench only:
 
-### Post-capture
 ```powershell
-# Quick summary
-.\tools\summarize-lin-capture.ps1
-
-# Full analysis with Tesla reference
-python tools\analyze-lin-capture.py --latest logs\
-python tools\analyze-lin-capture.py logs\lin-capture-20260526_140000.csv
-
-# Verify a captured frame
-python tools\lin-payload-calc.py verify 0C 11 04 00 00 00 00 C0 0F CE
-python tools\lin-payload-calc.py checksum 0C 10 00 00 00 00 00 C0 0F
+cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\send-netanalyser-headless.ps1 -Baud 19200 -Frame "0C 12 34" -Checksum Enhanced
 ```
 
-### Bench validation
-```powershell
-# Full validation (transmits — bench only)
-.\tools\validate-xiao-bench.ps1 -KillExistingMonitor
+Passive bench validation:
 
-# Full no-car evidence suite (transmits — bench only)
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate-xiao-bench.ps1 -ComPort COM4 -Baud 19200 -BootWaitSeconds 4 -PerFrameTimeoutMs 2500
+```
+
+Full no-car evidence:
+
+```powershell
 .\tools\bench-evidence-suite.ps1 -VehicleId tesla-bench-full -ComPort COM4 -Baud 19200
-
-# Quick no-car smoke before packing
-.\tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar -ComPort COM4 -Baud 19200
-
-# USB serial telemetry fallback when XIAO WiFi is unavailable
-.\tools\serial-to-lin-events.ps1 -ComPort COM4 -VehicleId tesla-bench-usb -ApiBase http://localhost:8002
-
-# Manual anti-nag replay (bench only)
-cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\antinag-replay.ps1 -Id 0x0C -Repeat 8
-
-# Generate anti-nag reference table
-python tools\lin-payload-calc.py antinag --id 0x0C --cycles 8
 ```
 
-### Secretary API
+Active Model X bench proof:
+
 ```powershell
-# Query recent LIN events
-curl http://localhost:8002/api/v1/lin-events -s | python -m json.tool
-
-# Query aggregated stats
-curl "http://localhost:8002/api/v1/lin-stats?limit=5000" -s | python -m json.tool
-
-# Filter by vehicle
-curl "http://localhost:8002/api/v1/lin-events?vehicle=tesla-model-3" -s | python -m json.tool
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x
 ```
 
-## Known Issues
+USB serial telemetry fallback:
 
-1. **APG baud reset**: `Network_Load` resets hardware baud to 9600. The `send-netanalyser-headless.ps1` calls `Change_LIN_BAUD_Rate` twice to work around this.
-2. **PICkitS.dll is x86**: All APG tools require 32-bit PowerShell (`SysWOW64`). The scripts auto-relaunch.
-3. **`send-apg-lin-frame.ps1` baud unreliable**: At 19200 this tool reports `Get_LIN_BAUD_Rate: 10000` even after setting to 19200. Use the NetworkAnalyser-based tools instead.
-4. **XIAO COM port changes**: The XIAO may shift COM ports between connections. Run `[System.IO.Ports.SerialPort]::GetPortNames()` to find it.
-5. **USB CDC requires --dtr 1**: Without `--dtr 1` flag, PlatformIO monitor shows no USB CDC output on Windows.
-6. **XIAO WiFi can be skipped on the bench**: Use `serial-to-lin-events.ps1` to post decoded USB serial frames to secretary.
-7. **Active TX wiring**: For bench-only active injection, connect XIAO D2/GPIO4 to TJA1021 TX through the level shifter. See `ACTIVE_INJECTOR.md`.
+```powershell
+.\tools\serial-to-lin-events.ps1 -ComPort COM4 -VehicleId tesla-bench-usb -ApiBase http://localhost:8002
+```
 
-## Active TX Quick Reference
+Post-capture analysis:
 
-| XIAO | Level shifter | TJA1021 | Purpose |
-|---|---|---|---|
-| D3 / GPIO5 | LV/B1 <- HV/A1 | RX | Receive (passive) |
-| D2 / GPIO4 | LV/B2 -> HV/A2 | TX | Transmit (active, bench only) |
-| 5V | HV power | SLP | Keep TJA1021 awake |
+```powershell
+python tools\analyze-lin-capture.py --latest logs\
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\summarize-lin-capture.ps1
+```
 
-Serial commands (ACTIVE_MODE): `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `tx:`.
+## Active Bench Commands
+
+These exist only when firmware is built with `#define ACTIVE_MODE` enabled.
+
+```text
+model             Show current active profile
+model:x           Model X, ID 0x0C, confirmed
+model:3           Model 3 candidate, ID 0x1A, unconfirmed
+model:y           Model Y candidate, ID 0x1A, unconfirmed
+antinag:start     Start alternating active frames
+antinag:stop      Stop active frames
+antinag:single    Send one active frame
+tx:id,b0,...      Send a custom frame
+txd:low           Hold XIAO D2/TXD low for wiring diagnostics
+txd:high          Hold XIAO D2/TXD high for wiring diagnostics
+txd:uart          Return D2/TXD to UART mode
+```
+
+Active bench proof command flow is automated by `tools/active-bench-proof.ps1`.
+
+## APG Notes
+
+- `PICkitS.dll` is x86. Use `SysWOW64\WindowsPowerShell\v1.0\powershell.exe` for APG scripts that load it.
+- NetworkAnalyser frame strings use raw LIN IDs, not protected PIDs. Send `0C 12 34`, not `4C 12 34`.
+- `Network_Load` initializes hardware at 9600; the working sender calls `Change_LIN_BAUD_Rate` after load.
+- `send-apg-lin-frame.ps1` is kept for API discovery/debug only. Use NetworkAnalyser-based tools for real validation.
+
+## Known Tooling Gaps
+
+- APG passive monitor logged zero rows for XIAO-generated active frames during the May 27 active test, even while XIAO self-receive parsed valid `0x0C` frames. Follow-up: inspect NetworkAnalyser passive/display-all behavior for externally generated frames.
+- XIAO WiFi was unavailable on the bench (`NO_AP_FOUND`). USB serial telemetry is the reliable fallback.

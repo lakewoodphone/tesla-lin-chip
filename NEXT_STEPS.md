@@ -1,294 +1,97 @@
 # Next Steps - xiao-lin-bench
 
-_Updated: May 27, 2026._ **Firmware v5 is live on the bench XIAO.** Bench works at 19200 baud. The system now supports Tesla Model 3, Y, and X with runtime reconfiguration and optional active TX behind `ACTIVE_MODE`. Full no-car evidence passed: 80/80 exact matches across raw IDs `0x00`-`0x3F`. Active Model X bench TX is verified by XIAO self-receive/ring frames with checksum/parity OK.
+Updated: 2026-05-27.
 
-For the full current handoff, read `START_HERE.md` first.
+Current state: passive bench receive is proven, full no-car evidence passed, and active Model X bench TX is proven by XIAO self-receive/ring evidence. The repository source defaults to passive mode (`ACTIVE_MODE` commented out); the physical bench XIAO is flashed with the working active firmware.
 
----
+For the complete handoff, read `START_HERE.md` first.
 
-## What Changed in v4
+## Done
 
-| Feature | v3 | v4 |
-|---|---|---|
-| Baud switching | Compile-time only | Runtime via serial command `baud:19200` |
-| Vehicle ID | Compile-time only | Runtime via serial command `vehicle:tesla-model-3` |
-| Raw byte log | Compile flag `DEBUG_RAW_BYTES` | Runtime toggle `raw:1` / `raw:0` |
-| Frame history | None | Ring buffer (128 frames), dump via `ring` |
-| Auto-baud probe | None | Scan 19200/9600/10400 on startup |
-| Serial commands | None | `vehicle:` `baud:` `raw:` `ring` `stats` |
-| Telemetry queue | 16 frames | 64 frames (less drop at high frame rates) |
-| Heartbeat | Basic counts | +baud, short, syncErr counters |
-| Python analyzer | None | `tools/analyze-lin-capture.py` with Tesla ID ref |
-| Car-day launcher | Manual multi-step | `tools/car-day-launcher.ps1` one-shot |
-| USB telemetry bridge | None | `tools/serial-to-lin-events.ps1` posts decoded serial frames |
-| Bench evidence suite | Manual notes | `tools/bench-evidence-suite.ps1` writes CSV/JSON/Markdown evidence |
+- Passive APG -> TJA1021 -> XIAO receive path validated at 19200 baud.
+- Full no-car evidence suite passed 80/80 exact matches across raw IDs `0x00` through `0x3F`.
+- USB serial -> secretary API fallback proved while XIAO WiFi was unavailable.
+- Model X `0x0C` profile confirmed from real capture and bench replay.
+- Active Model X bench TX validated on 2026-05-27:
+  - fixed disconnected XIAO D2 -> level shifter LV2 jumper
+  - switched TX break generation to half-baud UART `0x00`
+  - `model:x` + `antinag:start` produced more than 100 self-received `0x0C` frames
+  - enhanced checksums and parity were OK
+- Active docs and diagnostics added: `ACTIVE_INJECTOR.md`, `txd:low`, `txd:high`, `txd:uart`.
 
----
+## Next Work
 
-## Current Status
+1. Keep root docs current and use `docs/archive/` for historical handoffs.
+2. Improve APG passive monitor behavior for XIAO-generated active frames; it still logs zero rows even while XIAO self-receive parses valid bus frames.
+3. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
+4. Before any vehicle session, run passive quick evidence and pack the bench kit.
+5. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
 
-- **Firmware v5** builds and runs: boundary-based LIN parser, ring buffer, runtime commands, optional active TX.
-- Passive RX hardware wired and verified: APGDT001 -> TJA1021 -> level shifter -> XIAO D3/GPIO5.
-- Active Model X TX hardware wired and verified on bench: XIAO D2/GPIO4 -> level shifter LV2/HV2 -> TJA1021 TX.
-- APG headless send works at 19200 baud (with the `Change_LIN_BAUD_Rate` ×2 fix).
-- APG passive monitor ready: `tools/monitor-apg-lin-bus.ps1`.
-- Bench validation passing: `tools/validate-xiao-bench.ps1`.
-- Full no-car evidence passing: `tools/bench-evidence-suite.ps1` reported 80/80 exact matches, 64 unique raw IDs, and 0 bad checksum/parity frames.
-- USB serial fallback telemetry is proven: evidence frames posted to `POST /api/v1/lin-events` without XIAO WiFi.
-- Active bench TX evidence: `model:x` + `antinag:start` produced >100 self-received `0x0C` frames with enhanced checksum/parity OK; APG passive monitor still needs follow-up for XIAO-generated frames.
-- Python capture analyzer with Tesla reference tables: `tools/analyze-lin-capture.py`.
-- Unified car-day launcher: `tools/car-day-launcher.ps1`.
-- Secretary API: `POST /api/v1/lin-events` and `GET /api/v1/lin-events`.
+## Quick Validation Commands
 
-The system is **vehicle-agnostic**. It does not assume Model X, 3, and Y share IDs.
-It captures whatever the bus emits and leaves signal naming for the decode phase.
-
----
-
-## Tesla Model Reference IDs
-
-| ID | Model X (confirmed) | Model 3/Y (candidate) | Notes |
-|---|---|---|---|
-| `0x0C` | ✅ Scroll/control (B0=position, B1=engage) | ❓ Unknown (check `0x1A`/`0x1B`) | HIGH priority |
-| `0x0D` | ✅ Passive mirror | ❓ Unknown | LOW priority |
-| `0x0E`/`0x0F` | ✅ Alive toggle | ❓ Unknown | LOW priority |
-| `0x16`/`0x17` | ✅ Config/version | ❓ Unknown | INFO priority |
-| `0x1A`/`0x1B` | ❓ Not seen | 🔍 CANDIDATE steering | INVESTIGATE |
-| `0x3C` | ✅ Diagnostic | ✅ Diagnostic | INFO (all models) |
-
-**Model 3/Y steering ID is NOT YET KNOWN.** The first car-day capture will discover it.
-Use `tools/analyze-lin-capture.py` after capture to compare against reference tables.
-
----
-
-## Before Car Day Checklist
-
-- [x] Run full no-car evidence: `tools\bench-evidence-suite.ps1` (80/80 exact matches)
-- [x] Verify active Model X bench TX with XIAO ring/self-receive (`0x0C`, checksum/parity OK)
-- [x] Confirm USB fallback telemetry posts to secretary (`tesla-bench-full-20260526`, 80 frames)
-- [ ] Configure WiFi in `src/secrets.h` if wireless telemetry is needed (shop network or phone hotspot)
-- [ ] Build firmware after any WiFi config change: `C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe run`
-- [ ] Flash with esptool `--no-stub` command after any firmware/config change (see README)
-- [ ] Run quick no-car evidence before packing: `powershell -NoProfile -ExecutionPolicy Bypass -File tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`
-- [ ] Confirm `GET /api/v1/lin-events` returns posted XIAO telemetry for the current vehicle label
-- [x] Confirm `tools\analyze-lin-capture.py` compiles; use it after APG car capture CSV exists
-- [ ] Pack: APGDT001, XIAO bench, 12V supply/battery clip, GND jumper, back-probes, laptop USB cables, printed wiring note
-
----
-
-## Bench Validation
-
-Run before any vehicle connection:
+Build current default firmware:
 
 ```powershell
 cd C:\Users\ezabz\Code\xiao-lin-bench
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate-xiao-bench.ps1 -KillExistingMonitor
+python -m platformio run
 ```
 
-Expected: `RESULT PASS - all bench frames decoded as expected`
-
-Tests: ID=0x0C (2B enhanced), 0x10 (2B enhanced), 0x22 (4B enhanced), 0x3C (8B enhanced + 8B classic).
-
-## Full No-Car Evidence
-
-Run after wiring, parser, APG sender, or telemetry changes:
+Passive bench validation:
 
 ```powershell
-cd C:\Users\ezabz\Code\xiao-lin-bench
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate-xiao-bench.ps1 -ComPort COM4 -Baud 19200 -BootWaitSeconds 4 -PerFrameTimeoutMs 2500
+```
+
+Full no-car evidence:
+
+```powershell
 .\tools\bench-evidence-suite.ps1 -VehicleId tesla-bench-full -ComPort COM4 -Baud 19200
 ```
 
-Latest full run: `tesla-bench-full-20260526`, 80/80 exact matches, 64 unique raw IDs, 0 APG failures, 0 bad checksum/parity frames.
-
-Quick pre-car smoke:
+Active Model X bench proof, after enabling `ACTIVE_MODE` and flashing:
 
 ```powershell
-.\tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar -ComPort COM4 -Baud 19200
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x
 ```
 
-If XIAO WiFi is unavailable, use USB serial telemetry instead of blocking:
+Expected proof: `stats` shows frames increasing with `badChk=0 badPid=0`; `ring` shows `ID=0x0C PID=0x4C [8B]` frames with enhanced checksum and parity OK.
 
-```powershell
-.\tools\serial-to-lin-events.ps1 -ComPort COM4 -VehicleId tesla-bench-usb -ApiBase http://localhost:8002
-```
+## Car Day Passive Flow
 
----
-
-## Car Day — Quick Start
-
-**Preflight:** Connect hardware. Verify LIN wire identification (white = LIN for Model X SW, verify on 3/Y).
+Do not transmit on the vehicle bus.
 
 ```powershell
 cd C:\Users\ezabz\Code\xiao-lin-bench
-
-# Option A: Unified launcher (APG + XIAO + summary)
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\car-day-launcher.ps1 -VehicleId tesla-model-3-test -DurationSeconds 180
-
-# Option B: APG-only (high-volume capture)
 cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1 -Baud 19200 -DurationSeconds 120
+```
 
-# Option C: APG 9600 fallback (if no traffic at 19200)
+Fallback only if 19200 shows no traffic:
+
+```powershell
 cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1 -Baud 9600 -DurationSeconds 120
 ```
 
----
-
-## Car Day — XIAO Setup (after APG started)
+Analyze after capture:
 
 ```powershell
-# Monitor XIAO serial
-C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe device monitor --port COM4 --baud 115200 --dtr 1 --rts 0
-
-# Set runtime vehicle ID (send this in the serial terminal):
-vehicle:tesla-model-3
-
-# Switch baud if needed:
-baud:19200
-baud:9600
-
-# Check stats:
-stats
-
-# Dump recent frames:
-ring
-
-# Enable raw byte debug (only if debugging parser):
-raw:1
-raw:0
-```
-
-Query secretary telemetry:
-
-```powershell
-curl http://localhost:8002/api/v1/lin-events -s | python -m json.tool
-```
-
----
-
-## Post-Capture Analysis
-
-### Quick summary (existing):
-```powershell
+python tools\analyze-lin-capture.py --latest logs\
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\summarize-lin-capture.ps1
 ```
 
-### Python analyzer (recommended — includes Tesla reference + anti-nag payloads):
-```powershell
-# Analyze latest capture
-python tools\analyze-lin-capture.py --latest logs\
+## Model 3/Y Discovery
 
-# Analyze specific capture
-python tools\analyze-lin-capture.py logs\lin-capture-20260526_140000.csv
+Model 3/Y steering IDs are not confirmed. Candidate IDs are `0x1A` and `0x1B`, but the workflow is passive capture first:
 
-# Export JSON summary
-python tools\analyze-lin-capture.py --latest logs\ --json logs\capture-summary.json
-```
-
-The analyzer:
-- Groups frames by ID with rate, count, unique payloads
-- Labels known IDs from Tesla Model X reference
-- Flags unknown IDs (breakers for 3/Y)
-- Prints anti-nag injection reference table (bench only)
-- Reports checksum failures
-- Auto-detects likely model from ID presence
-
----
-
-## Model 3/Y Discovery Workflow
-
-Since Model 3/Y steering IDs are not yet known:
-
-1. **APG passive capture** at 19200 baud while operating controls
-2. **Run analyzer** — it flags unknown IDs automatically
-3. **Identify steering ID**: look for an ID that shows payload variation when you:
-   - Scroll up/down (left wheel = volume)
-   - Press scroll wheel
-   - Press buttons (if equipped)
-4. **Check against community reports**: IDs `0x1A` and `0x1B` are candidates
-5. **Record findings**: update `tools/analyze-lin-capture.py` ID_REFERENCE with confirmed payloads
-
-### Control test matrix (for any model):
-| Test | Action duration | What to watch |
-|---|---|---|
-| Idle baseline | 30s | All IDs, no inputs |
-| Scroll UP | 10s continuous | ID with B0 > neutral |
-| Scroll DOWN | 10s continuous | ID with B0 < neutral |
-| Scroll click | 5 presses | ID with B1=0x04 |
-| Mixed scroll | 30s random | ID with B2/B3 non-zero |
-
----
+1. Capture idle baseline.
+2. Operate scroll up/down, wheel click, and relevant steering controls.
+3. Run `tools/analyze-lin-capture.py`.
+4. Identify IDs whose payload changes only during the control action.
+5. Update `MODEL_PROFILES[]` only after confirmation.
 
 ## Hard Stops
 
-- No active transmit/injection on a vehicle bus until passive capture is decoded and reviewed.
-- Do not run `validate-xiao-bench.ps1` on a vehicle — it transmits frames.
+- No active transmit/injection on a vehicle bus.
+- Do not run bench transmit tools on a vehicle.
 - Do not power from uncertain vehicle wires without common ground verified.
 - Do not pierce harness insulation unless connector-safe probing is impossible and risk is accepted.
-- Do not assume Model 3/Y IDs match Model X. Capture first, then label.
-- Do not use anti-nag injection reference on a customer vehicle.
-
-## Car Day Step 2 - XIAO Passive Capture
-
-The XIAO firmware passively reads the same LIN physical layer through the TJA1021 module. It prints every decoded frame to USB serial and queues WiFi telemetry to secretary.
-
-Important details:
-
-- Parser finalizes frames by actual break/idle boundary, not only by predicted length.
-- `pred=<n>` in serial output is only the old ID-class length hint. The actual `[nB]` is what was observed.
-- Both enhanced and classic checksums are accepted and labeled.
-- Protected-ID parity is reported as `parity=OK` or `parity=BAD`.
-- HTTP posting is rate-limited and queued, so UART parsing stays real-time.
-
-Monitor XIAO:
-
-```powershell
-C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe device monitor --port COM4 --baud 115200 --dtr 1 --rts 0
-```
-
-Query secretary telemetry:
-
-```powershell
-curl http://localhost:8002/api/v1/lin-events -s | python -m json.tool
-```
-
----
-
-## Decode Phase
-
-After a capture session, group by vehicle and ID:
-
-- Model X known steering/body candidates from earlier work: `0x0C`, `0x0D`, `0x0E`, `0x0F`, `0x16`, `0x17`.
-- Model 3/Y IDs are not assumed. Capture first, then label.
-- Compare payload changes while toggling locks, windows, seat belt, HVAC, and steering wheel controls.
-
-Use the APG CSV as the authoritative high-volume capture. Use XIAO secretary telemetry as a second path and integration proof.
-
----
-
-## Hard Stops
-
-- No active transmit/injection on a vehicle bus until passive capture is decoded and reviewed.
-- Do not run `validate-xiao-bench.ps1` on a vehicle. It transmits frames.
-- Do not power the APG/XIAO setup from uncertain vehicle wires without common ground verified.
-- Do not pierce harness insulation unless connector-safe probing is impossible and the risk is accepted.
-
----
-
-## Quick Commands
-
-```powershell
-# Build firmware
-C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe run
-
-# Flash firmware
-C:\Users\ezabz\.platformio\penv\Scripts\python.exe -m esptool --chip esp32c3 --port COM4 --baud 115200 --before default_reset --after hard_reset --no-stub write_flash -z --flash_mode dio --flash_freq 80m --flash_size 4MB 0x0 .pio\build\xiao_esp32c3\bootloader.bin 0x8000 .pio\build\xiao_esp32c3\partitions.bin 0x10000 .pio\build\xiao_esp32c3\firmware.bin
-
-# Monitor XIAO
-C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe device monitor --port COM4 --baud 115200 --dtr 1 --rts 0
-
-# Bench validation, transmit mode, not for vehicle
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate-xiao-bench.ps1 -KillExistingMonitor
-
-# Car day passive APG monitor
-cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1
-```
+- Do not use active anti-nag references on a customer vehicle.
