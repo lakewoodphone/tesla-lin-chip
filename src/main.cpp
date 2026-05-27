@@ -34,6 +34,8 @@ HardwareSerial LIN(1);
 #ifdef ACTIVE_MODE
 #define TX_ANTINAG_PERIOD_MS    300
 #define TX_NEUTRAL_PERIOD_MS    1000
+#define TX_ALIVE_PERIOD_MS      500
+#define TX_BUS_IDLE_MIN_MS      2
 
 // Model profiles for active anti-nag TX.
 // Each profile maps a model name to the known steering/control LIN ID.
@@ -77,6 +79,7 @@ static void restartLinUart(uint16_t baud);
 static void txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen);
 static void serviceAntiNag();
 static void serviceNeutralTx();
+static void serviceAliveTx();
 #endif
 
 enum State { S_IDLE, S_SYNC, S_PID, S_BYTES };
@@ -104,10 +107,13 @@ bool autoBaudScanDone = false;
 #ifdef ACTIVE_MODE
 bool activeTxEnabled = false;
 bool antiNagActive = false;
+bool mirrorActive = false;
 int antiNagCtr = 0;
 int antiNagDirection = 1;
 uint32_t lastAntiNagMs = 0;
 uint32_t lastNeutralMs = 0;
+uint32_t lastAliveMs = 0;
+int aliveCtr = 0;
 uint32_t txFrameCount = 0;
 uint8_t txPayload[8] = {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x00};
 #endif
@@ -290,11 +296,16 @@ static void serviceAntiNag() {
   if (!antiNagActive) return;
   uint32_t now = millis();
   if (now - lastAntiNagMs < TX_ANTINAG_PERIOD_MS) return;
+  if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) return;
   lastAntiNagMs = now;
 
   int ctr = antiNagCtr % 16;
   int b0 = (antiNagDirection == 1) ? 0x11 : 0x0F;
-  uint8_t data[8] = {(uint8_t)b0, 0x04, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
+  // Realistic payload: simulated velocity (B2) and accumulated scroll (B3).
+  // Real captures show B2 in 0x08..0x48 range and B3 tracking about 2×B2.
+  uint8_t velocity = (uint8_t)(0x08 + ((antiNagCtr % 5) * 0x04));
+  uint8_t accumulated = (uint8_t)(antiNagCtr * 2);
+  uint8_t data[8] = {(uint8_t)b0, 0x04, velocity, accumulated, 0x00, 0x00, 0xC0, (uint8_t)ctr};
   txSendFrame(activeProfile->controlId, data, 8);
 
   antiNagDirection = -antiNagDirection;
@@ -305,6 +316,7 @@ static void serviceNeutralTx() {
   if (!antiNagActive) return;
   uint32_t now = millis();
   if (now - lastNeutralMs < TX_NEUTRAL_PERIOD_MS) return;
+  if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) return;
   lastNeutralMs = now;
 
   int ctr = antiNagCtr % 16;
@@ -312,6 +324,19 @@ static void serviceNeutralTx() {
   txSendFrame(activeProfile->controlId, data, 8);
 
   antiNagCtr++;
+}
+
+static void serviceAliveTx() {
+  if (!antiNagActive) return;
+  uint32_t now = millis();
+  if (now - lastAliveMs < TX_ALIVE_PERIOD_MS) return;
+  if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) return;
+  lastAliveMs = now;
+
+  int ctr = aliveCtr % 16;
+  uint8_t mirrorData[8] = {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
+  txSendFrame(0x0D, mirrorData, 8);
+  aliveCtr++;
 }
 #endif
 
@@ -421,6 +446,24 @@ static void processCommand() {
     Serial.printf("cmd: antinag single model=%s dir=%s ctr=%d\n", modelName, antiNagDirection == 1 ? "UP" : "DOWN", ctr);
     antiNagDirection = -antiNagDirection;
     antiNagCtr++;
+    return;
+  }
+  if (strcmp(cmdBuf, "mirror:on") == 0) {
+#ifdef ACTIVE_MODE
+    mirrorActive = true;
+    Serial.println("cmd: mirror frames enabled");
+#else
+    Serial.println("cmd: mirror requires ACTIVE_MODE");
+#endif
+    return;
+  }
+  if (strcmp(cmdBuf, "mirror:off") == 0) {
+#ifdef ACTIVE_MODE
+    mirrorActive = false;
+    Serial.println("cmd: mirror frames disabled");
+#else
+    Serial.println("cmd: mirror requires ACTIVE_MODE");
+#endif
     return;
   }
   if (strcmp(cmdBuf, "txd:low") == 0) {
@@ -825,6 +868,7 @@ void loop() {
 #ifdef ACTIVE_MODE
   serviceAntiNag();
   serviceNeutralTx();
+  if (mirrorActive) serviceAliveTx();
 #endif
 
 #ifndef NO_WIFI

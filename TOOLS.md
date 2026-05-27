@@ -129,6 +129,8 @@ model:y           Model Y candidate, ID 0x1A, unconfirmed
 antinag:start     Start alternating active frames
 antinag:stop      Stop active frames
 antinag:single    Send one active frame
+mirror:on         Enable periodic 0x0D mirror/alive frames
+mirror:off        Disable mirror frames
 tx:id,b0,...      Send a custom frame
 txd:low           Hold XIAO D2/TXD low for wiring diagnostics
 txd:high          Hold XIAO D2/TXD high for wiring diagnostics

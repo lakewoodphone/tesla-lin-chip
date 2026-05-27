@@ -9,6 +9,7 @@ Start with `START_HERE.md` when resuming. It is the current handoff and points t
 - Passive LIN receive is bench-verified at 19200 baud.
 - Full no-car evidence passed on 2026-05-26: 80/80 exact APG -> XIAO matches across raw IDs `0x00` through `0x3F`, with 0 checksum/parity failures.
 - Active Model X bench TX is verified on the isolated bench. `model:x` + `antinag:start` produced more than 100 self-received `0x0C` frames with enhanced checksum and parity OK.
+- Active improvements applied: bus-idle collision guard (2 ms silence before TX), realistic scroll payloads (non-zero B2/B3), and mirror/alive frame injection (`0x0D` at 500 ms via `mirror:on`).
 - Repository source defaults to passive/safe mode: `ACTIVE_MODE` is commented out in `src/main.cpp`.
 - The physical bench XIAO is currently flashed with the working active firmware from 2026-05-27.
 - APG known-ID raw fallback now captures XIAO-generated active Model X frames. NetworkAnalyser event/display modes still log zero rows for those external frames, but `monitor-apg-lin-bus.ps1 -RawFallback -RawFallbackId 0x0C` polls the PICkitS USART buffer directly and writes checksum-valid CSV rows.
@@ -76,9 +77,12 @@ Core passive features:
 Active mode (`#define ACTIVE_MODE`, bench only):
 
 - Model profiles: `model:x` (`0x0C` confirmed), `model:3` (`0x1A` candidate), `model:y` (`0x1A` candidate), `model:auto`.
-- Active commands: `model`, `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `tx:`.
+- Active commands: `model`, `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `mirror:on`, `mirror:off`, `tx:`.
 - Diagnostics: `txd:low`, `txd:high`, `txd:uart`.
 - Working break method: half-baud UART `0x00` break, then return to normal LIN baud.
+- Bus-idle collision guard: frames wait 2 ms of bus silence before transmitting, avoiding collisions on a live bus.
+- Realistic scroll payloads: anti-nag frames simulate changing velocity (B2) and accumulated scroll (B3) rather than constant zeros.
+- Mirror frame injection: `mirror:on` sends periodic `0x0D` alive/mirror frames every 500 ms alongside `0x0C` control traffic.
 
 ## Build And Flash
 

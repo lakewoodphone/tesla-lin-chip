@@ -62,9 +62,14 @@ tools/analyze-lin-capture.py              Python analyzer with Tesla ID referenc
 | Telemetry queue | 64 frames (was 16) — less drop at high rates |
 | Heartbeat | +baud, short frames, sync error counters |
 | LED indicator | GPIO status on LIN activity |
-| Active TX mode | Optional `ACTIVE_MODE`: half-baud break, model profiles, anti-nag scheduler, TXD diagnostics |
+| Active TX mode | Optional `ACTIVE_MODE`: half-baud break, model profiles, anti-nag scheduler, bus-idle collision guard, realistic scroll payloads, mirror-frame injection, TXD diagnostics |
 
-Active mode is bench-only and source-controlled behind `#define ACTIVE_MODE`. The repository default keeps it commented out. The physical bench XIAO is currently flashed active from the May 27 validation session.
+Active mode is bench-only and source-controlled behind `#define ACTIVE_MODE`. The repository default keeps it commented out. The physical bench XIAO was flashed active from the May 27 validation session.
+
+Active improvements applied 2026-05-27:
+- Bus-idle collision guard (2 ms silence before TX).
+- Realistic scroll payloads (non-zero velocity/accumulated bytes).
+- Mirror/alive frame injection (`0x0D` at 500 ms via `mirror:on`).
 
 ### Secretary API
 

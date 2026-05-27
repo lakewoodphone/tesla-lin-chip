@@ -42,6 +42,8 @@ model:y           Model Y (ID=0x1A)
 antinag:start     Start alternating UP / NEUTRAL / DOWN injection
 antinag:stop      Stop injection
 antinag:single    Send one UP or DOWN frame, toggle direction
+mirror:on         Enable periodic 0x0D alive/mirror frames
+mirror:off        Disable mirror frames
 tx:id,b0,...      Send custom frame, e.g. tx:0C,10,00,00,00,00,00,C0,00
 txd:low           Bench diagnostic: hold XIAO D2/TXD low
 txd:high          Bench diagnostic: hold XIAO D2/TXD high
@@ -51,6 +53,11 @@ txd:uart          Return D2/TXD to UART mode after diagnostics
 ## Verified Active Bench Result
 
 2026-05-27 active Model X bench TX was validated on the isolated bench after fixing a disconnected D2 -> LV2 jumper. The working active break method is a half-baud UART `0x00` break before returning to the normal LIN baud.
+
+Improvements applied 2026-05-27 afternoon:
+- Bus-idle collision guard: frames wait for 2 ms of bus silence before transmitting.
+- Realistic scroll payloads: anti-nag frames simulate changing velocity (B2) and accumulated scroll (B3) rather than constant zeros.
+- Mirror/alive frame injection: `mirror:on` sends periodic `0x0D` mirror frames every 500 ms alongside `0x0C` control frames.
 
 Evidence from XIAO ring/self-receive while running `model:x` + `antinag:start`:
 
