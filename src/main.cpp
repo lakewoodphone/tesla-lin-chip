@@ -27,6 +27,35 @@ HardwareSerial LIN(1);
 #define FRAME_IDLE_TIMEOUT_MS   8
 #define RAW_BYTE_LOG_ENABLED    0
 #define RING_BUF_SIZE           128
+// Active TX mode: enables UART1 TX with break field, anti-nag frame scheduler.
+// Uncomment to build the active injector firmware (bench use only).
+#define ACTIVE_MODE
+
+#ifdef ACTIVE_MODE
+#define TX_ANTINAG_PERIOD_MS    300
+#define TX_NEUTRAL_PERIOD_MS    1000
+
+// Model profiles for active anti-nag TX.
+// Each profile maps a model name to the known steering/control LIN ID.
+// Add new entries for Model Y and future models as IDs are confirmed.
+struct ModelProfile {
+  const char *name;
+  uint8_t controlId;
+  uint8_t dataLen;
+  const char *notes;
+};
+
+static const ModelProfile MODEL_PROFILES[] = {
+  {"x",    0x0C, 8, "Model X steering (confirmed)"},
+  {"3",    0x1A, 8, "Model 3 candidate (unconfirmed)"},
+  {"y",    0x1A, 8, "Model Y candidate (unconfirmed, may match 3)"},
+  {"auto", 0x0C, 8, "Default: scan and discover via passive first"},
+};
+static const int NUM_MODEL_PROFILES = sizeof(MODEL_PROFILES) / sizeof(ModelProfile);
+
+static const ModelProfile *activeProfile = &MODEL_PROFILES[0];
+static char modelName[16] = "x";
+#endif
 
 #ifndef NO_WIFI
 #define TELEMETRY_QUEUE_SIZE    64
@@ -44,6 +73,11 @@ static char vehicleId[32] = VEHICLE_ID;
 // Forward declarations
 static void resetFrameBuffer();
 static void restartLinUart(uint16_t baud);
+#ifdef ACTIVE_MODE
+static void txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen);
+static void serviceAntiNag();
+static void serviceNeutralTx();
+#endif
 
 enum State { S_IDLE, S_SYNC, S_PID, S_BYTES };
 State state = S_IDLE;
@@ -66,6 +100,17 @@ volatile uint32_t edgeCount = 0;
 
 bool rawByteLog = false;
 bool autoBaudScanDone = false;
+
+#ifdef ACTIVE_MODE
+bool activeTxEnabled = false;
+bool antiNagActive = false;
+int antiNagCtr = 0;
+int antiNagDirection = 1;
+uint32_t lastAntiNagMs = 0;
+uint32_t lastNeutralMs = 0;
+uint32_t txFrameCount = 0;
+uint8_t txPayload[8] = {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x00};
+#endif
 
 // Ring buffer of recent frames
 struct RingFrame {
@@ -202,6 +247,74 @@ static void dumpRing() {
   }
 }
 
+#ifdef ACTIVE_MODE
+static void txBreakField() {
+  uint32_t bitTimeUs = 1000000 / linBaud;
+  uint32_t breakUs = bitTimeUs * 14;
+
+  LIN.flush();
+  pinMode(LIN_TX_PIN, OUTPUT);
+  digitalWrite(LIN_TX_PIN, LOW);
+  delayMicroseconds(breakUs);
+  digitalWrite(LIN_TX_PIN, HIGH);
+  delayMicroseconds(bitTimeUs);
+  LIN.begin(linBaud, SERIAL_8N1, LIN_RX_PIN, LIN_TX_PIN);
+}
+
+static void txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen) {
+  if (dataLen > 8) dataLen = 8;
+
+  txBreakField();
+  LIN.write(0x55);
+
+  uint8_t pid = makeProtectedId(rawId);
+  LIN.write(pid);
+
+  for (uint8_t i = 0; i < dataLen; i++) LIN.write(data[i]);
+
+  bool useEnhanced = (rawId < 0x3C);
+  uint8_t chk = linChecksum(pid, data, dataLen, useEnhanced);
+  LIN.write(chk);
+
+  txFrameCount++;
+
+  Serial.printf("TX #%lu ID=0x%02X PID=0x%02X [%uB] data:",
+    (unsigned long)txFrameCount, rawId, pid, dataLen);
+  for (uint8_t i = 0; i < dataLen; i++) Serial.printf(" %02X", data[i]);
+  Serial.printf(" | chk=%02X %s\n", chk, useEnhanced ? "enhanced" : "classic");
+
+  LIN.flush();
+}
+
+static void serviceAntiNag() {
+  if (!antiNagActive) return;
+  uint32_t now = millis();
+  if (now - lastAntiNagMs < TX_ANTINAG_PERIOD_MS) return;
+  lastAntiNagMs = now;
+
+  int ctr = antiNagCtr % 16;
+  int b0 = (antiNagDirection == 1) ? 0x11 : 0x0F;
+  uint8_t data[8] = {(uint8_t)b0, 0x04, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
+  txSendFrame(activeProfile->controlId, data, 8);
+
+  antiNagDirection = -antiNagDirection;
+  antiNagCtr++;
+}
+
+static void serviceNeutralTx() {
+  if (!antiNagActive) return;
+  uint32_t now = millis();
+  if (now - lastNeutralMs < TX_NEUTRAL_PERIOD_MS) return;
+  lastNeutralMs = now;
+
+  int ctr = antiNagCtr % 16;
+  uint8_t data[8] = {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
+  txSendFrame(activeProfile->controlId, data, 8);
+
+  antiNagCtr++;
+}
+#endif
+
 // ---------------------------------------------------------------------------
 // Serial command handler (runtime reconfiguration)
 // ---------------------------------------------------------------------------
@@ -264,6 +377,71 @@ static void processCommand() {
       WiFi.status() == WL_CONNECTED ? WiFi.localIP().toString().c_str() : "off");
     return;
   }
+
+#ifdef ACTIVE_MODE
+  if (strncmp(cmdBuf, "model:", 6) == 0) {
+    const char *name = cmdBuf + 6;
+    bool found = false;
+    for (int i = 0; i < NUM_MODEL_PROFILES; i++) {
+      if (strcmp(name, MODEL_PROFILES[i].name) == 0) {
+        activeProfile = &MODEL_PROFILES[i];
+        strncpy(modelName, name, sizeof(modelName) - 1);
+        Serial.printf("cmd: model=%s id=0x%02X (%s)\n", modelName, activeProfile->controlId, activeProfile->notes);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      Serial.printf("cmd: unknown model '%s'. Known: x, 3, y, auto\n", name);
+    }
+    return;
+  }
+  if (strcmp(cmdBuf, "model") == 0) {
+    Serial.printf("cmd: current model=%s id=0x%02X (%s)\n", modelName, activeProfile->controlId, activeProfile->notes);
+    Serial.printf("Known models: x, 3, y, auto\n");
+    return;
+  }
+  if (strcmp(cmdBuf, "antinag:start") == 0) {
+    antiNagActive = true;
+    antiNagCtr = 0;
+    antiNagDirection = 1;
+    Serial.printf("cmd: antinag=active model=%s id=0x%02X\n", modelName, activeProfile->controlId);
+    return;
+  }
+  if (strcmp(cmdBuf, "antinag:stop") == 0) {
+    antiNagActive = false;
+    Serial.println("cmd: antinag=stopped");
+    return;
+  }
+  if (strcmp(cmdBuf, "antinag:single") == 0) {
+    int ctr = antiNagCtr % 16;
+    int b0 = (antiNagDirection == 1) ? 0x11 : 0x0F;
+    uint8_t data[8] = {(uint8_t)b0, 0x04, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
+    txSendFrame(activeProfile->controlId, data, 8);
+    Serial.printf("cmd: antinag single model=%s dir=%s ctr=%d\n", modelName, antiNagDirection == 1 ? "UP" : "DOWN", ctr);
+    antiNagDirection = -antiNagDirection;
+    antiNagCtr++;
+    return;
+  }
+  if (strncmp(cmdBuf, "tx:", 3) == 0) {
+    char *p = cmdBuf + 3;
+    int id = atoi(p);
+    uint8_t buf[8] = {0};
+    int n = 0;
+    p = strchr(p, ',');
+    while (p && n < 8) {
+      p++;
+      if (*p == ',') break;
+      buf[n++] = (uint8_t)atoi(p);
+      p = strchr(p, ',');
+    }
+    if (n > 0) {
+      txSendFrame(id, buf, n);
+      Serial.printf("cmd: tx ID=0x%02X len=%d\n", id, n);
+    }
+    return;
+  }
+#endif
 
   Serial.printf("cmd: unknown '%s'\n", cmdBuf);
 }
@@ -619,6 +797,11 @@ void loop() {
       linBaud);
 #endif
   }
+
+#ifdef ACTIVE_MODE
+  serviceAntiNag();
+  serviceNeutralTx();
+#endif
 
 #ifndef NO_WIFI
   serviceTelemetry();

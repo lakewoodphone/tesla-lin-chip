@@ -43,7 +43,21 @@ Level shifter LV/B1 ─────────────────── XI
 
 > **SLP must be tied HIGH.** If SLP floats or is grounded, the TJA1021 enters sleep mode and passes no signal.
 
-> **Wire the module RX pin, not TX.** The TJA1021's RX pin is the output from the transceiver toward the MCU. TX is the input from the MCU toward the bus (not used for receive-only bench work).
+> **Wire the module RX pin, not TX.** The TJA1021's RX pin is the output from the transceiver toward the MCU. TX is the input from the MCU toward the bus (not used for receive-only bench work). For active bench injection, wire TX as documented in `ACTIVE_INJECTOR.md`.
+
+---
+
+## Active TX Mode (v5)
+
+Firmware v5 adds an **active anti-nag injector** on the isolated bench. `#define ACTIVE_MODE` enables UART1 TX via break field, a multi-model profile system, and anti-nag frame scheduling.
+
+**Model profiles:** `model:x` (ID=0x0C), `model:3` (ID=0x1A), `model:y` (ID=0x1A). Add new models in `MODEL_PROFILES[]` after passive capture confirms the steering ID.
+
+**Serial commands:** `antinag:start`, `antinag:stop`, `antinag:single`, `tx:`, `model:`, `model`.
+
+**Active wiring guide:** `ACTIVE_INJECTOR.md`.
+
+**Comment `#define ACTIVE_MODE`** to revert to passive-only firmware.
 
 ---
 
@@ -60,6 +74,7 @@ Level shifter LV/B1 ─────────────────── XI
 - Raw byte trace disabled by default (`DEBUG_RAW_BYTES=0`) so vehicle-bus parsing is not slowed by USB logging
 - Queued/rate-limited WiFi telemetry to `POST /api/v1/lin-events`; UART parsing never waits on HTTP
 - Heartbeat: `alive d3=<pin_level> edges=<count> frames=<n> badChk=<n> badPid=<n> ovf=<n> ...`
+- **v5 ACTIVE_MODE:** Break-field TX on UART1, multi-model anti-nag scheduler with runtime `model:` switching
 
 **Secrets:** copy `src/secrets.h.example` to `src/secrets.h` and set WiFi + secretary URL before flashing. `src/secrets.h` is gitignored.
 

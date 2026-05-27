@@ -193,10 +193,12 @@ Critical wiring facts:
 Before the car arrives:
 
 1. Keep the current bench wiring intact; it is proven.
-2. If WiFi telemetry is needed, set real WiFi/hotspot credentials in `src/secrets.h`, rebuild, and flash.
-3. If WiFi remains unavailable, use `tools/serial-to-lin-events.ps1`; USB telemetry is proven.
-4. Run the quick no-car suite before packing: `tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`.
-5. Pack APGDT001, XIAO bench, TJA1021 wiring, 12V supply/battery clip, ground jumper, and back-probes.
+2. Complete the TX path for active bench validation: XIAO D2 → level shifter → TJA1021 TX (see `ACTIVE_INJECTOR.md`).
+3. Once wired, run APG passive monitor with `antinag:start` to verify injected frames appear on the LIN bus.
+4. If WiFi telemetry is needed, set real WiFi/hotspot credentials in `src/secrets.h`, rebuild, and flash.
+5. If WiFi remains unavailable, use `tools/serial-to-lin-events.ps1`; USB telemetry is proven.
+6. Run the quick no-car suite before packing: `tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`.
+7. Pack APGDT001, XIAO bench, TJA1021 wiring, 12V supply/battery clip, ground jumper, and back-probes.
 
 Car day:
 

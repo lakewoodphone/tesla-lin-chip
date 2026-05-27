@@ -121,3 +121,14 @@ curl "http://localhost:8002/api/v1/lin-events?vehicle=tesla-model-3" -s | python
 4. **XIAO COM port changes**: The XIAO may shift COM ports between connections. Run `[System.IO.Ports.SerialPort]::GetPortNames()` to find it.
 5. **USB CDC requires --dtr 1**: Without `--dtr 1` flag, PlatformIO monitor shows no USB CDC output on Windows.
 6. **XIAO WiFi can be skipped on the bench**: Use `serial-to-lin-events.ps1` to post decoded USB serial frames to secretary.
+7. **Active TX wiring**: For bench-only active injection, connect XIAO D2/GPIO4 to TJA1021 TX through the level shifter. See `ACTIVE_INJECTOR.md`.
+
+## Active TX Quick Reference
+
+| XIAO | Level shifter | TJA1021 | Purpose |
+|---|---|---|---|
+| D3 / GPIO5 | LV/B1 <- HV/A1 | RX | Receive (passive) |
+| D2 / GPIO4 | LV/B2 -> HV/A2 | TX | Transmit (active, bench only) |
+| 5V | HV power | SLP | Keep TJA1021 awake |
+
+Serial commands (ACTIVE_MODE): `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `tx:`.
