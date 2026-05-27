@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""LIN capture analyzer for Tesla (Model 3/Y/X) — post-capture ID labeling + reference.
+r"""LIN capture analyzer for Tesla (Model 3/Y/X) — post-capture ID labeling + reference.
 
 Usage:
     python tools\analyze-lin-capture.py logs\lin-capture-20260526_140000.csv

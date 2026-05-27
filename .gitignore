@@ -9,3 +9,7 @@ tools/_probe-*.ps1
 
 # Generated capture and validation logs
 logs/
+
+# Python bytecode
+__pycache__/
+tools/__pycache__/

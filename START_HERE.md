@@ -1,6 +1,6 @@
 # Tesla LIN Bench - Start Here
 
-Last updated: 2026-05-26 19:00 -04:00
+Last updated: 2026-05-26 21:35 -04:00
 
 This is the canonical handoff for the Tesla LIN / anti-nag bench project. When the owner says "open the Tesla project", start here.
 
@@ -8,6 +8,7 @@ This is the canonical handoff for the Tesla LIN / anti-nag bench project. When t
 
 The bench is working and validated end-to-end for passive LIN receive at 19200 baud.
 **Firmware v4 is live** with multi-model runtime support, ring buffer, and serial commands.
+The no-car evidence suite passed a full raw-ID sweep: **80/80 exact XIAO matches, 0 APG failures, 0 bad checksum/parity frames posted to secretary**.
 
 Active project path:
 
@@ -25,10 +26,13 @@ Primary files:
 
 ```text
 START_HERE.md                             This handoff
+BENCH_EVIDENCE.md                         Full no-car evidence summary
 README.md                                 Wiring, firmware, tools, gotchas
 NEXT_STEPS.md                             Pre-car checklist and car-day flow (v4)
 src/main.cpp                              XIAO firmware v4 — multi-model, ring buf, cmds
 src/secrets.h.example                     Template for WiFi/API settings
+tools/bench-evidence-suite.ps1            No-car evidence matrix + API posting
+tools/serial-to-lin-events.ps1            USB serial -> secretary fallback telemetry
 tools/car-day-launcher.ps1                Unified car-day entry point (NEW)
 tools/send-netanalyser-headless.ps1       Proven APG transmit path
 tools/validate-xiao-bench.ps1             Bench-only validation matrix
@@ -101,6 +105,31 @@ Not:  4C 12 34
 
 ## Verified Bench Evidence
 
+Strongest current no-car run:
+
+```powershell
+cd C:\Users\ezabz\Code\xiao-lin-bench
+.\tools\bench-evidence-suite.ps1 -VehicleId tesla-bench-full-20260526 -ComPort COM4 -Baud 19200 -BootWaitSeconds 2 -PerFrameTimeoutMs 1600 -DelayMs 75
+```
+
+Result:
+
+```text
+Bench evidence complete: 80/80 exact matches, observed=80, apgFailures=0
+Secretary stats: total_frames=80, unique_ids=64, bad_checksum=0, bad_parity=0
+```
+
+Coverage:
+
+- Model X `0x0C` idle/up/down frames.
+- Model 3/Y candidate IDs `0x1A` and `0x1B`.
+- `0x3C` enhanced and classic checksum cases.
+- Every raw LIN ID `0x00` through `0x3F`.
+- Anti-nag UP/DOWN sequence plus neutral end frame.
+- USB serial-to-secretary telemetry path while WiFi is unavailable.
+
+Durable summary: `BENCH_EVIDENCE.md`.
+
 Latest validation command:
 
 ```powershell
@@ -163,11 +192,11 @@ Critical wiring facts:
 
 Before the car arrives:
 
-1. Edit `src/secrets.h` with real WiFi/hotspot credentials.
-2. Set `SECRETARY_URL` to the reachable secretary URL.
-3. Set `VEHICLE_ID` for the specific car.
-4. Rebuild and flash.
-5. Run bench validation one more time.
+1. Keep the current bench wiring intact; it is proven.
+2. If WiFi telemetry is needed, set real WiFi/hotspot credentials in `src/secrets.h`, rebuild, and flash.
+3. If WiFi remains unavailable, use `tools/serial-to-lin-events.ps1`; USB telemetry is proven.
+4. Run the quick no-car suite before packing: `tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`.
+5. Pack APGDT001, XIAO bench, TJA1021 wiring, 12V supply/battery clip, ground jumper, and back-probes.
 
 Car day:
 

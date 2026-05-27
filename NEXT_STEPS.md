@@ -1,6 +1,6 @@
 # Next Steps - xiao-lin-bench
 
-_Updated: May 26, 2026._ **Firmware v4 is live.** Bench works at 19200 baud. The system now supports Tesla Model 3, Y, and X with runtime reconfiguration.
+_Updated: May 26, 2026._ **Firmware v4 is live.** Bench works at 19200 baud. The system now supports Tesla Model 3, Y, and X with runtime reconfiguration. Full no-car evidence passed: 80/80 exact matches across raw IDs `0x00`-`0x3F`.
 
 For the full current handoff, read `START_HERE.md` first.
 
@@ -20,6 +20,8 @@ For the full current handoff, read `START_HERE.md` first.
 | Heartbeat | Basic counts | +baud, short, syncErr counters |
 | Python analyzer | None | `tools/analyze-lin-capture.py` with Tesla ID ref |
 | Car-day launcher | Manual multi-step | `tools/car-day-launcher.ps1` one-shot |
+| USB telemetry bridge | None | `tools/serial-to-lin-events.ps1` posts decoded serial frames |
+| Bench evidence suite | Manual notes | `tools/bench-evidence-suite.ps1` writes CSV/JSON/Markdown evidence |
 
 ---
 
@@ -30,6 +32,8 @@ For the full current handoff, read `START_HERE.md` first.
 - APG headless send works at 19200 baud (with the `Change_LIN_BAUD_Rate` ×2 fix).
 - APG passive monitor ready: `tools/monitor-apg-lin-bus.ps1`.
 - Bench validation passing: `tools/validate-xiao-bench.ps1`.
+- Full no-car evidence passing: `tools/bench-evidence-suite.ps1` reported 80/80 exact matches, 64 unique raw IDs, and 0 bad checksum/parity frames.
+- USB serial fallback telemetry is proven: evidence frames posted to `POST /api/v1/lin-events` without XIAO WiFi.
 - Python capture analyzer with Tesla reference tables: `tools/analyze-lin-capture.py`.
 - Unified car-day launcher: `tools/car-day-launcher.ps1`.
 - Secretary API: `POST /api/v1/lin-events` and `GET /api/v1/lin-events`.
@@ -57,12 +61,14 @@ Use `tools/analyze-lin-capture.py` after capture to compare against reference ta
 
 ## Before Car Day Checklist
 
-- [ ] Configure WiFi in `src/secrets.h` (shop network or phone hotspot)
-- [ ] Build firmware: `C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe run`
-- [ ] Flash with esptool `--no-stub` command (see README)
-- [ ] Run bench validation: `powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate-xiao-bench.ps1 -KillExistingMonitor`
-- [ ] Confirm `GET /api/v1/lin-events` returns posted XIAO telemetry
-- [ ] Confirm `tools\analyze-lin-capture.py` runs on a sample CSV
+- [x] Run full no-car evidence: `tools\bench-evidence-suite.ps1` (80/80 exact matches)
+- [x] Confirm USB fallback telemetry posts to secretary (`tesla-bench-full-20260526`, 80 frames)
+- [ ] Configure WiFi in `src/secrets.h` if wireless telemetry is needed (shop network or phone hotspot)
+- [ ] Build firmware after any WiFi config change: `C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe run`
+- [ ] Flash with esptool `--no-stub` command after any firmware/config change (see README)
+- [ ] Run quick no-car evidence before packing: `powershell -NoProfile -ExecutionPolicy Bypass -File tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`
+- [ ] Confirm `GET /api/v1/lin-events` returns posted XIAO telemetry for the current vehicle label
+- [x] Confirm `tools\analyze-lin-capture.py` compiles; use it after APG car capture CSV exists
 - [ ] Pack: APGDT001, XIAO bench, 12V supply/battery clip, GND jumper, back-probes, laptop USB cables, printed wiring note
 
 ---
@@ -79,6 +85,29 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate-xiao-bench.ps
 Expected: `RESULT PASS - all bench frames decoded as expected`
 
 Tests: ID=0x0C (2B enhanced), 0x10 (2B enhanced), 0x22 (4B enhanced), 0x3C (8B enhanced + 8B classic).
+
+## Full No-Car Evidence
+
+Run after wiring, parser, APG sender, or telemetry changes:
+
+```powershell
+cd C:\Users\ezabz\Code\xiao-lin-bench
+.\tools\bench-evidence-suite.ps1 -VehicleId tesla-bench-full -ComPort COM4 -Baud 19200
+```
+
+Latest full run: `tesla-bench-full-20260526`, 80/80 exact matches, 64 unique raw IDs, 0 APG failures, 0 bad checksum/parity frames.
+
+Quick pre-car smoke:
+
+```powershell
+.\tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar -ComPort COM4 -Baud 19200
+```
+
+If XIAO WiFi is unavailable, use USB serial telemetry instead of blocking:
+
+```powershell
+.\tools\serial-to-lin-events.ps1 -ComPort COM4 -VehicleId tesla-bench-usb -ApiBase http://localhost:8002
+```
 
 ---
 

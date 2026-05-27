@@ -113,9 +113,29 @@ Single command for field work: sets XIAO vehicle ID/baud, starts APG capture, op
 
 Full bench validation matrix (5 test frames). TRANSMITS — do not run on a vehicle.
 
+### bench-evidence-suite.ps1 — FULL NO-CAR EVIDENCE
+
+Runs baseline Model X frames, Model 3/Y candidate IDs, enhanced/classic checksum cases, a raw ID sweep, and anti-nag replay while listening to XIAO serial. Writes CSV/JSON/Markdown evidence and posts decoded frames to secretary.
+
+Latest full run: 80/80 exact matches, 64 unique raw IDs, 0 APG send failures, 0 bad checksum/parity frames.
+
+```powershell
+.\tools\bench-evidence-suite.ps1 -VehicleId tesla-bench-full -ComPort COM4 -Baud 19200
+.\tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar -ComPort COM4 -Baud 19200
+```
+
+### serial-to-lin-events.ps1 — USB TELEMETRY FALLBACK
+
+Parses XIAO USB serial decoded frame lines and posts them to `POST /api/v1/lin-events`. Use this when XIAO WiFi is unavailable.
+
+```powershell
+.\tools\serial-to-lin-events.ps1 -ComPort COM4 -VehicleId tesla-bench-usb -ApiBase http://localhost:8002
+```
+
 ### antinag-replay.ps1 — ANTI-NAG REPLAY (NEW)
 
 Generates alternating UP/DOWN scroll frames with correct LIN checksums. Bench only.
+The APG sender is launched as a fresh 32-bit PowerShell process per frame to avoid NetworkAnalyser state leakage.
 
 ### summarize-lin-capture.ps1 — CAPTURE SUMMARY
 

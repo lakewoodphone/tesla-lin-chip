@@ -45,7 +45,7 @@ $baudField = $type.GetField("MasterBaudRate", [System.Reflection.BindingFlags]"P
 $baudField.SetValue($form, [uint16]$Baud)
 
 # Also configure the PICkitS LIN hardware baud rate via the LIN instance.
-# Must be called AFTER Network_Load. Call twice — first call reconfigures the
+# Must be called AFTER Network_Load. Call twice - first call reconfigures the
 # hardware control block, second ensures the register write completes.
 $linField = $type.GetField("_OnAnswerSource", [System.Reflection.BindingFlags]"Public,NonPublic,Instance")
 $linObj = $linField.GetValue($form)
@@ -66,5 +66,17 @@ Write-Host "MasterBaudRate field: $($baudField.GetValue($form))"
 
 Write-Host "Headless NetworkAnalyser sending: $Frame checksum=$Checksum"
 Invoke-Private "Sendbtn_Click" @($form, [System.EventArgs]::Empty) | Out-Null
-Start-Sleep -Milliseconds 500
-Write-Host "Status: $((Get-FormProperty "StatusError").Text)"
+$status = ""
+for ($i = 0; $i -lt 15; $i++) {
+    Start-Sleep -Milliseconds 100
+    $status = (Get-FormProperty "StatusError").Text
+    if ($status) { break }
+}
+
+Write-Output "Status: $status"
+
+if ($status -notmatch "Transmission successful") {
+    exit 2
+}
+
+exit 0
