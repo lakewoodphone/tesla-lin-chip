@@ -249,16 +249,16 @@ static void dumpRing() {
 
 #ifdef ACTIVE_MODE
 static void txBreakField() {
-  uint32_t bitTimeUs = 1000000 / linBaud;
-  uint32_t breakUs = bitTimeUs * 14;
+  uint32_t bitTimeUs = 1000000UL / linBaud;
+  uint32_t breakBaud = linBaud / 2;
+  if (breakBaud < 1200) breakBaud = 1200;
 
   LIN.flush();
-  pinMode(LIN_TX_PIN, OUTPUT);
-  digitalWrite(LIN_TX_PIN, LOW);
-  delayMicroseconds(breakUs);
-  digitalWrite(LIN_TX_PIN, HIGH);
-  delayMicroseconds(bitTimeUs);
-  LIN.begin(linBaud, SERIAL_8N1, LIN_RX_PIN, LIN_TX_PIN);
+  LIN.updateBaudRate(breakBaud);
+  LIN.write((uint8_t)0x00);
+  LIN.flush();
+  LIN.updateBaudRate(linBaud);
+  delayMicroseconds(bitTimeUs * 2);
 }
 
 static void txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen) {
@@ -421,6 +421,30 @@ static void processCommand() {
     Serial.printf("cmd: antinag single model=%s dir=%s ctr=%d\n", modelName, antiNagDirection == 1 ? "UP" : "DOWN", ctr);
     antiNagDirection = -antiNagDirection;
     antiNagCtr++;
+    return;
+  }
+  if (strcmp(cmdBuf, "txd:low") == 0) {
+    antiNagActive = false;
+    LIN.flush();
+    LIN.end();
+    pinMode(LIN_TX_PIN, OUTPUT);
+    digitalWrite(LIN_TX_PIN, LOW);
+    Serial.println("cmd: txd=low dominant-hold");
+    return;
+  }
+  if (strcmp(cmdBuf, "txd:high") == 0) {
+    antiNagActive = false;
+    LIN.flush();
+    LIN.end();
+    pinMode(LIN_TX_PIN, OUTPUT);
+    digitalWrite(LIN_TX_PIN, HIGH);
+    Serial.println("cmd: txd=high recessive-hold");
+    return;
+  }
+  if (strcmp(cmdBuf, "txd:uart") == 0) {
+    antiNagActive = false;
+    restartLinUart(linBaud);
+    Serial.println("cmd: txd=uart");
     return;
   }
   if (strncmp(cmdBuf, "tx:", 3) == 0) {

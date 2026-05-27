@@ -1,6 +1,6 @@
 # xiao-lin-bench Tools Reference
 
-_Updated: May 26, 2026 — Firmware v4, all tools ready for Model 3/Y/X_
+_Updated: May 27, 2026 — Firmware v5, passive tools ready for Model 3/Y/X, active bench TX verified for Model X_
 
 ## Tool Inventory
 

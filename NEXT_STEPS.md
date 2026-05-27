@@ -1,6 +1,6 @@
 # Next Steps - xiao-lin-bench
 
-_Updated: May 26, 2026._ **Firmware v4 is live.** Bench works at 19200 baud. The system now supports Tesla Model 3, Y, and X with runtime reconfiguration. Full no-car evidence passed: 80/80 exact matches across raw IDs `0x00`-`0x3F`.
+_Updated: May 27, 2026._ **Firmware v5 is live on the bench XIAO.** Bench works at 19200 baud. The system now supports Tesla Model 3, Y, and X with runtime reconfiguration and optional active TX behind `ACTIVE_MODE`. Full no-car evidence passed: 80/80 exact matches across raw IDs `0x00`-`0x3F`. Active Model X bench TX is verified by XIAO self-receive/ring frames with checksum/parity OK.
 
 For the full current handoff, read `START_HERE.md` first.
 
@@ -27,13 +27,15 @@ For the full current handoff, read `START_HERE.md` first.
 
 ## Current Status
 
-- **Firmware v4** builds and runs: boundary-based LIN parser, ring buffer, runtime commands.
-- Hardware wired and verified: APGDT001 -> TJA1021 -> level shifter -> XIAO D3/GPIO5.
+- **Firmware v5** builds and runs: boundary-based LIN parser, ring buffer, runtime commands, optional active TX.
+- Passive RX hardware wired and verified: APGDT001 -> TJA1021 -> level shifter -> XIAO D3/GPIO5.
+- Active Model X TX hardware wired and verified on bench: XIAO D2/GPIO4 -> level shifter LV2/HV2 -> TJA1021 TX.
 - APG headless send works at 19200 baud (with the `Change_LIN_BAUD_Rate` ×2 fix).
 - APG passive monitor ready: `tools/monitor-apg-lin-bus.ps1`.
 - Bench validation passing: `tools/validate-xiao-bench.ps1`.
 - Full no-car evidence passing: `tools/bench-evidence-suite.ps1` reported 80/80 exact matches, 64 unique raw IDs, and 0 bad checksum/parity frames.
 - USB serial fallback telemetry is proven: evidence frames posted to `POST /api/v1/lin-events` without XIAO WiFi.
+- Active bench TX evidence: `model:x` + `antinag:start` produced >100 self-received `0x0C` frames with enhanced checksum/parity OK; APG passive monitor still needs follow-up for XIAO-generated frames.
 - Python capture analyzer with Tesla reference tables: `tools/analyze-lin-capture.py`.
 - Unified car-day launcher: `tools/car-day-launcher.ps1`.
 - Secretary API: `POST /api/v1/lin-events` and `GET /api/v1/lin-events`.
@@ -62,6 +64,7 @@ Use `tools/analyze-lin-capture.py` after capture to compare against reference ta
 ## Before Car Day Checklist
 
 - [x] Run full no-car evidence: `tools\bench-evidence-suite.ps1` (80/80 exact matches)
+- [x] Verify active Model X bench TX with XIAO ring/self-receive (`0x0C`, checksum/parity OK)
 - [x] Confirm USB fallback telemetry posts to secretary (`tesla-bench-full-20260526`, 80 frames)
 - [ ] Configure WiFi in `src/secrets.h` if wireless telemetry is needed (shop network or phone hotspot)
 - [ ] Build firmware after any WiFi config change: `C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe run`

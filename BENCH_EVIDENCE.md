@@ -1,10 +1,10 @@
 # No-Car Bench Evidence
 
-_Updated: May 26, 2026._
+_Updated: May 27, 2026._
 
 This file records the strongest bench-only evidence collected before touching a car. The goal is to prove the APGDT001 -> TJA1021 -> level shifter -> XIAO receive chain, parser, checksum handling, candidate-ID handling, anti-nag replay sequence, and secretary API telemetry path.
 
-**Active injector firmware is also built (ACTIVE_MODE).** XIAO generates anti-nag frames on UART1 TX with runtime model switching (`model:x`, `model:3`, `model:y`). TX wiring to TJA1021 is required for bench bus injection validation; see `ACTIVE_INJECTOR.md`.
+**Active injector firmware is also built behind `ACTIVE_MODE`.** XIAO generates anti-nag frames on UART1 TX with runtime model switching (`model:x`, `model:3`, `model:y`). The repository default leaves `ACTIVE_MODE` commented out; the physical bench XIAO was flashed active for the May 27 validation. See `ACTIVE_INJECTOR.md`.
 
 ## Hardware Under Test
 
@@ -14,6 +14,7 @@ This file records the strongest bench-only evidence collected before touching a 
 - LIN transceiver: TJA1021 module
 - Bench LIN baud: `19200`
 - Receive path: APG LIN -> TJA1021 LIN/RX -> level shifter -> XIAO D3/GPIO5
+- Active TX path: XIAO D2/GPIO4 -> level shifter LV2/HV2 -> TJA1021 TX
 - Power: APG VBAT and TJA1021 VIN tied to bench 12V, common ground, SLP high
 
 ## Full Evidence Suite
@@ -134,17 +135,25 @@ The replay script now launches the APG sender as a fresh 32-bit PowerShell child
 | `tools/bench-evidence-suite.ps1` | Runs baseline, candidate, checksum, raw ID sweep, and anti-nag no-car tests; writes CSV/JSON/Markdown evidence and posts to secretary | No, transmits |
 | `tools/serial-to-lin-events.ps1` | Bridges XIAO USB serial decoded frames into `POST /api/v1/lin-events` when WiFi is unavailable | Passive if APG/vehicle is passive |
 
+## Active Injection Status (May 27, 2026)
+
+- Active Model X bench TX is validated on the isolated bench.
+- Working firmware break generation: half-baud UART `0x00` break, then normal LIN baud for sync/PID/data/checksum.
+- Fixed physical fault: D2 -> level shifter LV2 jumper was disconnected. With `txd:low`, XIAO D2, LV2, and HV2/module TX measured near 0V.
+- `model:x` + `antinag:start` produced >100 XIAO self-received/ring-buffer frames on ID `0x0C` with enhanced checksums and parity OK.
+- Representative ring evidence:
+
+```text
+ID=0x0C PID=0x4C [8B] data: 11 04 00 00 00 00 C0 00 | chk=DD enhanced parity=OK
+ID=0x0C PID=0x4C [8B] data: 0F 04 00 00 00 00 C0 02 | chk=DD enhanced parity=OK
+ID=0x0C PID=0x4C [8B] data: 10 00 00 00 00 00 C0 0A | chk=D8 enhanced parity=OK
+```
+
+APG passive monitor still logged zero rows for XIAO-generated frames during this session, even while XIAO self-receive parsed valid active frames. Treat APG passive monitor behavior as a tooling limitation/follow-up item.
+
 ## Remaining No-Car Limits
 
-- The bench can prove parser correctness, checksum behavior, APG send behavior, telemetry plumbing, and active injection on the isolated bench.
+- The bench can prove parser correctness, checksum behavior, APG send behavior, telemetry plumbing, and XIAO self-received active injection on the isolated bench.
 - It cannot identify actual Model 3/Y steering IDs without passive vehicle capture.
 - It cannot prove Tesla accepts any anti-nag sequence. Vehicle work must start passive only.
-- Active injection is firmware-ready; physical TX wiring and APG passive-monitor validation are needed to complete the bench validation loop.
-
-## Active Injection Status (May 2026)
-
-- Firmware v5 with `#define ACTIVE_MODE` flashable to the connected XIAO.
-- Multi-model profile system: `model:x` (0x0C), `model:3` (0x1A), `model:y` (0x1A).
-- Anti-nag scheduler confirmed on USB serial: alternating `11 04` / `0F 04` at 300ms, neutral `10 00` at 1s.
-- Physical TX wiring step needed: XIAO D2/GPIO4 → level shifter → TJA1021 TX.
-- Once wired, APG passive monitor will capture the injected frames on the bench LIN bus.
+- APG passive-monitor validation of XIAO-generated frames remains open.

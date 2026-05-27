@@ -43,19 +43,57 @@ antinag:start     Start alternating UP / NEUTRAL / DOWN injection
 antinag:stop      Stop injection
 antinag:single    Send one UP or DOWN frame, toggle direction
 tx:id,b0,...      Send custom frame, e.g. tx:0C,10,00,00,00,00,00,C0,00
+txd:low           Bench diagnostic: hold XIAO D2/TXD low
+txd:high          Bench diagnostic: hold XIAO D2/TXD high
+txd:uart          Return D2/TXD to UART mode after diagnostics
 ```
+
+## Verified Active Bench Result
+
+2026-05-27 active Model X bench TX was validated on the isolated bench after fixing a disconnected D2 -> LV2 jumper. The working active break method is a half-baud UART `0x00` break before returning to the normal LIN baud.
+
+Evidence from XIAO ring/self-receive while running `model:x` + `antinag:start`:
+
+```text
+frames=117+ badChk=0 badPid=0
+ID=0x0C PID=0x4C [8B] data: 11 04 00 00 00 00 C0 00 | chk=DD enhanced parity=OK
+ID=0x0C PID=0x4C [8B] data: 0F 04 00 00 00 00 C0 02 | chk=DD enhanced parity=OK
+ID=0x0C PID=0x4C [8B] data: 10 00 00 00 00 00 C0 0A | chk=D8 enhanced parity=OK
+```
+
+APG passive monitor still logged zero rows for XIAO-generated frames in this session, so XIAO self-receive/ring is the current active bench proof. Treat APG passive-monitor validation as follow-up tooling work, not as a wiring blocker.
 
 ## Bench Validation Steps
 
 1. Wire TX as above. APG must be in LINBUS mode on the isolated bench.
-2. Flash firmware with `#define ACTIVE_MODE` enabled (already enabled in default).
+2. Uncomment `#define ACTIVE_MODE`, build, and flash. The repository default keeps active mode commented out.
 3. Open serial: `platformio device monitor --port COM4 --baud 115200 --dtr 1 --rts 0`
 4. Run `model:x` then `antinag:start`.
-5. Start APG passive monitor to verify injected frames on the LIN bus:
+5. Dump XIAO `stats` and `ring` to verify injected frames are being received back from the LIN bus:
+   ```
+   stats
+   ring
+   ```
+6. Optional: start APG passive monitor as an independent observer. Current APG passive logging did not capture XIAO-generated frames even when XIAO self-receive parsed them correctly:
    ```
    cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1
    ```
-6. Verify APG sees alternating `0x0C` frames with `B0=0x11/0x0F` and neutral `B0=0x10`.
+7. Verify alternating `0x0C` frames with `B0=0x11/0x0F` and neutral `B0=0x10`, with enhanced checksum/parity OK.
+
+## TX Path Debug Checklist
+
+Use `txd:low` for one-point-at-a-time multimeter checks, but remember a LIN transceiver may release the bus after dominant-timeout if TXD is held low too long.
+
+Expected low-hold readings after `txd:low`:
+
+| Point | Expected |
+|---|---:|
+| XIAO D2/GPIO4 | near 0V |
+| Level shifter LV2/B2 | near 0V |
+| Level shifter HV2/A2 / module TX | near 0V |
+| Module SLP | about 5V |
+
+If XIAO D2 is low but LV2 is high, the D2 -> LV2 jumper is disconnected or on the wrong channel. That was the 2026-05-27 bench fault.
 
 ## Hard Stops
 

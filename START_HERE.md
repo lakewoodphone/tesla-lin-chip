@@ -1,14 +1,15 @@
 # Tesla LIN Bench - Start Here
 
-Last updated: 2026-05-26 21:35 -04:00
+Last updated: 2026-05-27 13:35 -04:00
 
 This is the canonical handoff for the Tesla LIN / anti-nag bench project. When the owner says "open the Tesla project", start here.
 
 ## Current State
 
 The bench is working and validated end-to-end for passive LIN receive at 19200 baud.
-**Firmware v4 is live** with multi-model runtime support, ring buffer, and serial commands.
+**Firmware v5 is live on the bench XIAO** with multi-model runtime support, ring buffer, serial commands, and optional active TX behind `ACTIVE_MODE`.
 The no-car evidence suite passed a full raw-ID sweep: **80/80 exact XIAO matches, 0 APG failures, 0 bad checksum/parity frames posted to secretary**.
+Active Model X bench TX was validated on May 27: after fixing a disconnected D2 -> LV2 jumper, `model:x` + `antinag:start` produced >100 self-received `0x0C` frames with enhanced checksum/parity OK.
 
 Active project path:
 
@@ -27,9 +28,10 @@ Primary files:
 ```text
 START_HERE.md                             This handoff
 BENCH_EVIDENCE.md                         Full no-car evidence summary
+ACTIVE_INJECTOR.md                        Bench-only active TX wiring, operation, and TXD diagnostics
 README.md                                 Wiring, firmware, tools, gotchas
 NEXT_STEPS.md                             Pre-car checklist and car-day flow (v4)
-src/main.cpp                              XIAO firmware v4 — multi-model, ring buf, cmds
+src/main.cpp                              XIAO firmware v5 — multi-model, ring buf, cmds, optional active TX
 src/secrets.h.example                     Template for WiFi/API settings
 tools/bench-evidence-suite.ps1            No-car evidence matrix + API posting
 tools/serial-to-lin-events.ps1            USB serial -> secretary fallback telemetry
@@ -186,15 +188,17 @@ Critical wiring facts:
 
 - TJA1021 `SLP` must be tied high to XIAO 5V.
 - Use module `RX`, not module `TX`, for receive into the XIAO.
+- Active TX path is XIAO D2/GPIO4 -> level shifter LV2/B2 -> HV2/A2 -> module `TX`.
+- If `txd:low` makes XIAO D2 low but LV2 stays high, the D2 -> LV2 jumper is disconnected or on the wrong channel.
 - Shared ground is mandatory.
 
 ## Current Next Action
 
 Before the car arrives:
 
-1. Keep the current bench wiring intact; it is proven.
-2. Complete the TX path for active bench validation: XIAO D2 → level shifter → TJA1021 TX (see `ACTIVE_INJECTOR.md`).
-3. Once wired, run APG passive monitor with `antinag:start` to verify injected frames appear on the LIN bus.
+1. Keep the current bench wiring intact; passive RX and active Model X TX are proven on the isolated bench.
+2. Before future active tests, confirm XIAO D2 -> LV2 -> HV2 -> module TX using `txd:low`; the May 27 fault was a disconnected D2 -> LV2 jumper.
+3. Use XIAO `stats` + `ring` after `model:x` / `antinag:start` to verify active frames. APG passive monitor still logged zero rows for XIAO-generated frames and needs tooling follow-up.
 4. If WiFi telemetry is needed, set real WiFi/hotspot credentials in `src/secrets.h`, rebuild, and flash.
 5. If WiFi remains unavailable, use `tools/serial-to-lin-events.ps1`; USB telemetry is proven.
 6. Run the quick no-car suite before packing: `tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`.
