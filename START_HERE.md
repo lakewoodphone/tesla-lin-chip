@@ -7,7 +7,7 @@ This is the canonical handoff for the Tesla LIN / anti-nag bench project. When t
 ## Current State
 
 The bench is working and validated end-to-end for passive LIN receive at 19200 baud.
-**Firmware v5 is live on the bench XIAO** with multi-model runtime support, ring buffer, serial commands, and optional active TX behind `ACTIVE_MODE`.
+**Firmware v5 is live on the bench XIAO** with multi-model runtime support, ring buffer, serial commands, ACTIVE_MODE enabled for anti-nag TX, and BLE configuration service.
 The no-car evidence suite passed a full raw-ID sweep: **80/80 exact XIAO matches, 0 APG failures, 0 bad checksum/parity frames posted to secretary**.
 Active Model X bench TX was validated on May 27: after fixing a disconnected D2 -> LV2 jumper, `model:x` + `antinag:start` produced >100 self-received `0x0C` frames with enhanced checksum/parity OK. APG known-ID raw fallback is also validated: `active-apg-raw-proof.ps1` captured 11 checksum-valid `0x0C` CSV rows with `source=raw`.
 

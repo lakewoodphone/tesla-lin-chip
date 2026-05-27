@@ -76,13 +76,12 @@ Core passive features:
 
 Active mode (`#define ACTIVE_MODE`, bench only):
 
+- Two modes: `mode:duty` (burst UP→DOWN every `period:N` ms, default 20s) or `mode:always` (constant alternation every 300ms).
+- Double-click scroll wheel button: two fast presses toggles chip output on/off.
 - Model profiles: `model:x` (`0x0C` confirmed), `model:3` (`0x1A` candidate), `model:y` (`0x1A` candidate), `model:auto`.
-- Active commands: `model`, `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `mirror:on`, `mirror:off`, `tx:`.
+- Active commands: `model`, `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `mode:duty`, `mode:always`, `period:20000`, `mirror:on`, `mirror:off`, `tx:`.
 - Diagnostics: `txd:low`, `txd:high`, `txd:uart`.
-- Working break method: half-baud UART `0x00` break, then return to normal LIN baud.
-- Bus-idle collision guard: frames wait 2 ms of bus silence before transmitting, avoiding collisions on a live bus.
-- Realistic scroll payloads: anti-nag frames simulate changing velocity (B2) and accumulated scroll (B3) rather than constant zeros.
-- Mirror frame injection: `mirror:on` sends periodic `0x0D` alive/mirror frames every 500 ms alongside `0x0C` control traffic.
+- BLE: not enabled (NimBLE requires Arduino-as-IDF `sdkconfig` integration).
 
 ## Build And Flash
 

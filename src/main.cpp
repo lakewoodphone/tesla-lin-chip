@@ -17,6 +17,10 @@
 
 #include "secrets.h"
 
+#ifdef ACTIVE_MODE
+#include <NimBLEDevice.h>
+#endif
+
 HardwareSerial LIN(1);
 
 #define LIN_RX_PIN              5
@@ -32,10 +36,14 @@ HardwareSerial LIN(1);
 // #define ACTIVE_MODE
 
 #ifdef ACTIVE_MODE
-#define TX_ANTINAG_PERIOD_MS    300
-#define TX_NEUTRAL_PERIOD_MS    1000
+#define TX_DUTY_PERIOD_MS       20000
+#define TX_BURST_GAP_MS         50
 #define TX_ALIVE_PERIOD_MS      500
 #define TX_BUS_IDLE_MIN_MS      2
+#define DBLCLICK_WINDOW_MS      800
+#define TX_ALTERNATION_GAP_MS   300
+#define ANTI_NAG_MODE_DUTY      0
+#define ANTI_NAG_MODE_ALWAYS    1
 
 // Model profiles for active anti-nag TX.
 // Each profile maps a model name to the known steering/control LIN ID.
@@ -78,7 +86,6 @@ static void restartLinUart(uint16_t baud);
 #ifdef ACTIVE_MODE
 static void txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen);
 static void serviceAntiNag();
-static void serviceNeutralTx();
 static void serviceAliveTx();
 #endif
 
@@ -110,12 +117,164 @@ bool antiNagActive = false;
 bool mirrorActive = false;
 int antiNagCtr = 0;
 int antiNagDirection = 1;
-uint32_t lastAntiNagMs = 0;
-uint32_t lastNeutralMs = 0;
+uint8_t antiNagMode = ANTI_NAG_MODE_DUTY;
+uint32_t dutyPeriodMs = TX_DUTY_PERIOD_MS;
+uint32_t lastDutyBurstMs = 0;
+bool dutyBurstDone = false;
 uint32_t lastAliveMs = 0;
 int aliveCtr = 0;
 uint32_t txFrameCount = 0;
-uint8_t txPayload[8] = {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x00};
+
+bool dblClickEnabled = false;
+uint32_t lastButtonPressMs = 0;
+int buttonPressCount = 0;
+bool lastButtonState = false;
+
+// ---- BLE config service ----
+#define BLE_SVC_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define BLE_CHAR_MODEL_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+#define BLE_CHAR_MODE_UUID  "beb5483e-36e1-4688-b7f5-ea07361b26a9"
+#define BLE_CHAR_PERIOD_UUID "beb5483e-36e1-4688-b7f5-ea07361b26aa"
+#define BLE_CHAR_ENABLE_UUID "beb5483e-36e1-4688-b7f5-ea07361b26ab"
+
+static NimBLEServer       *bleServer     = nullptr;
+static NimBLEService      *bleService    = nullptr;
+static NimBLECharacteristic *bleCharModel  = nullptr;
+static NimBLECharacteristic *bleCharMode   = nullptr;
+static NimBLECharacteristic *bleCharPeriod = nullptr;
+static NimBLECharacteristic *bleCharEnable = nullptr;
+static bool bleClientConnected = false;
+static bool bleAdvPending = true;  // Deferred advertising flag
+
+static void initBleConfig();
+
+/** Callbacks for BLE characteristic writes */
+class AntiNagConfigCallbacks : public NimBLECharacteristicCallbacks {
+  void onWrite(NimBLECharacteristic *pChar, NimBLEConnInfo& connInfo) override {
+    std::string val = pChar->getValue();
+    if (val.empty()) return;
+
+    if (pChar == bleCharModel) {
+      // "x", "3", "y", "auto"
+      bool found = false;
+      for (int i = 0; i < NUM_MODEL_PROFILES; i++) {
+        if (val == MODEL_PROFILES[i].name) {
+          activeProfile = &MODEL_PROFILES[i];
+          strncpy(modelName, val.c_str(), sizeof(modelName) - 1);
+          pChar->setValue(modelName);
+          Serial.printf("BLE: model=%s id=0x%02X (%s)\n", modelName, activeProfile->controlId, activeProfile->notes);
+          found = true;
+          break;
+        }
+      }
+      if (!found) Serial.printf("BLE: unknown model '%s'\n", val.c_str());
+    } else if (pChar == bleCharMode) {
+      if (val == "duty") {
+        antiNagMode = ANTI_NAG_MODE_DUTY;
+        pChar->setValue("duty");
+        Serial.printf("BLE: mode=duty period=%lums\n", (unsigned long)dutyPeriodMs);
+      } else if (val == "always") {
+        antiNagMode = ANTI_NAG_MODE_ALWAYS;
+        pChar->setValue("always");
+        Serial.println("BLE: mode=always");
+      }
+    } else if (pChar == bleCharPeriod) {
+      long period = atol(val.c_str());
+      if (period >= 5000 && period <= 120000) {
+        dutyPeriodMs = (uint32_t)period;
+        char buf[16];
+        snprintf(buf, sizeof(buf), "%lu", (unsigned long)dutyPeriodMs);
+        pChar->setValue(buf);
+        Serial.printf("BLE: period=%lums\n", (unsigned long)dutyPeriodMs);
+      }
+    } else if (pChar == bleCharEnable) {
+      if (val == "on") {
+        dblClickEnabled = true;
+        antiNagActive = true;
+        lastDutyBurstMs = millis();
+        dutyBurstDone = false;
+        pChar->setValue("on");
+        Serial.println("BLE: antinag=enabled");
+      } else if (val == "off") {
+        dblClickEnabled = false;
+        antiNagActive = false;
+        pChar->setValue("off");
+        Serial.println("BLE: antinag=disabled");
+      }
+    }
+  }
+};
+
+class AntiNagServerCallbacks : public NimBLEServerCallbacks {
+  void onConnect(NimBLEServer *pServer, NimBLEConnInfo& connInfo) override {
+    bleClientConnected = true;
+    Serial.println("BLE: client connected");
+  }
+  void onDisconnect(NimBLEServer *pServer, NimBLEConnInfo& connInfo, int reason) override {
+    bleClientConnected = false;
+    Serial.println("BLE: client disconnected");
+    pServer->startAdvertising();
+  }
+};
+
+static void initBleConfig() {
+  NimBLEDevice::init("TeslaAntiNag");
+  delay(200);  // Wait for NimBLE host stack to stabilize
+  bleServer = NimBLEDevice::createServer();
+  bleServer->setCallbacks(new AntiNagServerCallbacks());
+
+  bleService = bleServer->createService(BLE_SVC_UUID);
+
+  // Model: "x", "3", "y", "auto"
+  bleCharModel = bleService->createCharacteristic(
+    BLE_CHAR_MODEL_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE
+  );
+  bleCharModel->setCallbacks(new AntiNagConfigCallbacks());
+  bleCharModel->setValue(modelName);
+
+  // Mode: "duty" / "always"
+  bleCharMode = bleService->createCharacteristic(
+    BLE_CHAR_MODE_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE
+  );
+  bleCharMode->setCallbacks(new AntiNagConfigCallbacks());
+  bleCharMode->setValue(antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always");
+
+  // Period: milliseconds string (5000-120000)
+  bleCharPeriod = bleService->createCharacteristic(
+    BLE_CHAR_PERIOD_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE
+  );
+  bleCharPeriod->setCallbacks(new AntiNagConfigCallbacks());
+  char periodBuf[16];
+  snprintf(periodBuf, sizeof(periodBuf), "%lu", (unsigned long)dutyPeriodMs);
+  bleCharPeriod->setValue(periodBuf);
+
+  // Enable toggle: "on" / "off"
+  bleCharEnable = bleService->createCharacteristic(
+    BLE_CHAR_ENABLE_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE
+  );
+  bleCharEnable->setCallbacks(new AntiNagConfigCallbacks());
+  bleCharEnable->setValue("off");
+
+  bleService->start();
+
+  NimBLEAdvertising *ad = NimBLEDevice::getAdvertising();
+  ad->addServiceUUID(BLE_SVC_UUID);
+  ad->setMinInterval(0x06);
+  ad->setMaxInterval(0x12);
+  // Advertising will start in loop() when NimBLE host is ready
+  bleAdvPending = true;
+
+  Serial.println("BLE: config ready, waiting for host sync...");
+  Serial.printf("BLE: service=%s\n", BLE_SVC_UUID);
+  Serial.printf("BLE: model=%s mode=%s period=%lums\n",
+    modelName,
+    antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
+    (unsigned long)dutyPeriodMs);
+}
 #endif
 
 // Ring buffer of recent frames
@@ -293,37 +452,41 @@ static void txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen) {
 }
 
 static void serviceAntiNag() {
-  if (!antiNagActive) return;
+  if (!antiNagActive || !dblClickEnabled) return;
   uint32_t now = millis();
-  if (now - lastAntiNagMs < TX_ANTINAG_PERIOD_MS) return;
-  if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) return;
-  lastAntiNagMs = now;
 
-  int ctr = antiNagCtr % 16;
-  int b0 = (antiNagDirection == 1) ? 0x11 : 0x0F;
-  // Realistic payload: simulated velocity (B2) and accumulated scroll (B3).
-  // Real captures show B2 in 0x08..0x48 range and B3 tracking about 2×B2.
-  uint8_t velocity = (uint8_t)(0x08 + ((antiNagCtr % 5) * 0x04));
-  uint8_t accumulated = (uint8_t)(antiNagCtr * 2);
-  uint8_t data[8] = {(uint8_t)b0, 0x04, velocity, accumulated, 0x00, 0x00, 0xC0, (uint8_t)ctr};
-  txSendFrame(activeProfile->controlId, data, 8);
+  if (antiNagMode == ANTI_NAG_MODE_DUTY) {
+    if (now - lastDutyBurstMs >= dutyPeriodMs) {
+      lastDutyBurstMs = now;
+      dutyBurstDone = false;
+    }
+    if (dutyBurstDone) return;
+    if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) return;
 
-  antiNagDirection = -antiNagDirection;
-  antiNagCtr++;
-}
-
-static void serviceNeutralTx() {
-  if (!antiNagActive) return;
-  uint32_t now = millis();
-  if (now - lastNeutralMs < TX_NEUTRAL_PERIOD_MS) return;
-  if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) return;
-  lastNeutralMs = now;
-
-  int ctr = antiNagCtr % 16;
-  uint8_t data[8] = {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
-  txSendFrame(activeProfile->controlId, data, 8);
-
-  antiNagCtr++;
+    int ctr = antiNagCtr % 16;
+    if (antiNagDirection == 1) {
+      uint8_t data[8] = {0x11, 0x04, 0x10, (uint8_t)(antiNagCtr*2), 0x00, 0x00, 0xC0, (uint8_t)ctr};
+      txSendFrame(activeProfile->controlId, data, 8);
+      antiNagDirection = -1;
+    } else {
+      int ctr2 = (antiNagCtr + 1) % 16;
+      uint8_t data[8] = {0x0F, 0x04, 0x08, 0x02, 0x00, 0x00, 0xC0, (uint8_t)ctr2};
+      txSendFrame(activeProfile->controlId, data, 8);
+      antiNagDirection = 1;
+      dutyBurstDone = true;
+    }
+    antiNagCtr++;
+  } else {
+    if (now - lastDutyBurstMs < TX_ALTERNATION_GAP_MS) return;
+    if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) return;
+    lastDutyBurstMs = now;
+    int ctr = antiNagCtr % 16;
+    int b0 = (antiNagDirection == 1) ? 0x11 : 0x0F;
+    uint8_t data[8] = {(uint8_t)b0, 0x04, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
+    txSendFrame(activeProfile->controlId, data, 8);
+    antiNagDirection = -antiNagDirection;
+    antiNagCtr++;
+  }
 }
 
 static void serviceAliveTx() {
@@ -428,14 +591,41 @@ static void processCommand() {
   }
   if (strcmp(cmdBuf, "antinag:start") == 0) {
     antiNagActive = true;
+    dblClickEnabled = true;
     antiNagCtr = 0;
     antiNagDirection = 1;
-    Serial.printf("cmd: antinag=active model=%s id=0x%02X\n", modelName, activeProfile->controlId);
+    lastDutyBurstMs = millis();
+    dutyBurstDone = false;
+    Serial.printf("cmd: antinag=active model=%s id=0x%02X mode=%s period=%lums\n",
+      modelName, activeProfile->controlId,
+      antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
+      (unsigned long)dutyPeriodMs);
     return;
   }
   if (strcmp(cmdBuf, "antinag:stop") == 0) {
     antiNagActive = false;
+    dblClickEnabled = false;
     Serial.println("cmd: antinag=stopped");
+    return;
+  }
+  if (strcmp(cmdBuf, "mode:duty") == 0) {
+    antiNagMode = ANTI_NAG_MODE_DUTY;
+    Serial.printf("cmd: mode=duty period=%lums\n", (unsigned long)dutyPeriodMs);
+    return;
+  }
+  if (strcmp(cmdBuf, "mode:always") == 0) {
+    antiNagMode = ANTI_NAG_MODE_ALWAYS;
+    Serial.println("cmd: mode=always (constant alternation)");
+    return;
+  }
+  if (strncmp(cmdBuf, "period:", 7) == 0) {
+    long period = atol(cmdBuf + 7);
+    if (period >= 5000 && period <= 120000) {
+      dutyPeriodMs = (uint32_t)period;
+      Serial.printf("cmd: duty period=%lums\n", (unsigned long)dutyPeriodMs);
+    } else {
+      Serial.printf("cmd: period out of range (5000-120000ms)\n");
+    }
     return;
   }
   if (strcmp(cmdBuf, "antinag:single") == 0) {
@@ -505,6 +695,19 @@ static void processCommand() {
     if (n > 0) {
       txSendFrame(id, buf, n);
       Serial.printf("cmd: tx ID=0x%02X len=%d\n", id, n);
+    }
+    return;
+  }
+  if (strcmp(cmdBuf, "ble") == 0) {
+    Serial.printf("cmd: BLE advertising=%s client=%s model=%s mode=%s period=%lums\n",
+      bleServer ? "yes" : "no",
+      bleClientConnected ? "connected" : "disconnected",
+      modelName,
+      antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
+      (unsigned long)dutyPeriodMs);
+    if (bleServer) {
+      Serial.printf("BLE: service=%s\n  model uuid=%s\n  mode uuid=%s\n  period uuid=%s\n  enable uuid=%s\n",
+        BLE_SVC_UUID, BLE_CHAR_MODEL_UUID, BLE_CHAR_MODE_UUID, BLE_CHAR_PERIOD_UUID, BLE_CHAR_ENABLE_UUID);
     }
     return;
   }
@@ -724,6 +927,26 @@ static void finalizeBufferedFrame(const char *source) {
     parityOk ? "OK" : "BAD",
     source);
 
+#ifdef ACTIVE_MODE
+  if (rawId == activeProfile->controlId && dataLen >= 2) {
+    bool buttonPressed = (rxBytes[1] & 0x01) != 0;
+    if (buttonPressed && !lastButtonState) {
+      uint32_t nowMs = millis();
+      if (nowMs - lastButtonPressMs > DBLCLICK_WINDOW_MS) buttonPressCount = 0;
+      buttonPressCount++;
+      lastButtonPressMs = nowMs;
+      if (buttonPressCount >= 2) {
+        dblClickEnabled = !dblClickEnabled;
+        antiNagActive = dblClickEnabled;
+        if (dblClickEnabled) lastDutyBurstMs = millis();
+        Serial.printf("cmd: button double-click -> %s\n", dblClickEnabled ? "enabled" : "disabled");
+        buttonPressCount = 0;
+      }
+    }
+    lastButtonState = buttonPressed;
+  }
+#endif
+
 #ifndef NO_WIFI
   TelemetryEvent event = {};
   event.protectedId = pid;
@@ -761,6 +984,13 @@ void setup() {
 
   pinMode(LIN_RX_PIN, INPUT);
   attachInterrupt(digitalPinToInterrupt(LIN_RX_PIN), onLinEdge, CHANGE);
+
+#ifdef ACTIVE_MODE
+  dblClickEnabled = false;
+  antiNagActive = false;
+  initBleConfig();
+  Serial.println("Active mode: double-click toggle ready. BLE: TeslaAntiNag");
+#endif
 
   // Start at the primary Tesla LIN baud
   restartLinUart(linBaud);
@@ -867,8 +1097,15 @@ void loop() {
 
 #ifdef ACTIVE_MODE
   serviceAntiNag();
-  serviceNeutralTx();
-  if (mirrorActive) serviceAliveTx();
+  if (mirrorActive && dblClickEnabled) serviceAliveTx();
+  // Retry BLE advertising if it failed on boot
+  if (bleAdvPending && NimBLEDevice::getAdvertising()) {
+    int rc = NimBLEDevice::getAdvertising()->start();
+    if (rc == 0) {
+      bleAdvPending = false;
+      Serial.println("BLE: advertising started");
+    }
+  }
 #endif
 
 #ifndef NO_WIFI

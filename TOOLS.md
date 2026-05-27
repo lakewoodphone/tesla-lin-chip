@@ -126,9 +126,12 @@ model             Show current active profile
 model:x           Model X, ID 0x0C, confirmed
 model:3           Model 3 candidate, ID 0x1A, unconfirmed
 model:y           Model Y candidate, ID 0x1A, unconfirmed
-antinag:start     Start alternating active frames
+antinag:start     Start active frames (starts disabled — double-click to enable)
 antinag:stop      Stop active frames
 antinag:single    Send one active frame
+mode:duty         Duty-cycle mode: burst UP→DOWN every `period` ms
+mode:always       Always mode: constant alternation every 300ms
+period:60000      Set duty-cycle period (5000-120000ms, default 20000)
 mirror:on         Enable periodic 0x0D mirror/alive frames
 mirror:off        Disable mirror frames
 tx:id,b0,...      Send a custom frame
