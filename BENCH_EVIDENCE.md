@@ -4,7 +4,7 @@ _Updated: May 27, 2026._
 
 This file records the strongest bench-only evidence collected before touching a car. The goal is to prove the APGDT001 -> TJA1021 -> level shifter -> XIAO receive chain, parser, checksum handling, candidate-ID handling, anti-nag replay sequence, and secretary API telemetry path.
 
-**Active injector firmware is also built behind `ACTIVE_MODE`.** XIAO generates anti-nag frames on UART1 TX with runtime model switching (`model:x`, `model:3`, `model:y`). The repository default leaves `ACTIVE_MODE` commented out; the physical bench XIAO was flashed active for the May 27 validation. See `ACTIVE_INJECTOR.md`.
+**Active injector firmware with BLE config is now the default build (v5).** XIAO generates anti-nag frames on UART1 TX with runtime model switching (`model:x`, `model:3`, `model:y`), BLE configuration via "TeslaAntiNag" service, and double-click toggle. The firmware flashed to the physical bench XIAO is the same as the repository default. See `ACTIVE_INJECTOR.md`.
 
 ## Hardware Under Test
 

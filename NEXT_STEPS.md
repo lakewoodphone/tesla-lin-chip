@@ -2,7 +2,7 @@
 
 Updated: 2026-05-27.
 
-Current state: passive bench receive is proven, full no-car evidence passed, and active Model X bench TX is proven by XIAO self-receive/ring evidence. The repository source defaults to passive mode (`ACTIVE_MODE` commented out); the physical bench XIAO is flashed with the working active firmware.
+Current state: passive bench receive is proven, full no-car evidence passed, and active Model X bench TX is proven by XIAO self-receive/ring evidence. Firmware v5 is the default build with ACTIVE_MODE enabled and NimBLE BLE config service advertising as "TeslaAntiNag" (model, mode, period, enable characteristics).
 
 For the complete handoff, read `START_HERE.md` first.
 
@@ -21,6 +21,7 @@ For the complete handoff, read `START_HERE.md` first.
   - NetworkAnalyser event/display modes still log zero rows for XIAO-generated frames
   - direct PICkitS USART polling sees the external frame bytes
   - `active-apg-raw-proof.ps1` captured 11 checksum-valid `0x0C` rows with `source=raw`
+- BLE config service added: 4 characteristics (model, mode, period, enable), deferred advertising retry, `ble` serial command for diagnostics.
 - Active docs and diagnostics added: `ACTIVE_INJECTOR.md`, `txd:low`, `txd:high`, `txd:uart`.
 
 ## Next Work

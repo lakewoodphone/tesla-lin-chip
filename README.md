@@ -10,8 +10,8 @@ Start with `START_HERE.md` when resuming. It is the current handoff and points t
 - Full no-car evidence passed on 2026-05-26: 80/80 exact APG -> XIAO matches across raw IDs `0x00` through `0x3F`, with 0 checksum/parity failures.
 - Active Model X bench TX is verified on the isolated bench. `model:x` + `antinag:start` produced more than 100 self-received `0x0C` frames with enhanced checksum and parity OK.
 - Active improvements applied: bus-idle collision guard (2 ms silence before TX), realistic scroll payloads (non-zero B2/B3), and mirror/alive frame injection (`0x0D` at 500 ms via `mirror:on`).
-- Repository source defaults to passive/safe mode: `ACTIVE_MODE` is commented out in `src/main.cpp`.
-- The physical bench XIAO is currently flashed with the working active firmware from 2026-05-27.
+- Repository default builds with `ACTIVE_MODE` enabled (anti-nag TX) and NimBLE BLE configuration service. Flash the same firmware for bench or field.
+- BLE service "TeslaAntiNag" exposes 4 characteristics: model (x/3/y/auto), mode (duty/always), period (5-120s), and enable (on/off).
 - APG known-ID raw fallback now captures XIAO-generated active Model X frames. NetworkAnalyser event/display modes still log zero rows for those external frames, but `monitor-apg-lin-bus.ps1 -RawFallback -RawFallbackId 0x0C` polls the PICkitS USART buffer directly and writes checksum-valid CSV rows.
 
 ## Hard Stops
@@ -81,7 +81,7 @@ Active mode (`#define ACTIVE_MODE`, bench only):
 - Model profiles: `model:x` (`0x0C` confirmed), `model:3` (`0x1A` candidate), `model:y` (`0x1A` candidate), `model:auto`.
 - Active commands: `model`, `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `mode:duty`, `mode:always`, `period:20000`, `mirror:on`, `mirror:off`, `tx:`.
 - Diagnostics: `txd:low`, `txd:high`, `txd:uart`.
-- BLE: not enabled (NimBLE requires Arduino-as-IDF `sdkconfig` integration).
+- BLE: NimBLE config service with 4 characteristics (model/mode/period/enable). Advertises as "TeslaAntiNag". Double-click wheel button still toggles on/off.
 
 ## Build And Flash
 

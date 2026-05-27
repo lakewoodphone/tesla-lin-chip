@@ -1,6 +1,6 @@
 # Tesla LIN Bench - Start Here
 
-Last updated: 2026-05-27 13:35 -04:00
+Last updated: 2026-05-27 16:45 -04:00
 
 This is the canonical handoff for the Tesla LIN / anti-nag bench project. When the owner says "open the Tesla project", start here.
 
@@ -31,8 +31,9 @@ BENCH_EVIDENCE.md                         Full no-car evidence summary
 ACTIVE_INJECTOR.md                        Bench-only active TX wiring, operation, and TXD diagnostics
 README.md                                 Wiring, firmware, tools, gotchas
 NEXT_STEPS.md                             Current work plan and passive car-day flow
-src/main.cpp                              XIAO firmware v5 — multi-model, ring buf, cmds, optional active TX
+src/main.cpp                              XIAO firmware v5 — multi-model, ring buf, cmds, active TX + BLE config service
 src/secrets.h.example                     Template for WiFi/API settings
+platformio.ini                            Build config: ESP32-C3, NimBLE, ACTIVE_MODE flag
 tools/bench-evidence-suite.ps1            No-car evidence matrix + API posting
 tools/active-bench-proof.ps1              Active Model X bench TX proof runner
 tools/active-apg-raw-proof.ps1            Active Model X TX + APG known-ID raw observer proof
@@ -62,14 +63,18 @@ tools/analyze-lin-capture.py              Python analyzer with Tesla ID referenc
 | Telemetry queue | 64 frames (was 16) — less drop at high rates |
 | Heartbeat | +baud, short frames, sync error counters |
 | LED indicator | GPIO status on LIN activity |
-| Active TX mode | Optional `ACTIVE_MODE`: half-baud break, model profiles, anti-nag scheduler, bus-idle collision guard, realistic scroll payloads, mirror-frame injection, TXD diagnostics |
+| Active TX mode | Enabled by default: half-baud break, model profiles, anti-nag scheduler, bus-idle collision guard, realistic scroll payloads, mirror-frame injection, TXD diagnostics, double-click toggle |
+| BLE config service | NimBLE "TeslaAntiNag": 4 characteristics for model/mode/period/enable, deferred advertising retry |
 
-Active mode is bench-only and source-controlled behind `#define ACTIVE_MODE`. The repository default keeps it commented out. The physical bench XIAO was flashed active from the May 27 validation session.
+Active mode is bench-only and enabled by default via `-DACTIVE_MODE` in `platformio.ini`. Remove the flag to build passive-only.
 
-Active improvements applied 2026-05-27:
+Active + BLE improvements (v5, 2026-05-27):
 - Bus-idle collision guard (2 ms silence before TX).
 - Realistic scroll payloads (non-zero velocity/accumulated bytes).
 - Mirror/alive frame injection (`0x0D` at 500 ms via `mirror:on`).
+- NimBLE BLE service with model (x/3/y/auto), mode (duty/always), period (5000-120000ms), and enable (on/off).
+- BLE writes take effect immediately; double-click wheel button still toggles.
+- `ble` serial command prints BLE state and characteristic UUIDs.
 
 ### Secretary API
 

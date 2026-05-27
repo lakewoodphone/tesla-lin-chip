@@ -58,6 +58,21 @@ Improvements applied 2026-05-27 afternoon:
 - Bus-idle collision guard: frames wait for 2 ms of bus silence before transmitting.
 - Realistic scroll payloads: anti-nag frames simulate changing velocity (B2) and accumulated scroll (B3) rather than constant zeros.
 - Mirror/alive frame injection: `mirror:on` sends periodic `0x0D` mirror frames every 500 ms alongside `0x0C` control frames.
+- BLE configuration service: connect to "TeslaAntiNag" to set model, mode, period, and on/off. Disables cleanly — writes are reflected in real time.
+
+## BLE Configuration
+
+The XIAO advertises as **"TeslaAntiNag"** after boot (NimBLE). Connect with any BLE client app (nRF Connect, LightBlue, etc.) and find the service `4fafc201-1fb5-459e-8fcc-c5c9c331914b` with 4 characteristics:
+
+| Characteristic | UUID | Read/Write | Values | Effect |
+|---|---|---|---|---|
+| Model | `...b26a8` | R/W | `x`, `3`, `y`, `auto` | Switches control LIN ID |
+| Mode | `...b26a9` | R/W | `duty`, `always` | 20s burst vs constant alternation |
+| Period | `...b26aa` | R/W | `5000`-`120000` (ms) | Duty cycle interval |
+| Enable | `...b26ab` | R/W | `on`, `off` | Toggle anti-nag TX |
+
+Writing `on` to Enable starts anti-nag; `off` stops it. The double-click wheel button still toggles.
+Serial command `ble` prints full BLE state and UUIDs.
 
 Evidence from XIAO ring/self-receive while running `model:x` + `antinag:start`:
 
@@ -73,7 +88,12 @@ APG NetworkAnalyser event/display capture still logged zero rows for XIAO-genera
 ## Bench Validation Steps
 
 1. Wire TX as above. APG must be in LINBUS mode on the isolated bench.
-2. Uncomment `#define ACTIVE_MODE`, build, and flash. The repository default keeps active mode commented out.
+2. Build and flash (v5 default includes ACTIVE_MODE + BLE):
+   ```powershell
+   cd C:\Users\ezabz\Code\xiao-lin-bench
+   python -m platformio run
+   python -m esptool --chip esp32c3 --port COM4 --baud 115200 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 80m 0x0000 .pio\build\xiao_esp32c3\bootloader.bin 0x8000 .pio\build\xiao_esp32c3\partitions.bin 0x10000 .pio\build\xiao_esp32c3\firmware.bin
+   ```
 3. Run the proof script:
    ```powershell
    powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x
@@ -111,4 +131,4 @@ If XIAO D2 is low but LV2 is high, the D2 -> LV2 jumper is disconnected or on th
 - TX path is for **isolated bench only** with APG in passive monitor mode.
 - Disconnect TX from TJA1021 before any vehicle connection.
 - Model 3/Y profiles use unconfirmed candidate IDs.
-- Comment `#define ACTIVE_MODE` to revert to passive-only firmware.
+- Comment `#define ACTIVE_MODE` in `platformio.ini` build flags to revert to passive-only firmware (remove `-DACTIVE_MODE`).

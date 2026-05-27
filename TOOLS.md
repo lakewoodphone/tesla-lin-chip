@@ -1,6 +1,6 @@
 # xiao-lin-bench Tools Reference
 
-Updated: 2026-05-27. Firmware v5 is current. Passive tools are ready for Model X/3/Y. Active Model X bench TX is verified on the isolated bench.
+Updated: 2026-05-27. Firmware v5 is current with ACTIVE_MODE + BLE config service. Passive tools are ready for Model X/3/Y. Active Model X bench TX is verified on the isolated bench.
 
 ## Tool Inventory
 
