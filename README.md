@@ -11,7 +11,7 @@ Start with `START_HERE.md` when resuming. It is the current handoff and points t
 - Active Model X bench TX is verified on the isolated bench. `model:x` + `antinag:start` produced more than 100 self-received `0x0C` frames with enhanced checksum and parity OK.
 - Repository source defaults to passive/safe mode: `ACTIVE_MODE` is commented out in `src/main.cpp`.
 - The physical bench XIAO is currently flashed with the working active firmware from 2026-05-27.
-- APG passive monitor still logs zero rows for XIAO-generated active frames even while XIAO self-receive parses them correctly. Treat that as APG tooling follow-up, not an active wiring blocker.
+- APG known-ID raw fallback now captures XIAO-generated active Model X frames. NetworkAnalyser event/display modes still log zero rows for those external frames, but `monitor-apg-lin-bus.ps1 -RawFallback -RawFallbackId 0x0C` polls the PICkitS USART buffer directly and writes checksum-valid CSV rows.
 
 ## Hard Stops
 
@@ -126,6 +126,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1
 
 Expected active proof: `ring` shows `ID=0x0C PID=0x4C [8B]` frames with `enhanced parity=OK` and `badChk=0 badPid=0` in `stats`.
 
+Independent APG known-ID raw observer proof, bench only:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8
+```
+
+Expected APG raw proof: `PASS` with raw CSV rows for `ID=0x0C`, `PID=0x4C`, `source=raw`.
+
 ## Tooling
 
 | Tool | Purpose | Vehicle-safe? |
@@ -135,6 +143,7 @@ Expected active proof: `ring` shows `ID=0x0C PID=0x4C [8B]` frames with `enhance
 | `tools/validate-xiao-bench.ps1` | APG transmit -> XIAO receive validation | No, bench only |
 | `tools/bench-evidence-suite.ps1` | Full APG/XIAO no-car evidence matrix | No, bench only |
 | `tools/active-bench-proof.ps1` | XIAO active TX self-receive proof | No, bench only |
+| `tools/active-apg-raw-proof.ps1` | XIAO active TX plus APG known-ID raw observer proof | No, bench only |
 | `tools/send-netanalyser-headless.ps1` | APG headless LIN transmit | No, bench only |
 | `tools/antinag-replay.ps1` | APG anti-nag replay sequence | No, bench only |
 | `tools/serial-to-lin-events.ps1` | XIAO USB serial -> secretary API | Passive if source is passive |
@@ -161,7 +170,7 @@ cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -
 
 | Issue | Current understanding |
 |---|---|
-| APG passive monitor logs zero rows for XIAO-generated active frames | XIAO self-receive proves bus frames; monitor now has `-Mode DisplayAll`/`-Mode Listen` diagnostics, but APG external-frame logging remains tooling follow-up |
+| APG NetworkAnalyser event/display modes log zero rows for XIAO-generated active frames | Settled: use `monitor-apg-lin-bus.ps1 -RawFallback -RawFallbackId 0x0C` or `active-apg-raw-proof.ps1` for known-ID bench observation. Generic vehicle discovery still uses normal passive event capture first. |
 | XIAO WiFi reports `NO_AP_FOUND` | Use USB serial and `serial-to-lin-events.ps1` unless WiFi credentials are repaired |
 | `PermissionError` on COM4 | A serial monitor is holding the port; stop PlatformIO/terminal process |
 | Direct `send-apg-lin-frame.ps1` baud looks wrong | Use NetworkAnalyser-based tools for real validation |

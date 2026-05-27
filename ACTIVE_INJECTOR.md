@@ -61,7 +61,7 @@ ID=0x0C PID=0x4C [8B] data: 0F 04 00 00 00 00 C0 02 | chk=DD enhanced parity=OK
 ID=0x0C PID=0x4C [8B] data: 10 00 00 00 00 00 C0 0A | chk=D8 enhanced parity=OK
 ```
 
-APG passive monitor still logged zero rows for XIAO-generated frames in this session, so XIAO self-receive/ring is the current active bench proof. Treat APG passive-monitor validation as follow-up tooling work, not as a wiring blocker.
+APG NetworkAnalyser event/display capture still logged zero rows for XIAO-generated frames in this session, but the APG raw USART buffer does see them. `tools\active-apg-raw-proof.ps1` captured 11 checksum-valid known-ID `0x0C` rows with `source=raw`, so the independent APG observer path is now proven for the Model X active bench stream.
 
 ## Bench Validation Steps
 
@@ -78,11 +78,11 @@ APG passive monitor still logged zero rows for XIAO-generated frames in this ses
    stats
    ring
    ```
-7. Optional: start APG passive monitor as an independent observer. Current APG passive logging did not capture XIAO-generated frames even when XIAO self-receive parsed them correctly:
+7. Optional: start APG known-ID raw fallback as an independent observer for the Model X bench stream:
    ```
-   cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1
+   powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8
    ```
-8. Verify alternating `0x0C` frames with `B0=0x11/0x0F` and neutral `B0=0x10`, with enhanced checksum/parity OK.
+8. Verify alternating `0x0C` frames with `B0=0x11/0x0F` and neutral `B0=0x10`, with enhanced checksum/parity OK or `source=raw` APG rows.
 
 ## TX Path Debug Checklist
 

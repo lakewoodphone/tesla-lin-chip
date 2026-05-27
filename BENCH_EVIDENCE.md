@@ -149,13 +149,39 @@ ID=0x0C PID=0x4C [8B] data: 0F 04 00 00 00 00 C0 02 | chk=DD enhanced parity=OK
 ID=0x0C PID=0x4C [8B] data: 10 00 00 00 00 00 C0 0A | chk=D8 enhanced parity=OK
 ```
 
-APG passive monitor still logged zero rows for XIAO-generated frames during this session, even while XIAO self-receive parsed valid active frames. Treat APG passive monitor behavior as a tooling limitation/follow-up item.
+NetworkAnalyser event/display passive capture still logged zero rows for XIAO-generated frames during this session, even while XIAO self-receive parsed valid active frames. This is now characterized as a NetworkAnalyser event-layer limitation for externally generated bench frames, not a wiring failure.
 
 `tools/active-bench-proof.ps1` now automates this active self-receive proof and saves a log plus Markdown summary under `logs/`.
+
+## APG Known-ID Raw Observer Proof (May 27, 2026)
+
+The APG does see the XIAO active bench frames at the raw USART buffer layer. `monitor-apg-lin-bus.ps1 -RawFallback` bypasses the NetworkAnalyser event parser, polls `PICkitS.Basic.Retrieve_USART_Data`, scans for 8-byte payload + checksum windows, validates against the assumed raw ID, and writes normal CSV rows with `source=raw`.
+
+Command:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8
+```
+
+Result:
+
+```text
+XIAO TX lines observed: 55
+APG raw rows observed: 11
+PASS: APG raw fallback captured 11 checksum-valid known-ID frames.
+```
+
+Representative APG raw CSV rows:
+
+```text
+ID=0x0C PID=0x4C [8B] data: 0F 04 00 00 00 00 C0 04 source=raw
+ID=0x0C PID=0x4C [8B] data: 10 00 00 00 00 00 C0 06 source=raw
+ID=0x0C PID=0x4C [8B] data: 11 04 00 00 00 00 C0 0A source=raw
+```
 
 ## Remaining No-Car Limits
 
 - The bench can prove parser correctness, checksum behavior, APG send behavior, telemetry plumbing, and XIAO self-received active injection on the isolated bench.
 - It cannot identify actual Model 3/Y steering IDs without passive vehicle capture.
 - It cannot prove Tesla accepts any anti-nag sequence. Vehicle work must start passive only.
-- APG passive-monitor validation of XIAO-generated frames remains open.
+- Generic vehicle discovery still needs normal passive capture because raw fallback requires a known ID. The active Model X bench observer path is proven with APG raw fallback.

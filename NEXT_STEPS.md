@@ -17,15 +17,18 @@ For the complete handoff, read `START_HERE.md` first.
   - switched TX break generation to half-baud UART `0x00`
   - `model:x` + `antinag:start` produced more than 100 self-received `0x0C` frames
   - enhanced checksums and parity were OK
+- APG known-ID raw fallback validated on 2026-05-27:
+  - NetworkAnalyser event/display modes still log zero rows for XIAO-generated frames
+  - direct PICkitS USART polling sees the external frame bytes
+  - `active-apg-raw-proof.ps1` captured 11 checksum-valid `0x0C` rows with `source=raw`
 - Active docs and diagnostics added: `ACTIVE_INJECTOR.md`, `txd:low`, `txd:high`, `txd:uart`.
 
 ## Next Work
 
 1. Keep root docs current and use `docs/archive/` for historical handoffs.
-2. Improve APG passive monitor behavior for XIAO-generated active frames; `DisplayAll` and `Listen` modes now print receive diagnostics, but both still log zero rows while XIAO self-receive parses valid bus frames.
-3. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
-4. Before any vehicle session, run passive quick evidence and pack the bench kit.
-5. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
+2. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
+3. Before any vehicle session, run passive quick evidence and pack the bench kit.
+4. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
 
 ## Quick Validation Commands
 
@@ -55,6 +58,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1
 ```
 
 Expected proof: `stats` shows frames increasing with `badChk=0 badPid=0`; `ring` shows `ID=0x0C PID=0x4C [8B]` frames with enhanced checksum and parity OK.
+
+APG known-ID raw observer proof, bench only:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8
+```
 
 ## Car Day Passive Flow
 

@@ -9,7 +9,7 @@ This is the canonical handoff for the Tesla LIN / anti-nag bench project. When t
 The bench is working and validated end-to-end for passive LIN receive at 19200 baud.
 **Firmware v5 is live on the bench XIAO** with multi-model runtime support, ring buffer, serial commands, and optional active TX behind `ACTIVE_MODE`.
 The no-car evidence suite passed a full raw-ID sweep: **80/80 exact XIAO matches, 0 APG failures, 0 bad checksum/parity frames posted to secretary**.
-Active Model X bench TX was validated on May 27: after fixing a disconnected D2 -> LV2 jumper, `model:x` + `antinag:start` produced >100 self-received `0x0C` frames with enhanced checksum/parity OK.
+Active Model X bench TX was validated on May 27: after fixing a disconnected D2 -> LV2 jumper, `model:x` + `antinag:start` produced >100 self-received `0x0C` frames with enhanced checksum/parity OK. APG known-ID raw fallback is also validated: `active-apg-raw-proof.ps1` captured 11 checksum-valid `0x0C` CSV rows with `source=raw`.
 
 Active project path:
 
@@ -35,6 +35,7 @@ src/main.cpp                              XIAO firmware v5 — multi-model, ring
 src/secrets.h.example                     Template for WiFi/API settings
 tools/bench-evidence-suite.ps1            No-car evidence matrix + API posting
 tools/active-bench-proof.ps1              Active Model X bench TX proof runner
+tools/active-apg-raw-proof.ps1            Active Model X TX + APG known-ID raw observer proof
 tools/serial-to-lin-events.ps1            USB serial -> secretary fallback telemetry
 tools/car-day-launcher.ps1                Unified car-day entry point (NEW)
 tools/send-netanalyser-headless.ps1       Proven APG transmit path
@@ -170,6 +171,20 @@ Secretary LIN POST: 200 OK.
 Secretary LIN GET: returned stored bench-test frame.
 ```
 
+Latest APG raw observer proof:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8
+```
+
+Result:
+
+```text
+XIAO TX lines observed: 55
+APG raw rows observed: 11
+PASS: APG raw fallback captured 11 checksum-valid known-ID frames.
+```
+
 ## Hardware Wiring
 
 Current verified receive path:
@@ -202,7 +217,7 @@ Before the car arrives:
 
 1. Keep the current bench wiring intact; passive RX and active Model X TX are proven on the isolated bench.
 2. Before future active tests, confirm XIAO D2 -> LV2 -> HV2 -> module TX using `txd:low`; the May 27 fault was a disconnected D2 -> LV2 jumper.
-3. Use `tools\active-bench-proof.ps1` to verify active frames. APG passive monitor still logged zero rows for XIAO-generated frames and needs tooling follow-up.
+3. Use `tools\active-bench-proof.ps1` to verify XIAO self-receive, and `tools\active-apg-raw-proof.ps1` when you want APG known-ID raw observer evidence.
 4. If WiFi telemetry is needed, set real WiFi/hotspot credentials in `src/secrets.h`, rebuild, and flash.
 5. If WiFi remains unavailable, use `tools/serial-to-lin-events.ps1`; USB telemetry is proven.
 6. Run the quick no-car suite before packing: `tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`.
