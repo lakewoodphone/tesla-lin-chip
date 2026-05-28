@@ -2,9 +2,10 @@
 
 Updated: 2026-05-27.
 
-Current state: passive bench receive is proven, full no-car evidence passed, and active Model X bench TX is proven by XIAO self-receive/ring evidence. Firmware v5 is the default build with ACTIVE_MODE enabled and NimBLE BLE config service advertising as "TeslaAntiNag" (model, mode, period, enable characteristics).
+Current state: passive bench receive is proven, full no-car evidence passed, and active Model X bench TX is proven by XIAO self-receive/ring evidence. Firmware v5.1 has explicit build profiles: default `field_passive`, `field_passive_nowifi`, `bench_active_ble`, and `chip_lab_active`. Active TX requires `safe:arm` before transmitting and `safe:off` disarms/stops output.
 
 For the complete handoff, read `START_HERE.md` first.
+For the deeper implementation plan, read `IMPLEMENTATION_ROADMAP.md`.
 
 ## Done
 
@@ -22,14 +23,21 @@ For the complete handoff, read `START_HERE.md` first.
   - direct PICkitS USART polling sees the external frame bytes
   - `active-apg-raw-proof.ps1` captured 11 checksum-valid `0x0C` rows with `source=raw`
 - BLE config service added: 4 characteristics (model, mode, period, enable), deferred advertising retry, `ble` serial command for diagnostics.
+- Firmware active safety now reports reset reason, fault count, last fault, and fault lockout; RX-integrity spikes or a dominant-line timeout while armed force output off and require manual `safe:off` before re-arming.
+- Car-day launcher now enforces passive preflight and requires XIAO `field_passive` output unless explicitly overridden for bench diagnostics.
+- Active proof scripts now require explicit isolated-bench confirmation before any TX test.
+- Analyzer can emit a review-only profile candidate file with `--candidate-json`; it must not auto-update firmware profiles.
 - Active docs and diagnostics added: `ACTIVE_INJECTOR.md`, `txd:low`, `txd:high`, `txd:uart`.
+- Roadmap Phase 0 mostly implemented: build profile split, default passive build, `version/config/safe:off/factory:reset`, NVS config CRC, BLE status/capabilities, safe arm gate, TX rate/session gates, all-env build script, capture session manifest, hardware preflight, and full bench proof wrapper.
 
 ## Next Work
 
 1. Keep root docs current and use `docs/archive/` for historical handoffs.
-2. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
-3. Before any vehicle session, run passive quick evidence and pack the bench kit.
-4. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
+2. Flash and hardware-test `field_passive` and `bench_active_ble` on COM4; software builds already pass.
+3. Run `tools/full-bench-proof.ps1 -RunActive -ConfirmBenchIsolation` on the isolated bench with the physical TX path connected, then attach the output folder to `BENCH_EVIDENCE.md`.
+4. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
+5. Before any vehicle session, run `tools/new-capture-session.ps1 -Mode car-passive`, `tools/preflight-hardware-check.ps1 -Mode car-passive`, and passive quick evidence.
+6. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
 
 ## Quick Validation Commands
 
@@ -37,7 +45,7 @@ Build current default firmware:
 
 ```powershell
 cd C:\Users\ezabz\Code\xiao-lin-bench
-python -m platformio run
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\build-all-envs.ps1
 ```
 
 Passive bench validation:
@@ -85,6 +93,7 @@ Analyze after capture:
 
 ```powershell
 python tools\analyze-lin-capture.py --latest logs\
+python tools\analyze-lin-capture.py --latest logs\ --windows logs\sessions\<session>\manifest.json --candidate-json logs\sessions\<session>\model-profile-candidate.json
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\summarize-lin-capture.ps1
 ```
 

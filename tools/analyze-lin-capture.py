@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-r"""LIN capture analyzer for Tesla (Model 3/Y/X) — post-capture ID labeling + reference.
+r"""LIN capture analyzer for Tesla (Model 3/Y/X) - post-capture ID labeling + reference.
 
 Usage:
     python tools\analyze-lin-capture.py logs\lin-capture-20260526_140000.csv
@@ -14,13 +14,13 @@ Given a CSV from monitor-apg-lin-bus.ps1, produces:
 
 import csv, json, sys, os
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 
 # =========================================================================
 # TESLA KNOWN LIN ID REFERENCE TABLES
 # =========================================================================
 # These are compiled from real Model X captures (Moti Zaks, 2026-05-17).
-# Model 3/Y IDs may differ — use these as a starting reference to compare
+# Model 3/Y IDs may differ - use these as a starting reference to compare
 # against real captures. Unknown IDs are flagged, not assumed.
 #
 # LIN format: 19200 baud, enhanced checksum (LIN 2.x), 8 data bytes.
@@ -51,7 +51,7 @@ ID_REFERENCE = {
         "label": "Passive mirror / response",
         "length": 8,
         "checksum": "enhanced",
-        "notes": "Same rate as 0x0C but only 17 unique payloads in 60s — "
+        "notes": "Same rate as 0x0C but only 17 unique payloads in 60s - "
                  "almost entirely counter variation. Not control-bearing.",
         "priority": "LOW",
     },
@@ -70,7 +70,7 @@ ID_REFERENCE = {
         "label": "Alive/heartbeat (1-bit toggle)",
         "length": 8,
         "checksum": "enhanced",
-        "notes": "Same as 0x0E — alternates 0x50/0x51. Seat/occupancy signal?",
+        "notes": "Same as 0x0E - alternates 0x50/0x51. Seat/occupancy signal?",
         "priority": "LOW",
     },
     "0x16": {
@@ -91,11 +91,11 @@ ID_REFERENCE = {
         "notes": "Completely static across all captures.",
         "priority": "INFO",
     },
-    # === Model 3/Y candidates (from community reports — NOT YET CONFIRMED) ===
+    # === Model 3/Y candidates (from community reports - NOT YET CONFIRMED) ===
     "0x1A": {
         "model": "3/Y",
         "bus": "steering",
-        "label": "CANDIDATE — scroll/buttons?",
+        "label": "CANDIDATE - scroll/buttons?",
         "length": 8,
         "checksum": "enhanced",
         "notes": "Unconfirmed, reported in community as possible steering ID. "
@@ -105,7 +105,7 @@ ID_REFERENCE = {
     "0x1B": {
         "model": "3/Y",
         "bus": "steering",
-        "label": "CANDIDATE — scroll/buttons?",
+        "label": "CANDIDATE - scroll/buttons?",
         "length": 8,
         "checksum": "enhanced",
         "notes": "Unconfirmed alternative steering ID candidate.",
@@ -132,7 +132,7 @@ ID_REFERENCE = {
     },
 }
 
-# Checksum formula — for verification
+# Checksum formula - for verification
 def lin_enhanced_checksum(pid: int, data: list) -> int:
     s = pid
     for b in data:
@@ -163,7 +163,145 @@ def make_protected_id(raw_id: int) -> int:
     return id_mask | (p0 << 6) | (p1 << 7)
 
 
-def analyze_csv(csv_path: str, output_json: str = ""):
+def load_action_windows(path: str) -> list:
+    if not path:
+        return []
+    with open(path, "r", encoding="utf-8-sig") as f:
+        payload = json.load(f)
+    windows = payload.get("action_windows", []) if isinstance(payload, dict) else payload
+    normalized = []
+    for win in windows:
+        try:
+            start_ms = int(win.get("start_ms", 0))
+            end_ms = int(win.get("end_ms", 0))
+            if end_ms <= start_ms:
+                continue
+            normalized.append({
+                "name": str(win.get("name", "action")),
+                "start_ms": start_ms,
+                "end_ms": end_ms,
+                "notes": str(win.get("notes", "")),
+            })
+        except (TypeError, ValueError):
+            continue
+    return normalized
+
+
+def analyze_action_windows(frames: list, windows: list) -> list:
+    reports = []
+    for win in windows:
+        duration_ms = max(1, win["end_ms"] - win["start_ms"])
+        before_start = max(0, win["start_ms"] - duration_ms)
+        before = [f for f in frames if before_start <= f["ts_ms"] < win["start_ms"]]
+        during = [f for f in frames if win["start_ms"] <= f["ts_ms"] <= win["end_ms"]]
+
+        before_by_id = defaultdict(list)
+        during_by_id = defaultdict(list)
+        for f in before:
+            before_by_id[f["id_hex"]].append(f)
+        for f in during:
+            during_by_id[f["id_hex"]].append(f)
+
+        ranked = []
+        all_ids = sorted(set(before_by_id.keys()) | set(during_by_id.keys()), key=lambda x: int(x, 16))
+        for id_hex in all_ids:
+            before_items = before_by_id.get(id_hex, [])
+            during_items = during_by_id.get(id_hex, [])
+            if not during_items:
+                continue
+            before_payloads = set(f["data_hex"] for f in before_items)
+            during_payloads = set(f["data_hex"] for f in during_items)
+            new_payloads = during_payloads - before_payloads
+            before_rate = len(before_items) / max(1, duration_ms / 1000)
+            during_rate = len(during_items) / max(1, duration_ms / 1000)
+            rate_delta = during_rate - before_rate
+            score = (len(during_items) * 1.0) + (len(new_payloads) * 5.0) + max(0, rate_delta) * 2.0
+            ref = ID_REFERENCE.get(id_hex, {})
+            ranked.append({
+                "id_hex": id_hex,
+                "label": ref.get("label", "UNKNOWN"),
+                "priority": ref.get("priority", "UNKNOWN"),
+                "during_frames": len(during_items),
+                "before_frames": len(before_items),
+                "during_unique_payloads": len(during_payloads),
+                "new_payloads": sorted(new_payloads)[:10],
+                "rate_delta_hz": round(rate_delta, 2),
+                "score": round(score, 2),
+            })
+
+        ranked.sort(key=lambda row: row["score"], reverse=True)
+        reports.append({
+            "name": win["name"],
+            "start_ms": win["start_ms"],
+            "end_ms": win["end_ms"],
+            "notes": win.get("notes", ""),
+            "ranked_ids": ranked[:12],
+        })
+    return reports
+
+
+def build_candidate_profile(csv_path: str, detected_model: str, by_id: dict, window_reports: list) -> dict:
+    candidate_scores = defaultdict(float)
+    candidate_windows = defaultdict(list)
+
+    for report in window_reports:
+        for row in report.get("ranked_ids", []):
+            id_hex = row["id_hex"]
+            candidate_scores[id_hex] += float(row.get("score", 0))
+            candidate_windows[id_hex].append({
+                "window": report.get("name", "action"),
+                "score": row.get("score", 0),
+                "during_frames": row.get("during_frames", 0),
+                "new_payloads": row.get("new_payloads", []),
+                "rate_delta_hz": row.get("rate_delta_hz", 0),
+            })
+
+    if not candidate_scores:
+        for id_hex, items in by_id.items():
+            ref = ID_REFERENCE.get(id_hex, {})
+            priority = ref.get("priority", "UNKNOWN")
+            base = {"HIGH": 50, "INVESTIGATE": 25, "UNKNOWN": 10, "INFO": 2, "LOW": 1}.get(priority, 1)
+            payloads = set(f["data_hex"] for f in items)
+            candidate_scores[id_hex] = base + min(len(payloads), 20)
+
+    candidates = []
+    for id_hex, score in sorted(candidate_scores.items(), key=lambda kv: kv[1], reverse=True):
+        items = by_id.get(id_hex, [])
+        if not items:
+            continue
+        ref = ID_REFERENCE.get(id_hex, {})
+        payloads = defaultdict(int)
+        for f in items:
+            payloads[f["data_hex"]] += 1
+        candidates.append({
+            "id_hex": id_hex,
+            "id_dec": int(id_hex, 16),
+            "label": ref.get("label", "UNKNOWN"),
+            "reference_priority": ref.get("priority", "UNKNOWN"),
+            "reference_model": ref.get("model", "unknown"),
+            "frame_count": len(items),
+            "unique_payloads": len(payloads),
+            "score": round(score, 2),
+            "top_payloads": [
+                {"data_hex": data_hex, "count": count}
+                for data_hex, count in sorted(payloads.items(), key=lambda kv: -kv[1])[:10]
+            ],
+            "action_windows": candidate_windows.get(id_hex, []),
+        })
+
+    return {
+        "schema": "xiao-lin-profile-candidate-v1",
+        "source_csv": csv_path,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "detected_model": detected_model,
+        "review_only": True,
+        "active_profile_update_allowed": False,
+        "minimum_review_gate": "Require at least two passive captures with matching ranked IDs before editing firmware profiles.",
+        "candidates": candidates[:16],
+    }
+
+
+def analyze_csv(csv_path: str, output_json: str = "", action_windows: list | None = None, candidate_json: str = ""):
     if not os.path.exists(csv_path):
         print(f"ERROR: CSV not found: {csv_path}")
         sys.exit(1)
@@ -184,11 +322,12 @@ def analyze_csv(csv_path: str, output_json: str = ""):
                     "pid_hex": row.get("pid_hex", "").strip(),
                     "data_len": int(row.get("data_len", 0)),
                     "data_hex": row.get("data_hex", "").strip().replace("-", " "),
+                    "rx_checksum": row.get("rx_checksum", row.get("checksum", row.get("chk", ""))).strip(),
                     "error": int(row.get("error", 0)),
                     "baud": int(row.get("baud", 0)),
                 })
             except (ValueError, KeyError) as e:
-                print(f"  WARN: skipping row — {e}: {row}")
+                print(f"  WARN: skipping row - {e}: {row}")
 
     if not frames:
         print("No valid frames found.")
@@ -255,11 +394,12 @@ def analyze_csv(csv_path: str, output_json: str = ""):
             try:
                 pid_val = int(items[0]["pid_hex"], 16) if items[0]["pid_hex"] else make_protected_id(int(id_hex, 16))
                 for f in items[:20]:  # check first 20
+                    if not f.get("rx_checksum"):
+                        continue
                     data_bytes = [int(x, 16) for x in f["data_hex"].split() if x]
-                    if len(data_bytes) >= 2:
-                        # Last byte is checksum
-                        data_part = data_bytes[:-1]
-                        rx_chk = data_bytes[-1]
+                    if data_bytes:
+                        data_part = data_bytes
+                        rx_chk = int(f["rx_checksum"].replace("0x", ""), 16)
                         exp_enh = lin_enhanced_checksum(pid_val, data_part)
                         exp_cls = lin_classic_checksum(data_part)
                         if rx_chk != exp_enh and rx_chk != exp_cls:
@@ -316,8 +456,21 @@ def analyze_csv(csv_path: str, output_json: str = ""):
         pid_val = make_protected_id(0x0C)
         print("--- ANTI-NAG INJECTION REFERENCE (ID=0x0C, bench only) ---")
         print("Alternating UP/DOWN scroll with engage bit.")
-        print("DO NOT USE ON VEHICLE — bench validation required.")
+        print("DO NOT USE ON VEHICLE - bench validation required.")
         print()
+
+    window_reports = analyze_action_windows(frames, action_windows or [])
+    if window_reports:
+        print("--- ACTION WINDOW CORRELATION ---")
+        for report in window_reports:
+            print(f"  {report['name']}  {report['start_ms']}ms -> {report['end_ms']}ms")
+            for row in report["ranked_ids"][:8]:
+                print(
+                    f"    {row['id_hex']:<6} score={row['score']:<7} "
+                    f"during={row['during_frames']:<5} new_payloads={len(row['new_payloads']):<3} "
+                    f"delta={row['rate_delta_hz']:<6} [{row['priority']}] {row['label']}"
+                )
+            print()
         print(f"{'B0':>4} {'B1':>4} {'B2':>4} {'B3':>4} {'B4':>4} {'B5':>4} {'B6':>4} {'B7':>4} {'CHK':>4}  direction  ctr")
         for ctr in range(16):
             for direction, b0, b1 in [("UP  ", 0x11, 0x04), ("DOWN", 0x0F, 0x04)]:
@@ -330,13 +483,14 @@ def analyze_csv(csv_path: str, output_json: str = ""):
     if output_json:
         summary = {
             "csv": csv_path,
-            "analyzed_at": datetime.utcnow().isoformat(),
+            "analyzed_at": datetime.now(timezone.utc).isoformat(),
             "model": detected_model,
             "total_frames": total_frames,
             "duration_s": round(duration_s, 1),
             "rate_hz": round(overall_rate, 1),
             "unique_ids": len(by_id),
             "ids": {},
+            "action_windows": window_reports,
         }
         for id_hex in sorted(by_id.keys(), key=lambda x: int(x, 16)):
             items = by_id[id_hex]
@@ -355,6 +509,12 @@ def analyze_csv(csv_path: str, output_json: str = ""):
             json.dump(summary, f, indent=2)
         print(f"JSON summary: {output_json}")
 
+    if candidate_json:
+        candidate_profile = build_candidate_profile(csv_path, detected_model, by_id, window_reports)
+        with open(candidate_json, "w", encoding="utf-8") as f:
+            json.dump(candidate_profile, f, indent=2)
+        print(f"Candidate profile: {candidate_json}")
+
 
 def find_latest_csv(log_dir: str) -> str:
     csv_files = sorted(
@@ -371,8 +531,8 @@ def find_latest_csv(log_dir: str) -> str:
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage:")
-        print("  python analyze-lin-capture.py <csv_path> [--json <out.json>]")
-        print("  python analyze-lin-capture.py --latest [<log_dir>]")
+        print("  python analyze-lin-capture.py <csv_path> [--json <out.json>] [--candidate-json <candidate.json>] [--windows <manifest.json>]")
+        print("  python analyze-lin-capture.py --latest [<log_dir>] [--windows <manifest.json>] [--candidate-json <candidate.json>]")
         sys.exit(1)
 
     csv_arg = sys.argv[1]
@@ -380,11 +540,20 @@ if __name__ == "__main__":
     if "--json" in sys.argv:
         idx = sys.argv.index("--json")
         json_out = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else ""
+    candidate_out = ""
+    if "--candidate-json" in sys.argv:
+        idx = sys.argv.index("--candidate-json")
+        candidate_out = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else ""
+    windows = []
+    if "--windows" in sys.argv:
+        idx = sys.argv.index("--windows")
+        windows_path = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else ""
+        windows = load_action_windows(windows_path)
 
     if csv_arg == "--latest":
         log_dir = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs"
         )
-        analyze_csv(find_latest_csv(log_dir), json_out)
+        analyze_csv(find_latest_csv(log_dir), json_out, windows, candidate_out)
     else:
-        analyze_csv(csv_arg, json_out)
+        analyze_csv(csv_arg, json_out, windows, candidate_out)

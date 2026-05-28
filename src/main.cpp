@@ -5,10 +5,11 @@
 // - Parse frames by observed break/idle boundary, not only by ID-derived length.
 // - Validate protected-ID parity plus enhanced and classic checksums.
 // - Keep LIN parsing real-time: HTTP telemetry is queued and rate-limited.
-// - v4: Auto-baud scan, runtime vehicle ID, ring buffer, serial commands.
+// - v5: Active bench TX, BLE config, runtime vehicle ID, ring buffer, serial commands.
 
 #include <Arduino.h>
 #include <HardwareSerial.h>
+#include <esp_system.h>
 
 #ifndef NO_WIFI
 #include <WiFi.h>
@@ -19,7 +20,48 @@
 
 #ifdef ACTIVE_MODE
 #include <NimBLEDevice.h>
+#include <Preferences.h>
 #endif
+
+#ifndef FIRMWARE_VERSION
+#define FIRMWARE_VERSION "v5.1-dev"
+#endif
+
+#ifndef BUILD_PROFILE
+#ifdef ACTIVE_MODE
+#define BUILD_PROFILE "active_unknown"
+#else
+#define BUILD_PROFILE "field_passive"
+#endif
+#endif
+
+#ifdef ACTIVE_MODE
+#define ACTIVE_STATE_LABEL "yes"
+#else
+#define ACTIVE_STATE_LABEL "no"
+#endif
+
+#ifndef NO_WIFI
+#define WIFI_STATE_LABEL "yes"
+#else
+#define WIFI_STATE_LABEL "no"
+#endif
+
+static const char *resetReasonLabel() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON: return "poweron";
+    case ESP_RST_EXT: return "external";
+    case ESP_RST_SW: return "software";
+    case ESP_RST_PANIC: return "panic";
+    case ESP_RST_INT_WDT: return "interrupt_watchdog";
+    case ESP_RST_TASK_WDT: return "task_watchdog";
+    case ESP_RST_WDT: return "other_watchdog";
+    case ESP_RST_DEEPSLEEP: return "deepsleep";
+    case ESP_RST_BROWNOUT: return "brownout";
+    case ESP_RST_SDIO: return "sdio";
+    default: return "unknown";
+  }
+}
 
 HardwareSerial LIN(1);
 
@@ -31,19 +73,22 @@ HardwareSerial LIN(1);
 #define FRAME_IDLE_TIMEOUT_MS   8
 #define RAW_BYTE_LOG_ENABLED    0
 #define RING_BUF_SIZE           128
-// Active TX mode: enables UART1 TX with break field, anti-nag frame scheduler.
-// Uncomment to build the active injector firmware (bench use only).
-// #define ACTIVE_MODE
+// Active TX mode is enabled by the platformio.ini -DACTIVE_MODE build flag.
+// Remove that flag to build passive-only firmware.
 
 #ifdef ACTIVE_MODE
 #define TX_DUTY_PERIOD_MS       20000
 #define TX_BURST_GAP_MS         50
 #define TX_ALIVE_PERIOD_MS      500
 #define TX_BUS_IDLE_MIN_MS      2
+#define TX_MAX_FRAMES_PER_SEC   10
+#define TX_ACTIVE_SESSION_MAX_MS 300000UL
 #define DBLCLICK_WINDOW_MS      800
 #define TX_ALTERNATION_GAP_MS   300
 #define ANTI_NAG_MODE_DUTY      0
 #define ANTI_NAG_MODE_ALWAYS    1
+#define CONFIG_VERSION          1
+#define ACTIVE_EVENT_LOG_SIZE   16
 
 // Model profiles for active anti-nag TX.
 // Each profile maps a model name to the known steering/control LIN ID.
@@ -84,10 +129,54 @@ static char vehicleId[32] = VEHICLE_ID;
 static void resetFrameBuffer();
 static void restartLinUart(uint16_t baud);
 #ifdef ACTIVE_MODE
-static void txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen);
+static bool txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen);
 static void serviceAntiNag();
 static void serviceAliveTx();
 #endif
+
+static bool parseUintToken(const char *text, const char **next, uint32_t maxValue, uint32_t *out, bool preferHexByte) {
+  if (!text || !out) return false;
+
+  const char *p = text;
+  while (*p == ' ' || *p == '\t' || *p == ',') p++;
+  if (*p == '\0') return false;
+
+  char token[16] = {0};
+  uint8_t len = 0;
+  while (*p && *p != ',' && *p != ' ' && *p != '\t' && len < sizeof(token) - 1) {
+    token[len++] = *p++;
+  }
+  token[len] = '\0';
+  if (next) *next = p;
+  if (len == 0) return false;
+
+  uint8_t base = 10;
+  const char *number = token;
+  if ((token[0] == '0') && (token[1] == 'x' || token[1] == 'X')) {
+    base = 16;
+    number = token + 2;
+  } else if ((token[0] == '0') && (token[1] == 'd' || token[1] == 'D')) {
+    base = 10;
+    number = token + 2;
+  } else if (preferHexByte && len <= 2) {
+    base = 16;
+  } else {
+    for (uint8_t i = 0; i < len; i++) {
+      if ((token[i] >= 'a' && token[i] <= 'f') || (token[i] >= 'A' && token[i] <= 'F')) {
+        base = 16;
+        break;
+      }
+    }
+  }
+
+  if (*number == '\0') return false;
+  char *end = nullptr;
+  unsigned long parsed = strtoul(number, &end, base);
+  if (!end || *end != '\0' || parsed > maxValue) return false;
+
+  *out = (uint32_t)parsed;
+  return true;
+}
 
 enum State { S_IDLE, S_SYNC, S_PID, S_BYTES };
 State state = S_IDLE;
@@ -124,6 +213,33 @@ bool dutyBurstDone = false;
 uint32_t lastAliveMs = 0;
 int aliveCtr = 0;
 uint32_t txFrameCount = 0;
+uint32_t txInhibitCount = 0;
+uint32_t txRateWindowMs = 0;
+uint8_t txRateWindowCount = 0;
+uint32_t activeSessionStartMs = 0;
+bool activeTxArmed = false;
+bool faultLockout = false;
+char lastTxInhibitReason[32] = "none";
+char lastFaultReason[32] = "none";
+uint32_t faultCount = 0;
+uint32_t lastFaultMs = 0;
+uint32_t safetyChecksumBadSeen = 0;
+uint32_t safetyParityBadSeen = 0;
+uint32_t safetySyncErrSeen = 0;
+uint32_t rxDominantSinceMs = 0;
+char configLoadStatus[48] = "not_loaded";
+Preferences configPrefs;
+bool configPrefsOpen = false;
+
+struct ActiveEvent {
+  uint32_t uptimeMs;
+  char type[16];
+  char detail[48];
+};
+
+ActiveEvent activeEvents[ACTIVE_EVENT_LOG_SIZE];
+uint8_t activeEventHead = 0;
+uint32_t activeEventTotal = 0;
 
 bool dblClickEnabled = false;
 uint32_t lastButtonPressMs = 0;
@@ -136,6 +252,8 @@ bool lastButtonState = false;
 #define BLE_CHAR_MODE_UUID  "beb5483e-36e1-4688-b7f5-ea07361b26a9"
 #define BLE_CHAR_PERIOD_UUID "beb5483e-36e1-4688-b7f5-ea07361b26aa"
 #define BLE_CHAR_ENABLE_UUID "beb5483e-36e1-4688-b7f5-ea07361b26ab"
+#define BLE_CHAR_STATUS_UUID "beb5483e-36e1-4688-b7f5-ea07361b26ac"
+#define BLE_CHAR_CAPS_UUID   "beb5483e-36e1-4688-b7f5-ea07361b26ad"
 
 static NimBLEServer       *bleServer     = nullptr;
 static NimBLEService      *bleService    = nullptr;
@@ -143,10 +261,295 @@ static NimBLECharacteristic *bleCharModel  = nullptr;
 static NimBLECharacteristic *bleCharMode   = nullptr;
 static NimBLECharacteristic *bleCharPeriod = nullptr;
 static NimBLECharacteristic *bleCharEnable = nullptr;
+static NimBLECharacteristic *bleCharStatus = nullptr;
+static NimBLECharacteristic *bleCharCaps   = nullptr;
 static bool bleClientConnected = false;
 static bool bleAdvPending = true;  // Deferred advertising flag
+static uint32_t bleLastAdvAttemptMs = 0;
 
 static void initBleConfig();
+static void updateBleStatus();
+
+static void appendActiveEvent(const char *type, const char *detail, bool persist) {
+  ActiveEvent &event = activeEvents[activeEventHead];
+  event.uptimeMs = millis();
+  strncpy(event.type, type ? type : "event", sizeof(event.type) - 1);
+  event.type[sizeof(event.type) - 1] = '\0';
+  strncpy(event.detail, detail ? detail : "", sizeof(event.detail) - 1);
+  event.detail[sizeof(event.detail) - 1] = '\0';
+  activeEventHead = (activeEventHead + 1) % ACTIVE_EVENT_LOG_SIZE;
+  activeEventTotal++;
+
+  if (persist && configPrefsOpen) {
+    uint32_t slot = configPrefs.getUInt("elog_slot", 0) % ACTIVE_EVENT_LOG_SIZE;
+    char key[8];
+    snprintf(key, sizeof(key), "ev%02lu", (unsigned long)slot);
+    char value[96];
+    snprintf(value, sizeof(value), "%lu;%s;%s", (unsigned long)event.uptimeMs, event.type, event.detail);
+    configPrefs.putString(key, value);
+    configPrefs.putUInt("elog_slot", (slot + 1) % ACTIVE_EVENT_LOG_SIZE);
+    configPrefs.putUInt("elog_total", configPrefs.getUInt("elog_total", 0) + 1);
+  }
+}
+
+static void dumpActiveEvents() {
+  Serial.printf("events: ram_total=%lu persisted_total=%lu\n",
+    (unsigned long)activeEventTotal,
+    configPrefsOpen ? (unsigned long)configPrefs.getUInt("elog_total", 0) : 0UL);
+
+  uint32_t count = activeEventTotal < ACTIVE_EVENT_LOG_SIZE ? activeEventTotal : ACTIVE_EVENT_LOG_SIZE;
+  uint32_t start = (activeEventHead + ACTIVE_EVENT_LOG_SIZE - count) % ACTIVE_EVENT_LOG_SIZE;
+  for (uint32_t i = 0; i < count; i++) {
+    ActiveEvent &event = activeEvents[(start + i) % ACTIVE_EVENT_LOG_SIZE];
+    Serial.printf(" event[%lu] t=%lu type=%s detail=%s\n",
+      (unsigned long)i,
+      (unsigned long)event.uptimeMs,
+      event.type,
+      event.detail);
+  }
+
+  if (configPrefsOpen) {
+    Serial.println("events: persisted recent slots");
+    for (uint32_t i = 0; i < ACTIVE_EVENT_LOG_SIZE; i++) {
+      char key[8];
+      snprintf(key, sizeof(key), "ev%02lu", (unsigned long)i);
+      String value = configPrefs.getString(key, "");
+      if (value.length() > 0) Serial.printf(" persisted[%02lu] %s\n", (unsigned long)i, value.c_str());
+    }
+  }
+}
+
+static const ModelProfile *findModelProfile(const char *name) {
+  if (!name || !*name) return nullptr;
+  for (int i = 0; i < NUM_MODEL_PROFILES; i++) {
+    if (strcmp(name, MODEL_PROFILES[i].name) == 0) return &MODEL_PROFILES[i];
+  }
+  return nullptr;
+}
+
+static uint32_t configCrc(const char *name, uint8_t mode, uint32_t periodMs) {
+  uint32_t crc = 2166136261UL;
+  const char *p = name ? name : "";
+  while (*p) {
+    crc ^= (uint8_t)(*p++);
+    crc *= 16777619UL;
+  }
+  crc ^= mode;
+  crc *= 16777619UL;
+  for (uint8_t i = 0; i < 4; i++) {
+    crc ^= (uint8_t)((periodMs >> (i * 8)) & 0xFF);
+    crc *= 16777619UL;
+  }
+  crc ^= CONFIG_VERSION;
+  crc *= 16777619UL;
+  return crc;
+}
+
+static void noteTxInhibit(const char *reason) {
+  txInhibitCount++;
+  strncpy(lastTxInhibitReason, reason ? reason : "unknown", sizeof(lastTxInhibitReason) - 1);
+  lastTxInhibitReason[sizeof(lastTxInhibitReason) - 1] = '\0';
+  bool persist = reason && strcmp(reason, "bus_busy") != 0;
+  appendActiveEvent("inhibit", lastTxInhibitReason, persist);
+}
+
+static void applyModelProfile(const ModelProfile *profile, const char *source) {
+  if (!profile) return;
+  activeProfile = profile;
+  strncpy(modelName, profile->name, sizeof(modelName) - 1);
+  modelName[sizeof(modelName) - 1] = '\0';
+  Serial.printf("%s: model=%s id=0x%02X (%s)\n", source, modelName, activeProfile->controlId, activeProfile->notes);
+  appendActiveEvent("model", modelName, true);
+}
+
+static void saveConfig(const char *reason) {
+  if (!configPrefsOpen) return;
+  uint32_t crc = configCrc(modelName, antiNagMode, dutyPeriodMs);
+  configPrefs.putUChar("ver", CONFIG_VERSION);
+  configPrefs.putString("model", modelName);
+  configPrefs.putUChar("mode", antiNagMode);
+  configPrefs.putUInt("period", dutyPeriodMs);
+  configPrefs.putUInt("crc", crc);
+  Serial.printf("config: saved reason=%s model=%s mode=%s period=%lums crc=0x%08lX\n",
+    reason ? reason : "unknown",
+    modelName,
+    antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
+    (unsigned long)dutyPeriodMs,
+    (unsigned long)crc);
+  appendActiveEvent("config", reason ? reason : "save", true);
+}
+
+static void loadConfig() {
+  configPrefsOpen = configPrefs.begin("antinag", false);
+  if (!configPrefsOpen) {
+    strncpy(configLoadStatus, "nvs_open_failed", sizeof(configLoadStatus) - 1);
+    return;
+  }
+
+  uint8_t version = configPrefs.getUChar("ver", 0);
+  String storedModel = configPrefs.getString("model", modelName);
+  uint8_t storedMode = configPrefs.getUChar("mode", ANTI_NAG_MODE_DUTY);
+  uint32_t storedPeriod = configPrefs.getUInt("period", TX_DUTY_PERIOD_MS);
+  uint32_t storedCrc = configPrefs.getUInt("crc", 0);
+  uint32_t expectedCrc = configCrc(storedModel.c_str(), storedMode, storedPeriod);
+  const ModelProfile *profile = findModelProfile(storedModel.c_str());
+
+  if (version == CONFIG_VERSION && storedCrc == expectedCrc && profile &&
+      (storedMode == ANTI_NAG_MODE_DUTY || storedMode == ANTI_NAG_MODE_ALWAYS) &&
+      storedPeriod >= 5000 && storedPeriod <= 120000) {
+    activeProfile = profile;
+    strncpy(modelName, storedModel.c_str(), sizeof(modelName) - 1);
+    modelName[sizeof(modelName) - 1] = '\0';
+    antiNagMode = storedMode;
+    dutyPeriodMs = storedPeriod;
+    snprintf(configLoadStatus, sizeof(configLoadStatus), "loaded crc=0x%08lX", (unsigned long)storedCrc);
+    Serial.printf("config: loaded model=%s mode=%s period=%lums crc=0x%08lX\n",
+      modelName,
+      antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
+      (unsigned long)dutyPeriodMs,
+      (unsigned long)storedCrc);
+  } else {
+    snprintf(configLoadStatus, sizeof(configLoadStatus), "defaults reason=invalid_or_empty");
+    saveConfig("defaults");
+  }
+
+  activeTxArmed = false;
+  antiNagActive = false;
+  dblClickEnabled = false;
+  appendActiveEvent("boot", resetReasonLabel(), true);
+}
+
+static void updateBleStatus() {
+  if (!bleCharStatus) return;
+  char status[256];
+  snprintf(status, sizeof(status),
+    "fw=%s;build=%s;reset=%s;active=%s;armed=%s;model=%s;id=0x%02X;mode=%s;period=%lu;running=%s;client=%s;tx=%lu;inhibit=%lu;last=%s;faults=%lu;fault=%s;lockout=%s;config=%s",
+    FIRMWARE_VERSION,
+    BUILD_PROFILE,
+    resetReasonLabel(),
+    ACTIVE_STATE_LABEL,
+    activeTxArmed ? "yes" : "no",
+    modelName,
+    activeProfile->controlId,
+    antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
+    (unsigned long)dutyPeriodMs,
+    antiNagActive ? "yes" : "no",
+    bleClientConnected ? "connected" : "disconnected",
+    (unsigned long)txFrameCount,
+    (unsigned long)txInhibitCount,
+    lastTxInhibitReason,
+    (unsigned long)faultCount,
+    lastFaultReason,
+    faultLockout ? "yes" : "no",
+    configLoadStatus);
+  bleCharStatus->setValue(status);
+  if (bleClientConnected) bleCharStatus->notify();
+}
+
+static void stopActiveOutput(const char *reason) {
+  antiNagActive = false;
+  dblClickEnabled = false;
+  mirrorActive = false;
+  activeSessionStartMs = 0;
+  if (bleCharEnable) bleCharEnable->setValue("off");
+  Serial.printf("cmd: antinag=stopped reason=%s\n", reason ? reason : "manual");
+  appendActiveEvent("stop", reason ? reason : "manual", true);
+  updateBleStatus();
+}
+
+static bool ensureArmedForActive(const char *source) {
+  if (faultLockout) {
+    noteTxInhibit("fault_lockout");
+    Serial.printf("%s: blocked reason=fault_lockout fault=%s; run safe:off, inspect bench, then safe:arm\n", source ? source : "active", lastFaultReason);
+    updateBleStatus();
+    return false;
+  }
+  if (activeTxArmed) return true;
+  noteTxInhibit("not_armed");
+  Serial.printf("%s: blocked reason=not_armed; run safe:arm on isolated bench only\n", source ? source : "active");
+  updateBleStatus();
+  return false;
+}
+
+static bool txAllowed(uint8_t rawId) {
+  uint32_t now = millis();
+  if (faultLockout) {
+    noteTxInhibit("fault_lockout");
+    Serial.printf("TX inhibited: reason=fault_lockout fault=%s id=0x%02X\n", lastFaultReason, rawId);
+    updateBleStatus();
+    return false;
+  }
+  if (!activeTxArmed) {
+    noteTxInhibit("not_armed");
+    Serial.printf("TX inhibited: reason=not_armed id=0x%02X\n", rawId);
+    updateBleStatus();
+    return false;
+  }
+  if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) {
+    noteTxInhibit("bus_busy");
+    return false;
+  }
+  if (antiNagActive && activeSessionStartMs && now - activeSessionStartMs > TX_ACTIVE_SESSION_MAX_MS) {
+    noteTxInhibit("session_timeout");
+    stopActiveOutput("session_timeout");
+    return false;
+  }
+  if (now - txRateWindowMs >= 1000) {
+    txRateWindowMs = now;
+    txRateWindowCount = 0;
+  }
+  if (txRateWindowCount >= TX_MAX_FRAMES_PER_SEC) {
+    noteTxInhibit("rate_limit");
+    Serial.printf("TX inhibited: reason=rate_limit id=0x%02X\n", rawId);
+    updateBleStatus();
+    return false;
+  }
+  txRateWindowCount++;
+  return true;
+}
+
+static void recordActiveFault(const char *reason) {
+  faultCount++;
+  lastFaultMs = millis();
+  strncpy(lastFaultReason, reason ? reason : "unknown", sizeof(lastFaultReason) - 1);
+  lastFaultReason[sizeof(lastFaultReason) - 1] = '\0';
+  faultLockout = true;
+  activeTxArmed = false;
+  noteTxInhibit(lastFaultReason);
+  stopActiveOutput(lastFaultReason);
+  appendActiveEvent("fault", lastFaultReason, true);
+  Serial.printf("FAULT: reason=%s count=%lu lockout=yes armed=no active=off\n", lastFaultReason, (unsigned long)faultCount);
+  updateBleStatus();
+}
+
+static void serviceActiveSafety() {
+  if (!activeTxArmed && !antiNagActive) {
+    rxDominantSinceMs = 0;
+    safetyChecksumBadSeen = checksumBadCount;
+    safetyParityBadSeen = parityBadCount;
+    safetySyncErrSeen = syncErrCount;
+    return;
+  }
+
+  if (checksumBadCount > safetyChecksumBadSeen || parityBadCount > safetyParityBadSeen || syncErrCount > safetySyncErrSeen) {
+    safetyChecksumBadSeen = checksumBadCount;
+    safetyParityBadSeen = parityBadCount;
+    safetySyncErrSeen = syncErrCount;
+    recordActiveFault("rx_integrity");
+    return;
+  }
+
+  if (digitalRead(LIN_RX_PIN) == LOW) {
+    uint32_t now = millis();
+    if (rxDominantSinceMs == 0) rxDominantSinceMs = now;
+    if (now - rxDominantSinceMs > 25) {
+      rxDominantSinceMs = 0;
+      recordActiveFault("dominant_timeout");
+    }
+  } else {
+    rxDominantSinceMs = 0;
+  }
+}
 
 /** Callbacks for BLE characteristic writes */
 class AntiNagConfigCallbacks : public NimBLECharacteristicCallbacks {
@@ -156,27 +559,28 @@ class AntiNagConfigCallbacks : public NimBLECharacteristicCallbacks {
 
     if (pChar == bleCharModel) {
       // "x", "3", "y", "auto"
-      bool found = false;
-      for (int i = 0; i < NUM_MODEL_PROFILES; i++) {
-        if (val == MODEL_PROFILES[i].name) {
-          activeProfile = &MODEL_PROFILES[i];
-          strncpy(modelName, val.c_str(), sizeof(modelName) - 1);
-          pChar->setValue(modelName);
-          Serial.printf("BLE: model=%s id=0x%02X (%s)\n", modelName, activeProfile->controlId, activeProfile->notes);
-          found = true;
-          break;
-        }
+      const ModelProfile *profile = findModelProfile(val.c_str());
+      if (profile) {
+        applyModelProfile(profile, "BLE");
+        pChar->setValue(modelName);
+        saveConfig("ble_model");
+      } else {
+        pChar->setValue(modelName);
+        Serial.printf("BLE: unknown model '%s'\n", val.c_str());
       }
-      if (!found) Serial.printf("BLE: unknown model '%s'\n", val.c_str());
     } else if (pChar == bleCharMode) {
       if (val == "duty") {
         antiNagMode = ANTI_NAG_MODE_DUTY;
         pChar->setValue("duty");
         Serial.printf("BLE: mode=duty period=%lums\n", (unsigned long)dutyPeriodMs);
+        saveConfig("ble_mode");
       } else if (val == "always") {
         antiNagMode = ANTI_NAG_MODE_ALWAYS;
         pChar->setValue("always");
         Serial.println("BLE: mode=always");
+        saveConfig("ble_mode");
+      } else {
+        pChar->setValue(antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always");
       }
     } else if (pChar == bleCharPeriod) {
       long period = atol(val.c_str());
@@ -186,22 +590,35 @@ class AntiNagConfigCallbacks : public NimBLECharacteristicCallbacks {
         snprintf(buf, sizeof(buf), "%lu", (unsigned long)dutyPeriodMs);
         pChar->setValue(buf);
         Serial.printf("BLE: period=%lums\n", (unsigned long)dutyPeriodMs);
+        saveConfig("ble_period");
+      } else {
+        char buf[16];
+        snprintf(buf, sizeof(buf), "%lu", (unsigned long)dutyPeriodMs);
+        pChar->setValue(buf);
+        Serial.printf("BLE: period out of range '%s'\n", val.c_str());
       }
     } else if (pChar == bleCharEnable) {
       if (val == "on") {
+        if (!ensureArmedForActive("BLE enable")) {
+          pChar->setValue("off");
+          return;
+        }
         dblClickEnabled = true;
         antiNagActive = true;
         lastDutyBurstMs = millis();
         dutyBurstDone = false;
+        activeSessionStartMs = millis();
         pChar->setValue("on");
         Serial.println("BLE: antinag=enabled");
+        appendActiveEvent("ble_enable", "on", true);
       } else if (val == "off") {
-        dblClickEnabled = false;
-        antiNagActive = false;
+        stopActiveOutput("ble_off");
         pChar->setValue("off");
-        Serial.println("BLE: antinag=disabled");
+      } else {
+        pChar->setValue(antiNagActive ? "on" : "off");
       }
     }
+    updateBleStatus();
   }
 };
 
@@ -259,7 +676,17 @@ static void initBleConfig() {
   bleCharEnable->setCallbacks(new AntiNagConfigCallbacks());
   bleCharEnable->setValue("off");
 
-  bleService->start();
+  bleCharStatus = bleService->createCharacteristic(
+    BLE_CHAR_STATUS_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY
+  );
+
+  bleCharCaps = bleService->createCharacteristic(
+    BLE_CHAR_CAPS_UUID,
+    NIMBLE_PROPERTY::READ
+  );
+  bleCharCaps->setValue("models=x,3,y,auto;mode=duty,always;period=5000-120000;enable=requires_safe_arm;status=read_notify;build=" BUILD_PROFILE ";fw=" FIRMWARE_VERSION);
+  updateBleStatus();
 
   NimBLEAdvertising *ad = NimBLEDevice::getAdvertising();
   ad->addServiceUUID(BLE_SVC_UUID);
@@ -270,10 +697,11 @@ static void initBleConfig() {
 
   Serial.println("BLE: config ready, waiting for host sync...");
   Serial.printf("BLE: service=%s\n", BLE_SVC_UUID);
-  Serial.printf("BLE: model=%s mode=%s period=%lums\n",
+  Serial.printf("BLE: model=%s mode=%s period=%lums status_uuid=%s\n",
     modelName,
     antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
-    (unsigned long)dutyPeriodMs);
+    (unsigned long)dutyPeriodMs,
+    BLE_CHAR_STATUS_UUID);
 }
 #endif
 
@@ -340,7 +768,7 @@ static uint8_t linChecksum(uint8_t protectedId, const uint8_t *data, uint8_t n, 
 }
 
 // ---------------------------------------------------------------------------
-// Auto-baud scanning — try common Tesla LIN rates
+// Auto-baud scanning - try common Tesla LIN rates
 // ---------------------------------------------------------------------------
 static const uint16_t BAUD_CANDIDATES[] = {19200, 9600, 10400};
 static const int NUM_BAUD_CANDIDATES = 3;
@@ -368,7 +796,7 @@ static void probeAndSetBaud() {
     currentBaudIdx = i;
     restartLinUart(BAUD_CANDIDATES[currentBaudIdx]);
     Serial.printf("baud: probing %u\n", linBaud);
-    // Give it a couple seconds — if frames start flowing, we stay.
+    // Give it a couple seconds - if frames start flowing, we stay.
     // (We don't block here; the caller just starts capture with this baud
     // and auto-scan logic in loop() handles switching if frames==0.)
   }
@@ -426,8 +854,9 @@ static void txBreakField() {
   delayMicroseconds(bitTimeUs * 2);
 }
 
-static void txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen) {
+static bool txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen) {
   if (dataLen > 8) dataLen = 8;
+  if (!txAllowed(rawId)) return false;
 
   txBreakField();
   LIN.write(0x55);
@@ -449,6 +878,8 @@ static void txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen) {
   Serial.printf(" | chk=%02X %s\n", chk, useEnhanced ? "enhanced" : "classic");
 
   LIN.flush();
+  updateBleStatus();
+  return true;
 }
 
 static void serviceAntiNag() {
@@ -466,16 +897,16 @@ static void serviceAntiNag() {
     int ctr = antiNagCtr % 16;
     if (antiNagDirection == 1) {
       uint8_t data[8] = {0x11, 0x04, 0x10, (uint8_t)(antiNagCtr*2), 0x00, 0x00, 0xC0, (uint8_t)ctr};
-      txSendFrame(activeProfile->controlId, data, 8);
-      antiNagDirection = -1;
+      if (txSendFrame(activeProfile->controlId, data, 8)) antiNagDirection = -1;
     } else {
       int ctr2 = (antiNagCtr + 1) % 16;
       uint8_t data[8] = {0x0F, 0x04, 0x08, 0x02, 0x00, 0x00, 0xC0, (uint8_t)ctr2};
-      txSendFrame(activeProfile->controlId, data, 8);
-      antiNagDirection = 1;
-      dutyBurstDone = true;
+      if (txSendFrame(activeProfile->controlId, data, 8)) {
+        antiNagDirection = 1;
+        dutyBurstDone = true;
+      }
     }
-    antiNagCtr++;
+    if (dutyBurstDone || antiNagDirection == -1) antiNagCtr++;
   } else {
     if (now - lastDutyBurstMs < TX_ALTERNATION_GAP_MS) return;
     if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) return;
@@ -483,9 +914,10 @@ static void serviceAntiNag() {
     int ctr = antiNagCtr % 16;
     int b0 = (antiNagDirection == 1) ? 0x11 : 0x0F;
     uint8_t data[8] = {(uint8_t)b0, 0x04, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
-    txSendFrame(activeProfile->controlId, data, 8);
-    antiNagDirection = -antiNagDirection;
-    antiNagCtr++;
+    if (txSendFrame(activeProfile->controlId, data, 8)) {
+      antiNagDirection = -antiNagDirection;
+      antiNagCtr++;
+    }
   }
 }
 
@@ -498,8 +930,7 @@ static void serviceAliveTx() {
 
   int ctr = aliveCtr % 16;
   uint8_t mirrorData[8] = {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
-  txSendFrame(0x0D, mirrorData, 8);
-  aliveCtr++;
+  if (txSendFrame(0x0D, mirrorData, 8)) aliveCtr++;
 }
 #endif
 
@@ -557,29 +988,113 @@ static void processCommand() {
   }
 
   if (strcmp(cmdBuf, "stats") == 0) {
-    Serial.printf("cmd: frames=%lu badChk=%lu badPid=%lu ovf=%lu short=%lu syncErr=%lu edges=%lu ring=%lu wifi=%s\n",
+#ifndef NO_WIFI
+  String wifiStatusString = WiFi.status() == WL_CONNECTED ? WiFi.localIP().toString() : "off";
+  const char *wifiStatus = wifiStatusString.c_str();
+#else
+    const char *wifiStatus = "disabled";
+#endif
+    Serial.printf("cmd: frames=%lu badChk=%lu badPid=%lu ovf=%lu short=%lu syncErr=%lu edges=%lu ring=%lu wifi=%s build=%s active=%s reset=%s\n",
       (unsigned long)frameCount, (unsigned long)checksumBadCount,
       (unsigned long)parityBadCount, (unsigned long)overflowCount,
       (unsigned long)shortFrameCount, (unsigned long)syncErrCount,
       (unsigned long)edgeCount, (unsigned long)ringTotal,
-      WiFi.status() == WL_CONNECTED ? WiFi.localIP().toString().c_str() : "off");
+      wifiStatus,
+      BUILD_PROFILE,
+      ACTIVE_STATE_LABEL,
+      resetReasonLabel());
+    return;
+  }
+
+  if (strcmp(cmdBuf, "version") == 0) {
+    Serial.printf("cmd: version fw=%s build=%s active=%s wifi=%s baud=%u reset=%s\n",
+      FIRMWARE_VERSION, BUILD_PROFILE, ACTIVE_STATE_LABEL, WIFI_STATE_LABEL, linBaud, resetReasonLabel());
+    return;
+  }
+
+  if (strcmp(cmdBuf, "config") == 0) {
+#ifdef ACTIVE_MODE
+    Serial.printf("cmd: config fw=%s build=%s reset=%s model=%s id=0x%02X mode=%s period=%lums armed=%s running=%s mirror=%s tx=%lu inhibit=%lu last=%s faults=%lu fault=%s lockout=%s nvs=%s\n",
+      FIRMWARE_VERSION,
+      BUILD_PROFILE,
+      resetReasonLabel(),
+      modelName,
+      activeProfile->controlId,
+      antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
+      (unsigned long)dutyPeriodMs,
+      activeTxArmed ? "yes" : "no",
+      antiNagActive ? "yes" : "no",
+      mirrorActive ? "yes" : "no",
+      (unsigned long)txFrameCount,
+      (unsigned long)txInhibitCount,
+      lastTxInhibitReason,
+      (unsigned long)faultCount,
+      lastFaultReason,
+      faultLockout ? "yes" : "no",
+      configLoadStatus);
+#else
+    Serial.printf("cmd: config fw=%s build=%s active=no passive_only=true baud=%u reset=%s\n", FIRMWARE_VERSION, BUILD_PROFILE, linBaud, resetReasonLabel());
+#endif
+    return;
+  }
+
+  if (strcmp(cmdBuf, "safe:off") == 0) {
+#ifdef ACTIVE_MODE
+    activeTxArmed = false;
+  faultLockout = false;
+    stopActiveOutput("safe_off");
+    Serial.println("cmd: safe=off armed=no");
+#else
+    Serial.println("cmd: safe=off passive-only build");
+#endif
     return;
   }
 
 #ifdef ACTIVE_MODE
+  if (strcmp(cmdBuf, "safe:arm") == 0) {
+    if (faultLockout) {
+      Serial.printf("cmd: safe=arm blocked reason=fault_lockout fault=%s; run safe:off after inspection\n", lastFaultReason);
+      updateBleStatus();
+      return;
+    }
+    activeTxArmed = true;
+    strncpy(lastTxInhibitReason, "none", sizeof(lastTxInhibitReason) - 1);
+    lastTxInhibitReason[sizeof(lastTxInhibitReason) - 1] = '\0';
+    Serial.println("cmd: safe=armed bench-only active TX allowed");
+    appendActiveEvent("arm", "serial", true);
+    updateBleStatus();
+    return;
+  }
+
+  if (strcmp(cmdBuf, "factory:reset") == 0) {
+    if (configPrefsOpen) configPrefs.clear();
+    activeProfile = &MODEL_PROFILES[0];
+    strncpy(modelName, activeProfile->name, sizeof(modelName) - 1);
+    modelName[sizeof(modelName) - 1] = '\0';
+    antiNagMode = ANTI_NAG_MODE_DUTY;
+    dutyPeriodMs = TX_DUTY_PERIOD_MS;
+    activeTxArmed = false;
+    faultLockout = false;
+    strncpy(lastFaultReason, "none", sizeof(lastFaultReason) - 1);
+    lastFaultReason[sizeof(lastFaultReason) - 1] = '\0';
+    faultCount = 0;
+    stopActiveOutput("factory_reset");
+    strncpy(configLoadStatus, "factory_reset", sizeof(configLoadStatus) - 1);
+    saveConfig("factory_reset");
+    Serial.println("cmd: factory reset complete; active output off and disarmed");
+    appendActiveEvent("factory_reset", "serial", true);
+    updateBleStatus();
+    return;
+  }
+
   if (strncmp(cmdBuf, "model:", 6) == 0) {
     const char *name = cmdBuf + 6;
-    bool found = false;
-    for (int i = 0; i < NUM_MODEL_PROFILES; i++) {
-      if (strcmp(name, MODEL_PROFILES[i].name) == 0) {
-        activeProfile = &MODEL_PROFILES[i];
-        strncpy(modelName, name, sizeof(modelName) - 1);
-        Serial.printf("cmd: model=%s id=0x%02X (%s)\n", modelName, activeProfile->controlId, activeProfile->notes);
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
+    const ModelProfile *profile = findModelProfile(name);
+    if (profile) {
+      applyModelProfile(profile, "cmd");
+      saveConfig("serial_model");
+      updateBleStatus();
+    } else {
       Serial.printf("cmd: unknown model '%s'. Known: x, 3, y, auto\n", name);
     }
     return;
@@ -590,32 +1105,38 @@ static void processCommand() {
     return;
   }
   if (strcmp(cmdBuf, "antinag:start") == 0) {
+    if (!ensureArmedForActive("cmd: antinag:start")) return;
     antiNagActive = true;
     dblClickEnabled = true;
     antiNagCtr = 0;
     antiNagDirection = 1;
     lastDutyBurstMs = millis();
+    activeSessionStartMs = millis();
     dutyBurstDone = false;
     Serial.printf("cmd: antinag=active model=%s id=0x%02X mode=%s period=%lums\n",
       modelName, activeProfile->controlId,
       antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
       (unsigned long)dutyPeriodMs);
+    appendActiveEvent("start", modelName, true);
+    updateBleStatus();
     return;
   }
   if (strcmp(cmdBuf, "antinag:stop") == 0) {
-    antiNagActive = false;
-    dblClickEnabled = false;
-    Serial.println("cmd: antinag=stopped");
+    stopActiveOutput("serial_stop");
     return;
   }
   if (strcmp(cmdBuf, "mode:duty") == 0) {
     antiNagMode = ANTI_NAG_MODE_DUTY;
     Serial.printf("cmd: mode=duty period=%lums\n", (unsigned long)dutyPeriodMs);
+    saveConfig("serial_mode");
+    updateBleStatus();
     return;
   }
   if (strcmp(cmdBuf, "mode:always") == 0) {
     antiNagMode = ANTI_NAG_MODE_ALWAYS;
     Serial.println("cmd: mode=always (constant alternation)");
+    saveConfig("serial_mode");
+    updateBleStatus();
     return;
   }
   if (strncmp(cmdBuf, "period:", 7) == 0) {
@@ -623,19 +1144,23 @@ static void processCommand() {
     if (period >= 5000 && period <= 120000) {
       dutyPeriodMs = (uint32_t)period;
       Serial.printf("cmd: duty period=%lums\n", (unsigned long)dutyPeriodMs);
+      saveConfig("serial_period");
+      updateBleStatus();
     } else {
       Serial.printf("cmd: period out of range (5000-120000ms)\n");
     }
     return;
   }
   if (strcmp(cmdBuf, "antinag:single") == 0) {
+    if (!ensureArmedForActive("cmd: antinag:single")) return;
     int ctr = antiNagCtr % 16;
     int b0 = (antiNagDirection == 1) ? 0x11 : 0x0F;
     uint8_t data[8] = {(uint8_t)b0, 0x04, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
-    txSendFrame(activeProfile->controlId, data, 8);
-    Serial.printf("cmd: antinag single model=%s dir=%s ctr=%d\n", modelName, antiNagDirection == 1 ? "UP" : "DOWN", ctr);
-    antiNagDirection = -antiNagDirection;
-    antiNagCtr++;
+    if (txSendFrame(activeProfile->controlId, data, 8)) {
+      Serial.printf("cmd: antinag single model=%s dir=%s ctr=%d\n", modelName, antiNagDirection == 1 ? "UP" : "DOWN", ctr);
+      antiNagDirection = -antiNagDirection;
+      antiNagCtr++;
+    }
     return;
   }
   if (strcmp(cmdBuf, "mirror:on") == 0) {
@@ -657,6 +1182,7 @@ static void processCommand() {
     return;
   }
   if (strcmp(cmdBuf, "txd:low") == 0) {
+    if (!ensureArmedForActive("cmd: txd:low")) return;
     antiNagActive = false;
     LIN.flush();
     LIN.end();
@@ -666,6 +1192,7 @@ static void processCommand() {
     return;
   }
   if (strcmp(cmdBuf, "txd:high") == 0) {
+    if (!ensureArmedForActive("cmd: txd:high")) return;
     antiNagActive = false;
     LIN.flush();
     LIN.end();
@@ -681,34 +1208,49 @@ static void processCommand() {
     return;
   }
   if (strncmp(cmdBuf, "tx:", 3) == 0) {
-    char *p = cmdBuf + 3;
-    int id = atoi(p);
+    if (!ensureArmedForActive("cmd: tx")) return;
+    const char *p = cmdBuf + 3;
+    uint32_t parsedId = 0;
     uint8_t buf[8] = {0};
     int n = 0;
-    p = strchr(p, ',');
-    while (p && n < 8) {
-      p++;
-      if (*p == ',') break;
-      buf[n++] = (uint8_t)atoi(p);
-      p = strchr(p, ',');
+    if (!parseUintToken(p, &p, 0x3F, &parsedId, true)) {
+      Serial.println("cmd: tx parse error. Use tx:0C,11,04,00 or tx:0x0C,0x11,0x04. Prefix decimal as 0d12.");
+      return;
+    }
+    while (*p && n < 8) {
+      uint32_t parsedByte = 0;
+      if (!parseUintToken(p, &p, 0xFF, &parsedByte, true)) break;
+      buf[n++] = (uint8_t)parsedByte;
     }
     if (n > 0) {
-      txSendFrame(id, buf, n);
-      Serial.printf("cmd: tx ID=0x%02X len=%d\n", id, n);
+      if (txSendFrame((uint8_t)parsedId, buf, n)) {
+        Serial.printf("cmd: tx ID=0x%02X len=%d\n", (unsigned int)parsedId, n);
+      }
+    } else {
+      Serial.println("cmd: tx requires at least one data byte");
     }
     return;
   }
   if (strcmp(cmdBuf, "ble") == 0) {
-    Serial.printf("cmd: BLE advertising=%s client=%s model=%s mode=%s period=%lums\n",
+    updateBleStatus();
+    Serial.printf("cmd: BLE advertising=%s client=%s model=%s mode=%s period=%lums armed=%s running=%s last=%s\n",
       bleServer ? "yes" : "no",
       bleClientConnected ? "connected" : "disconnected",
       modelName,
       antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
-      (unsigned long)dutyPeriodMs);
+      (unsigned long)dutyPeriodMs,
+      activeTxArmed ? "yes" : "no",
+      antiNagActive ? "yes" : "no",
+      lastTxInhibitReason);
     if (bleServer) {
-      Serial.printf("BLE: service=%s\n  model uuid=%s\n  mode uuid=%s\n  period uuid=%s\n  enable uuid=%s\n",
-        BLE_SVC_UUID, BLE_CHAR_MODEL_UUID, BLE_CHAR_MODE_UUID, BLE_CHAR_PERIOD_UUID, BLE_CHAR_ENABLE_UUID);
+      Serial.printf("BLE: service=%s\n  model uuid=%s\n  mode uuid=%s\n  period uuid=%s\n  enable uuid=%s\n  status uuid=%s\n  caps uuid=%s\n",
+        BLE_SVC_UUID, BLE_CHAR_MODEL_UUID, BLE_CHAR_MODE_UUID, BLE_CHAR_PERIOD_UUID, BLE_CHAR_ENABLE_UUID,
+        BLE_CHAR_STATUS_UUID, BLE_CHAR_CAPS_UUID);
     }
+    return;
+  }
+  if (strcmp(cmdBuf, "events") == 0) {
+    dumpActiveEvents();
     return;
   }
 #endif
@@ -936,10 +1478,21 @@ static void finalizeBufferedFrame(const char *source) {
       buttonPressCount++;
       lastButtonPressMs = nowMs;
       if (buttonPressCount >= 2) {
-        dblClickEnabled = !dblClickEnabled;
-        antiNagActive = dblClickEnabled;
-        if (dblClickEnabled) lastDutyBurstMs = millis();
-        Serial.printf("cmd: button double-click -> %s\n", dblClickEnabled ? "enabled" : "disabled");
+        if (!activeTxArmed) {
+          noteTxInhibit("button_not_armed");
+          Serial.println("cmd: button double-click blocked reason=not_armed");
+        } else {
+          dblClickEnabled = !dblClickEnabled;
+          antiNagActive = dblClickEnabled;
+          if (dblClickEnabled) {
+            lastDutyBurstMs = millis();
+            activeSessionStartMs = millis();
+          } else {
+            activeSessionStartMs = 0;
+          }
+          Serial.printf("cmd: button double-click -> %s\n", dblClickEnabled ? "enabled" : "disabled");
+        }
+        updateBleStatus();
         buttonPressCount = 0;
       }
     }
@@ -972,9 +1525,9 @@ void IRAM_ATTR onLinEdge() { edgeCount++; }
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.println("LIN receiver v4 - multi-model, ring buffer, serial commands");
+  Serial.printf("LIN receiver %s - build=%s active=%s wifi=%s reset=%s\n", FIRMWARE_VERSION, BUILD_PROFILE, ACTIVE_STATE_LABEL, WIFI_STATE_LABEL, resetReasonLabel());
   Serial.printf("Vehicle: %s  Default Baud: %u\n", vehicleId, linBaud);
-  Serial.println("Commands: vehicle:<id>  baud:<rate>  raw:0/1  ring  stats");
+  Serial.println("Commands: version  config  safe:off  vehicle:<id>  baud:<rate>  raw:0/1  ring  stats");
 
 #ifndef NO_WIFI
   connectWifiBlocking();
@@ -988,8 +1541,12 @@ void setup() {
 #ifdef ACTIVE_MODE
   dblClickEnabled = false;
   antiNagActive = false;
+  loadConfig();
+  safetyChecksumBadSeen = checksumBadCount;
+  safetyParityBadSeen = parityBadCount;
+  safetySyncErrSeen = syncErrCount;
   initBleConfig();
-  Serial.println("Active mode: double-click toggle ready. BLE: TeslaAntiNag");
+  Serial.println("Active mode: safe:arm required before TX. BLE: TeslaAntiNag");
 #endif
 
   // Start at the primary Tesla LIN baud
@@ -1096,12 +1653,14 @@ void loop() {
   }
 
 #ifdef ACTIVE_MODE
+  serviceActiveSafety();
   serviceAntiNag();
   if (mirrorActive && dblClickEnabled) serviceAliveTx();
-  // Retry BLE advertising if it failed on boot
-  if (bleAdvPending && NimBLEDevice::getAdvertising()) {
-    int rc = NimBLEDevice::getAdvertising()->start();
-    if (rc == 0) {
+  // Retry BLE advertising after NimBLE host sync. start() returns true on success.
+  if (bleAdvPending && NimBLEDevice::getAdvertising() && now - bleLastAdvAttemptMs >= 500) {
+    bleLastAdvAttemptMs = now;
+    bool started = NimBLEDevice::getAdvertising()->start();
+    if (started) {
       bleAdvPending = false;
       Serial.println("BLE: advertising started");
     }

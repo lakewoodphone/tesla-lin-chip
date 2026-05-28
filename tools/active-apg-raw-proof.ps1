@@ -4,7 +4,8 @@ param(
     [int] $DurationSeconds = 6,
     [int] $MinFrames = 8,
     [Byte] $RawFallbackId = 0x0C,
-    [string] $LogDir = "C:\Users\ezabz\Code\xiao-lin-bench\logs"
+    [string] $LogDir = "",
+    [switch] $ConfirmBenchIsolation
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,6 +13,7 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 $monitorScript = Join-Path $repoRoot "tools\monitor-apg-lin-bus.ps1"
 $x86PowerShell = Join-Path $env:WINDIR "SysWOW64\WindowsPowerShell\v1.0\powershell.exe"
+if (-not $LogDir) { $LogDir = Join-Path $repoRoot "logs" }
 
 function Open-XiaoSerial([string]$PortName) {
     $port = New-Object System.IO.Ports.SerialPort $PortName, 115200, ([System.IO.Ports.Parity]::None), 8, ([System.IO.Ports.StopBits]::One)
@@ -50,10 +52,16 @@ Write-Host "  Active APG Raw Proof - Model X known-ID capture" -ForegroundColor 
 Write-Host "  COM: $ComPort   Baud: $Baud   Raw ID: 0x$($RawFallbackId.ToString('X2'))" -ForegroundColor Yellow
 Write-Host "=====================================================" -ForegroundColor Yellow
 
+if (-not $ConfirmBenchIsolation) {
+    $confirmation = Read-Host "Type BENCH to confirm this active raw proof is on an isolated bench, not a vehicle bus"
+    if ($confirmation -ne "BENCH") { throw "Active APG raw proof aborted: bench isolation was not confirmed" }
+}
+
 $serial = Open-XiaoSerial $ComPort
 try {
     Send-XiaoCommand $serial "antinag:stop"
     Send-XiaoCommand $serial "txd:uart"
+    Send-XiaoCommand $serial "safe:arm"
     Send-XiaoCommand $serial "model:x"
     Send-XiaoCommand $serial "antinag:start"
     $xiaoLines += Read-XiaoLines $serial 1000
@@ -64,10 +72,12 @@ try {
     $monitorExit = $LASTEXITCODE
 
     Send-XiaoCommand $serial "antinag:stop"
+    Send-XiaoCommand $serial "safe:off"
     $xiaoLines += Read-XiaoLines $serial 800
 } finally {
     if ($serial -and $serial.IsOpen) {
         try { $serial.WriteLine("antinag:stop") } catch {}
+        try { $serial.WriteLine("safe:off") } catch {}
         $serial.Close()
     }
 }

@@ -4,14 +4,18 @@ Tesla LIN bench project using a Seeed XIAO ESP32-C3, APGDT001 LIN analyzer, TJA1
 
 Start with `START_HERE.md` when resuming. It is the current handoff and points to the active evidence, wiring, commands, and hard stops.
 
+For the implementation plan that makes the bench, passive car testing, and final active-capable chip more robust, read `IMPLEMENTATION_ROADMAP.md`.
+
 ## Current Status
 
 - Passive LIN receive is bench-verified at 19200 baud.
 - Full no-car evidence passed on 2026-05-26: 80/80 exact APG -> XIAO matches across raw IDs `0x00` through `0x3F`, with 0 checksum/parity failures.
 - Active Model X bench TX is verified on the isolated bench. `model:x` + `antinag:start` produced more than 100 self-received `0x0C` frames with enhanced checksum and parity OK.
 - Active improvements applied: bus-idle collision guard (2 ms silence before TX), realistic scroll payloads (non-zero B2/B3), and mirror/alive frame injection (`0x0D` at 500 ms via `mirror:on`).
-- Repository default builds with `ACTIVE_MODE` enabled (anti-nag TX) and NimBLE BLE configuration service. Flash the same firmware for bench or field.
-- BLE service "TeslaAntiNag" exposes 4 characteristics: model (x/3/y/auto), mode (duty/always), period (5-120s), and enable (on/off).
+- Active safety now reports reset reason, fault count, last fault, and lockout state. RX-integrity spikes or a dominant-line timeout while armed force active output off and block re-arm until `safe:off` is run after inspection.
+- Repository default now builds `field_passive`; active TX is explicit via `bench_active_ble` or `chip_lab_active`.
+- BLE service "TeslaAntiNag" in active builds exposes model (x/3/y/auto), mode (duty/always), period (5-120s), enable (on/off), status, and capabilities characteristics. Enable requires `safe:arm` first.
+- Car-day tooling enforces passive preflight and verifies `field_passive` firmware by default.
 - APG known-ID raw fallback now captures XIAO-generated active Model X frames. NetworkAnalyser event/display modes still log zero rows for those external frames, but `monitor-apg-lin-bus.ps1 -RawFallback -RawFallbackId 0x0C` polls the PICkitS USART buffer directly and writes checksum-valid CSV rows.
 
 ## Hard Stops
@@ -74,22 +78,37 @@ Core passive features:
 - Runtime serial commands: `vehicle:`, `baud:`, `raw:`, `ring`, `stats`.
 - USB serial fallback when WiFi is unavailable.
 
-Active mode (`#define ACTIVE_MODE`, bench only):
+Active mode (`bench_active_ble` / `chip_lab_active`, bench only):
 
-- Two modes: `mode:duty` (burst UP→DOWN every `period:N` ms, default 20s) or `mode:always` (constant alternation every 300ms).
+- Active TX requires serial `safe:arm` before any frame, BLE enable, TXD diagnostic, or custom `tx:` command can transmit. Use `safe:off` to stop and disarm.
+- Two modes: `mode:duty` (burst UP -> DOWN every `period:N` ms, default 20s) or `mode:always` (constant alternation every 300ms).
 - Double-click scroll wheel button: two fast presses toggles chip output on/off.
 - Model profiles: `model:x` (`0x0C` confirmed), `model:3` (`0x1A` candidate), `model:y` (`0x1A` candidate), `model:auto`.
-- Active commands: `model`, `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `mode:duty`, `mode:always`, `period:20000`, `mirror:on`, `mirror:off`, `tx:`.
+- Active commands: `safe:arm`, `safe:off`, `factory:reset`, `config`, `model`, `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `mode:duty`, `mode:always`, `period:20000`, `mirror:on`, `mirror:off`, `tx:`.
+- Active event log: `events` prints recent RAM events and persisted NVS slots for boot, arm, config, start/stop, inhibits, and faults.
 - Diagnostics: `txd:low`, `txd:high`, `txd:uart`.
-- BLE: NimBLE config service with 4 characteristics (model/mode/period/enable). Advertises as "TeslaAntiNag". Double-click wheel button still toggles on/off.
+- BLE: NimBLE config service with model/mode/period/enable plus status/capabilities. Advertises as "TeslaAntiNag". Double-click wheel button still toggles on/off only after arming.
+- NVS persisted config stores model/mode/period with version+CRC; active output always boots off/disarmed.
 
 ## Build And Flash
 
-Build current repo default:
+Build current repo default passive field firmware:
 
 ```powershell
 cd C:\Users\ezabz\Code\xiao-lin-bench
 python -m platformio run
+```
+
+Build every supported firmware target:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\build-all-envs.ps1
+```
+
+Build active bench firmware explicitly:
+
+```powershell
+python -m platformio run -e bench_active_ble
 ```
 
 Upload to the XIAO on COM4:
@@ -123,8 +142,8 @@ Full no-car evidence suite:
 Active Model X bench validation flow:
 
 ```powershell
-# After enabling ACTIVE_MODE and flashing active firmware:
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x
+# After flashing bench_active_ble firmware:
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x -ConfirmBenchIsolation
 ```
 
 Expected active proof: `ring` shows `ID=0x0C PID=0x4C [8B]` frames with `enhanced parity=OK` and `badChk=0 badPid=0` in `stats`.
@@ -143,6 +162,10 @@ Expected APG raw proof: `PASS` with raw CSV rows for `ID=0x0C`, `PID=0x4C`, `sou
 |---|---|---|
 | `tools/monitor-apg-lin-bus.ps1` | APG passive capture | Yes, receive-only |
 | `tools/car-day-launcher.ps1` | Passive car-day APG/XIAO launcher | Yes, if used passive-only |
+| `tools/build-all-envs.ps1` | Compile all firmware environments | Yes |
+| `tools/new-capture-session.ps1` | Create manifest-backed capture folder | Yes |
+| `tools/preflight-hardware-check.ps1` | Record physical preflight checks | Yes |
+| `tools/full-bench-proof.ps1` | Build + passive proof; add `-RunActive -ConfirmBenchIsolation` for active/APG raw bench proof | No, bench only |
 | `tools/validate-xiao-bench.ps1` | APG transmit -> XIAO receive validation | No, bench only |
 | `tools/bench-evidence-suite.ps1` | Full APG/XIAO no-car evidence matrix | No, bench only |
 | `tools/active-bench-proof.ps1` | XIAO active TX self-receive proof | No, bench only |
@@ -150,7 +173,7 @@ Expected APG raw proof: `PASS` with raw CSV rows for `ID=0x0C`, `PID=0x4C`, `sou
 | `tools/send-netanalyser-headless.ps1` | APG headless LIN transmit | No, bench only |
 | `tools/antinag-replay.ps1` | APG anti-nag replay sequence | No, bench only |
 | `tools/serial-to-lin-events.ps1` | XIAO USB serial -> secretary API | Passive if source is passive |
-| `tools/analyze-lin-capture.py` | Post-capture analysis and Tesla ID reference | Yes, post-capture |
+| `tools/analyze-lin-capture.py` | Post-capture analysis, Tesla ID reference, action-window ranking | Yes, post-capture |
 | `tools/summarize-lin-capture.ps1` | Quick APG CSV summary | Yes, post-capture |
 | `tools/lin-payload-calc.py` | Payload/checksum calculator | Reference only |
 
@@ -165,6 +188,7 @@ cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -
 - `START_HERE.md` - canonical current handoff.
 - `BENCH_EVIDENCE.md` - passive and active bench evidence.
 - `ACTIVE_INJECTOR.md` - active bench wiring, operation, and diagnostics.
+- `IMPLEMENTATION_ROADMAP.md` - full roadmap for bench robustness, passive car testing, and final active-capable chip development.
 - `NEXT_STEPS.md` - current work plan.
 - `TOOLS.md` - tool reference.
 - `docs/archive/` - old passive-only and capture-history notes.

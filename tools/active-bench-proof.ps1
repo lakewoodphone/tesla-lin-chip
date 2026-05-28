@@ -24,7 +24,8 @@ param(
     [int] $BootWaitSeconds = 2,
     [int] $RingReadMs = 3500,
     [int] $RequiredRingFrames = 3,
-    [string] $LogDir = ""
+    [string] $LogDir = "",
+    [switch] $ConfirmBenchIsolation
 )
 
 $ErrorActionPreference = "Stop"
@@ -89,6 +90,14 @@ Write-ProofLog "Summary: $summaryLog"
 Write-ProofLog "============================================================"
 Write-ProofLog "BENCH ONLY. Do not run while connected to a vehicle bus."
 
+if (-not $ConfirmBenchIsolation) {
+    $confirmation = Read-Host "Type BENCH to confirm this active proof is on an isolated bench, not a vehicle bus"
+    if ($confirmation -ne "BENCH") {
+        Write-ProofLog "ABORT active proof: bench isolation not confirmed"
+        exit 1
+    }
+}
+
 $serialPort = $null
 $allLines = New-Object System.Collections.Generic.List[string]
 $exitCode = 1
@@ -98,7 +107,19 @@ try {
     Write-ProofLog "Serial opened. Waiting $BootWaitSeconds seconds for boot/settle..."
     Add-CollectedLines $allLines (Read-SerialLines $serialPort ($BootWaitSeconds * 1000))
 
+    Send-XiaoCommand $serialPort "version"
+    Add-CollectedLines $allLines (Read-SerialLines $serialPort 600)
+
+    Send-XiaoCommand $serialPort "config"
+    Add-CollectedLines $allLines (Read-SerialLines $serialPort 600)
+
+    Send-XiaoCommand $serialPort "ble"
+    Add-CollectedLines $allLines (Read-SerialLines $serialPort 600)
+
     Send-XiaoCommand $serialPort "txd:uart"
+    Add-CollectedLines $allLines (Read-SerialLines $serialPort 600)
+
+    Send-XiaoCommand $serialPort "safe:arm"
     Add-CollectedLines $allLines (Read-SerialLines $serialPort 600)
 
     Send-XiaoCommand $serialPort "model:$Model"
@@ -115,7 +136,14 @@ try {
     Send-XiaoCommand $serialPort "antinag:stop"
     Add-CollectedLines $allLines (Read-SerialLines $serialPort 900)
 
+    Send-XiaoCommand $serialPort "safe:off"
+    Add-CollectedLines $allLines (Read-SerialLines $serialPort 700)
+
+    Send-XiaoCommand $serialPort "events"
+    Add-CollectedLines $allLines (Read-SerialLines $serialPort 1200)
+
     $joined = ($allLines -join "`n")
+    $armAck = $joined -match "cmd: safe=armed"
     $activeAck = $joined -match "cmd: antinag=active"
     $stopAck = $joined -match "cmd: antinag=stopped"
     $txCount = ([regex]::Matches($joined, "TX #")).Count
@@ -123,7 +151,7 @@ try {
     $ringOkCount = $ringOkMatches.Count
     $badStats = $joined -match "badChk=[1-9]" -or $joined -match "badPid=[1-9]"
 
-    $passed = $activeAck -and ($txCount -gt 0) -and ($ringOkCount -ge $RequiredRingFrames) -and (-not $badStats)
+    $passed = $armAck -and $activeAck -and ($txCount -gt 0) -and ($ringOkCount -ge $RequiredRingFrames) -and (-not $badStats)
 
     $summary = @(
         "# Active Bench Proof ${stamp}",
@@ -132,10 +160,12 @@ try {
         "- Model: $Model",
         "- Duration seconds: $DurationSeconds",
         "- Active acknowledged: $activeAck",
+        "- Safe arm acknowledged: $armAck",
         "- Stop acknowledged: $stopAck",
         "- TX lines observed: $txCount",
         "- Valid Model X ring frames: $ringOkCount",
         "- Bad checksum/parity stats seen: $badStats",
+        "- Event log captured: $($joined -match 'events:')",
         "- Result: $(if ($passed) { 'PASS' } else { 'FAIL' })",
         "",
         "## Notes",
@@ -154,10 +184,13 @@ try {
         $exitCode = 0
     } else {
         Write-ProofLog "RESULT FAIL - active proof did not meet thresholds"
-        Write-ProofLog "activeAck=$activeAck stopAck=$stopAck txCount=$txCount ringOkCount=$ringOkCount badStats=$badStats"
+        Write-ProofLog "armAck=$armAck activeAck=$activeAck stopAck=$stopAck txCount=$txCount ringOkCount=$ringOkCount badStats=$badStats"
         $exitCode = 1
     }
 } finally {
+    if ($serialPort -and $serialPort.IsOpen) {
+        try { Send-XiaoCommand $serialPort "safe:off" 50 } catch {}
+    }
     if ($serialPort -and $serialPort.IsOpen) { $serialPort.Close() }
 }
 

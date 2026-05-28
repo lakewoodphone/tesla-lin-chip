@@ -60,7 +60,9 @@ param(
     [switch] $ApgOnly,
     [switch] $XiaoOnly,
     [string] $XiaoPort        = "COM4",
-    [string] $LogDir          = ""
+    [string] $LogDir          = "",
+    [switch] $SkipPreflight,
+    [switch] $AllowNonPassiveFirmware
 )
 
 $ErrorActionPreference = "Stop"
@@ -74,7 +76,7 @@ $sessionLog = Join-Path $LogDir "car-day-${stamp}.log"
 
 function Write-Session($msg) {
     $line = "[$(Get-Date -Format 'HH:mm:ss')] $msg"
-    $line | Tee-Object -FilePath $script:sessionLog -Append
+    $line | Tee-Object -FilePath $script:sessionLog -Append | Out-Null
 }
 
 function Test-XiaoPort {
@@ -84,19 +86,32 @@ function Test-XiaoPort {
 
 function Send-XiaoCommand {
     param([string]$Cmd)
+    $lines = New-Object System.Collections.Generic.List[string]
     try {
         $port = New-Object System.IO.Ports.SerialPort($XiaoPort, 115200, [System.IO.Ports.Parity]::None, 8, [System.IO.Ports.StopBits]::One)
         $port.DtrEnable = $true
         $port.RtsEnable = $false
+        $port.ReadTimeout = 100
         $port.WriteTimeout = 500
         $port.Open()
         $port.WriteLine($Cmd)
-        Start-Sleep -Milliseconds 100
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        while ($sw.ElapsedMilliseconds -lt 500) {
+            try {
+                $line = $port.ReadLine().Trim()
+                if ($line) {
+                    [void]$lines.Add($line)
+                    Write-Session "XIAO> $line"
+                }
+            } catch [System.TimeoutException] {
+            }
+        }
         $port.Close()
         Write-Session "XIAO< $Cmd"
     } catch {
         Write-Session "XIAO send failed: $_"
     }
+    return $lines
 }
 
 # ---- Welcome ----
@@ -121,8 +136,18 @@ Write-Host "[ ] 12V supply/battery clip ready"
 Write-Host "[ ] GND jumper verified common"
 Write-Host "[ ] Back-probes in bag"
 Write-Host "[ ] Vehicle LIN wire identified (White/black/green?"
+Write-Host "[ ] XIAO flashed with field_passive firmware"
+Write-Host "[ ] Active TX path physically disconnected/off for vehicle"
 Write-Host "[ ] Console output logging on laptop"
 Write-Host ""
+
+if (-not $SkipPreflight) {
+    Write-Session "Running enforced passive car preflight"
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repoRoot "tools\preflight-hardware-check.ps1") -Mode car-passive -LogDir $LogDir -RequirePass
+    if ($LASTEXITCODE -ne 0) { throw "Passive car preflight failed; aborting capture launcher" }
+} else {
+    Write-Session "Preflight skipped by operator flag"
+}
 
 if (-not $XiaoOnly) {
     $confirmed = Read-Host "Press Enter to start APG capture, or Ctrl+C to abort"
@@ -131,8 +156,18 @@ if (-not $XiaoOnly) {
 # ---- Phase 1: XIAO configuration ----
 if (-not $ApgOnly -and (Test-XiaoPort)) {
     Write-Session "Configuring XIAO on $XiaoPort"
-    Send-XiaoCommand "vehicle:$VehicleId"
-    Send-XiaoCommand "baud:$Baud"
+    [void](Send-XiaoCommand "safe:off")
+    $versionLines = @(Send-XiaoCommand "version")
+    $configLines = @(Send-XiaoCommand "config")
+    $identity = (($versionLines + $configLines) -join "`n")
+    if (-not $AllowNonPassiveFirmware) {
+        if ($identity -match "active=yes" -or $identity -notmatch "build=field_passive") {
+            Write-Session "ABORT: XIAO is not reporting field_passive passive firmware"
+            throw "Car-day launcher requires field_passive firmware by default. Reflash field_passive or pass -AllowNonPassiveFirmware for a bench-only diagnostic session."
+        }
+    }
+    [void](Send-XiaoCommand "vehicle:$VehicleId")
+    [void](Send-XiaoCommand "baud:$Baud")
     Write-Host "XIAO configured: vehicle=$VehicleId baud=$Baud" -ForegroundColor Green
 }
 

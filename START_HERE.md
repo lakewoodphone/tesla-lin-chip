@@ -1,15 +1,16 @@
 # Tesla LIN Bench - Start Here
 
-Last updated: 2026-05-27 16:45 -04:00
+Last updated: 2026-05-27 - roadmap hardening pass
 
 This is the canonical handoff for the Tesla LIN / anti-nag bench project. When the owner says "open the Tesla project", start here.
 
 ## Current State
 
 The bench is working and validated end-to-end for passive LIN receive at 19200 baud.
-**Firmware v5 is live on the bench XIAO** with multi-model runtime support, ring buffer, serial commands, ACTIVE_MODE enabled for anti-nag TX, and BLE configuration service.
+**Firmware v5.1 now has explicit build profiles**: `field_passive` is the default, `field_passive_nowifi` validates the no-WiFi path, and `bench_active_ble` / `chip_lab_active` are named active lab builds.
 The no-car evidence suite passed a full raw-ID sweep: **80/80 exact XIAO matches, 0 APG failures, 0 bad checksum/parity frames posted to secretary**.
 Active Model X bench TX was validated on May 27: after fixing a disconnected D2 -> LV2 jumper, `model:x` + `antinag:start` produced >100 self-received `0x0C` frames with enhanced checksum/parity OK. APG known-ID raw fallback is also validated: `active-apg-raw-proof.ps1` captured 11 checksum-valid `0x0C` CSV rows with `source=raw`.
+Active TX now requires `safe:arm` first; `safe:off` stops output, clears fault lockout, and disarms. Active builds report reset reason, fault count, last fault, and lockout state. RX-integrity spikes or a dominant-line timeout while armed force active output off.
 
 Active project path:
 
@@ -29,11 +30,16 @@ Primary files:
 START_HERE.md                             This handoff
 BENCH_EVIDENCE.md                         Full no-car evidence summary
 ACTIVE_INJECTOR.md                        Bench-only active TX wiring, operation, and TXD diagnostics
+IMPLEMENTATION_ROADMAP.md                 Full bench, passive car-test, and final-chip robustness roadmap
 README.md                                 Wiring, firmware, tools, gotchas
 NEXT_STEPS.md                             Current work plan and passive car-day flow
-src/main.cpp                              XIAO firmware v5 — multi-model, ring buf, cmds, active TX + BLE config service
+src/main.cpp                              XIAO firmware v5.1 - build profiles, safe arm gate, NVS config, BLE status, ring buffer
 src/secrets.h.example                     Template for WiFi/API settings
-platformio.ini                            Build config: ESP32-C3, NimBLE, ACTIVE_MODE flag
+platformio.ini                            Build config: passive default, active bench/chip lab envs
+tools/build-all-envs.ps1                  Compile every supported firmware environment
+tools/full-bench-proof.ps1                One-command isolated-bench proof wrapper
+tools/preflight-hardware-check.ps1        Records physical power/ground/TX/RX checklist
+tools/new-capture-session.ps1             Creates manifest-backed bench/car capture folders
 tools/bench-evidence-suite.ps1            No-car evidence matrix + API posting
 tools/active-bench-proof.ps1              Active Model X bench TX proof runner
 tools/active-apg-raw-proof.ps1            Active Model X TX + APG known-ID raw observer proof
@@ -50,31 +56,34 @@ tools/analyze-lin-capture.py              Python analyzer with Tesla ID referenc
 
 ### Firmware v4/v5 (upgraded May 26-27)
 
-`src/main.cpp` — major upgrade:
+`src/main.cpp` - major upgrade:
 
 | Feature | Description |
 |---|---|
 | Runtime vehicle ID | Set via serial: `vehicle:tesla-model-3` |
 | Runtime baud switch | Switch UART without reflash: `baud:19200` |
 | Ring buffer | 128 most recent frames, dump via `ring` command |
-| Serial commands | `vehicle:`, `baud:`, `raw:`, `ring`, `stats` |
+| Serial commands | `version`, `config`, `safe:off`, `vehicle:`, `baud:`, `raw:`, `ring`, `stats` |
 | Raw byte toggle | `raw:1` / `raw:0` at runtime |
 | Auto-baud candidates | 19200, 9600, 10400 (configurable) |
-| Telemetry queue | 64 frames (was 16) — less drop at high rates |
+| Telemetry queue | 64 frames (was 16) - less drop at high rates |
 | Heartbeat | +baud, short frames, sync error counters |
 | LED indicator | GPIO status on LIN activity |
-| Active TX mode | Enabled by default: half-baud break, model profiles, anti-nag scheduler, bus-idle collision guard, realistic scroll payloads, mirror-frame injection, TXD diagnostics, double-click toggle |
-| BLE config service | NimBLE "TeslaAntiNag": 4 characteristics for model/mode/period/enable, deferred advertising retry |
+| Active TX mode | Named active builds only: half-baud break, model profiles, safe arm gate, anti-nag scheduler, bus-idle collision guard, rate/session limits, realistic scroll payloads, mirror-frame injection, TXD diagnostics, double-click toggle |
+| BLE config service | NimBLE "TeslaAntiNag": model/mode/period/enable plus status/capabilities, deferred advertising retry |
+| Active safety lockout | Reset reason in `version`/`config`, RX-integrity fault lockout, dominant-line timeout lockout, fault count/last fault in serial and BLE status |
+| Active event log | `events` command prints recent RAM events plus NVS persisted slots for boot, arm, config, start/stop, inhibits, and faults |
 
-Active mode is bench-only and enabled by default via `-DACTIVE_MODE` in `platformio.ini`. Remove the flag to build passive-only.
+Default `platformio run` builds `field_passive`. Active mode is bench-only and must be built explicitly with `-e bench_active_ble` or `-e chip_lab_active`.
 
 Active + BLE improvements (v5, 2026-05-27):
 - Bus-idle collision guard (2 ms silence before TX).
 - Realistic scroll payloads (non-zero velocity/accumulated bytes).
 - Mirror/alive frame injection (`0x0D` at 500 ms via `mirror:on`).
 - NimBLE BLE service with model (x/3/y/auto), mode (duty/always), period (5000-120000ms), and enable (on/off).
-- BLE writes take effect immediately; double-click wheel button still toggles.
-- `ble` serial command prints BLE state and characteristic UUIDs.
+- BLE enable writes require `safe:arm`; invalid BLE values are rejected back to the current accepted value.
+- `ble` serial command prints BLE state and characteristic UUIDs, including status/capabilities.
+- NVS persisted config stores model/mode/period with version+CRC; enable state always boots off.
 
 ### Secretary API
 
@@ -91,7 +100,8 @@ Both routes are live in `personal-secretary-mvp` (`app/main.py`). Events go to `
 tools/car-day-launcher.ps1
 ```
 
-Single entry point for field work. Sets XIAO vehicle ID + baud, starts APG passive capture, opens XIAO monitor, then runs capture summary. Supports `-ApgOnly`, `-XiaoOnly`, and `-DurationSeconds`.
+Single entry point for field work. Forces `safe:off`, logs `version` and `config`, sets XIAO vehicle ID + baud, starts APG passive capture, opens XIAO monitor, then runs capture summary. Supports `-ApgOnly`, `-XiaoOnly`, and `-DurationSeconds`.
+It now runs enforced `car-passive` preflight and aborts if the XIAO does not report `build=field_passive` unless `-AllowNonPassiveFirmware` is explicitly supplied for a bench diagnostic.
 
 ### Python Capture Analyzer (NEW)
 
@@ -99,7 +109,8 @@ Single entry point for field work. Sets XIAO vehicle ID + baud, starts APG passi
 tools/analyze-lin-capture.py
 ```
 
-Post-capture analysis with built-in Tesla ID reference tables (Model X confirmed, 3/Y candidates). Per-ID frame stats, unknown ID alerting, checksum verification, anti-nag payload generation, JSON export.
+Post-capture analysis with built-in Tesla ID reference tables (Model X confirmed, 3/Y candidates). Per-ID frame stats, unknown ID alerting, checksum verification, action-window ranking from manifests, anti-nag payload generation, JSON export.
+Use `--candidate-json` to emit a review-only `model-profile-candidate.json`; firmware profiles still require repeated passive captures that agree.
 
 ### APG Tools
 
@@ -110,7 +121,7 @@ tools/send-netanalyser-headless.ps1
 tools/monitor-apg-lin-bus.ps1
 ```
 
-Do not rely on `tools/send-apg-lin-frame.ps1` for 19200 validation — it uses the direct static PICkitS path and was observed returning `Get_LIN_BAUD_Rate: 10000` even when set to 19200.
+Do not rely on `tools/send-apg-lin-frame.ps1` for 19200 validation - it uses the direct static PICkitS path and was observed returning `Get_LIN_BAUD_Rate: 10000` even when set to 19200.
 
 Important APG discovery:
 
@@ -228,6 +239,7 @@ Before the car arrives:
 1. Keep the current bench wiring intact; passive RX and active Model X TX are proven on the isolated bench.
 2. Before future active tests, confirm XIAO D2 -> LV2 -> HV2 -> module TX using `txd:low`; the May 27 fault was a disconnected D2 -> LV2 jumper.
 3. Use `tools\active-bench-proof.ps1` to verify XIAO self-receive, and `tools\active-apg-raw-proof.ps1` when you want APG known-ID raw observer evidence.
+	Both active proof scripts require `-ConfirmBenchIsolation` or an interactive `BENCH` confirmation.
 4. If WiFi telemetry is needed, set real WiFi/hotspot credentials in `src/secrets.h`, rebuild, and flash.
 5. If WiFi remains unavailable, use `tools/serial-to-lin-events.ps1`; USB telemetry is proven.
 6. Run the quick no-car suite before packing: `tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`.
@@ -237,10 +249,11 @@ Car day:
 
 1. Use APG passive monitor first.
 2. Do not transmit on the vehicle bus.
-3. Capture at 19200 first.
-4. If no traffic appears, retry 9600 only as a fallback.
-5. Save APG `.csv` and `.txt` logs.
-6. Run `tools/summarize-lin-capture.ps1`.
+3. Use `field_passive` firmware and let `tools/car-day-launcher.ps1` enforce passive preflight/build checks.
+4. Capture at 19200 first.
+5. If no traffic appears, retry 9600 only as a fallback.
+6. Save APG `.csv` and `.txt` logs.
+7. Run `tools/analyze-lin-capture.py --windows <manifest.json> --candidate-json <candidate.json>` plus `tools/summarize-lin-capture.ps1`.
 7. Compare payload changes while toggling locks, windows, seat belt, HVAC, and steering controls.
 
 ## Commands
