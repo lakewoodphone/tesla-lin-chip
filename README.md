@@ -15,8 +15,9 @@ For the implementation plan that makes the bench, passive car testing, and final
 - Active safety now reports reset reason, fault count, last fault, and lockout state. RX-integrity spikes or a dominant-line timeout while armed force active output off and block re-arm until `safe:off` is run after inspection.
 - Repository default now builds `field_passive`; active TX is explicit via `bench_active_ble` or `chip_lab_active`.
 - BLE service "TeslaAntiNag" in active builds exposes model (x/3/y/auto), mode (duty/always), period (5-120s), enable (on/off), status, and capabilities characteristics. Enable requires `safe:arm` first.
+- BLE advertising was revalidated on 2026-05-27 after fixing invalid NimBLE advertising intervals; active lab builds report `advertising=yes` over serial.
 - Car-day tooling enforces passive preflight and verifies `field_passive` firmware by default.
-- APG known-ID raw fallback now captures XIAO-generated active Model X frames. NetworkAnalyser event/display modes still log zero rows for those external frames, but `monitor-apg-lin-bus.ps1 -RawFallback -RawFallbackId 0x0C` polls the PICkitS USART buffer directly and writes checksum-valid CSV rows.
+- APG known-ID raw fallback has captured XIAO-generated active Model X frames historically. Current APG-dependent proof is blocked until the APGDT001 is recovered from Windows `CM_PROB_FAILED_START`.
 
 ## Hard Stops
 
@@ -88,6 +89,7 @@ Active mode (`bench_active_ble` / `chip_lab_active`, bench only):
 - Active event log: `events` prints recent RAM events and persisted NVS slots for boot, arm, config, start/stop, inhibits, and faults.
 - Diagnostics: `txd:low`, `txd:high`, `txd:uart`.
 - BLE: NimBLE config service with model/mode/period/enable plus status/capabilities. Advertises as "TeslaAntiNag". Double-click wheel button still toggles on/off only after arming.
+- Active lab builds define `NO_WIFI`; BLE and USB serial are the active-lab control/evidence paths so missing shop WiFi cannot interfere with BLE advertising.
 - NVS persisted config stores model/mode/period with version+CRC; active output always boots off/disarmed.
 
 ## Build And Flash
@@ -151,10 +153,10 @@ Expected active proof: `ring` shows `ID=0x0C PID=0x4C [8B]` frames with `enhance
 Independent APG known-ID raw observer proof, bench only:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
 ```
 
-Expected APG raw proof: `PASS` with raw CSV rows for `ID=0x0C`, `PID=0x4C`, `source=raw`.
+Expected APG raw proof after APG recovery: `PASS` with raw CSV rows for `ID=0x0C`, `PID=0x4C`, `source=raw`. The script preflights APG initialization before active TX.
 
 ## Tooling
 
@@ -198,6 +200,7 @@ cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -
 | Issue | Current understanding |
 |---|---|
 | APG NetworkAnalyser event/display modes log zero rows for XIAO-generated active frames | Settled: use `monitor-apg-lin-bus.ps1 -RawFallback -RawFallbackId 0x0C` or `active-apg-raw-proof.ps1` for known-ID bench observation. Generic vehicle discovery still uses normal passive event capture first. |
+| APGDT001 reports `CM_PROB_FAILED_START` / `Error sending script` | Current blocker for new APG evidence. Recover by elevated PnP restart or physical USB replug/reseat, then rerun passive and APG raw proofs. |
 | XIAO WiFi reports `NO_AP_FOUND` | Use USB serial and `serial-to-lin-events.ps1` unless WiFi credentials are repaired |
 | `PermissionError` on COM4 | A serial monitor is holding the port; stop PlatformIO/terminal process |
 | Direct `send-apg-lin-frame.ps1` baud looks wrong | Use NetworkAnalyser-based tools for real validation |

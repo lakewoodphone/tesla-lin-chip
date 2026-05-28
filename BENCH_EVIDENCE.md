@@ -4,7 +4,7 @@ _Updated: May 27, 2026._
 
 This file records the strongest bench-only evidence collected before touching a car. The goal is to prove the APGDT001 -> TJA1021 -> level shifter -> XIAO receive chain, parser, checksum handling, candidate-ID handling, anti-nag replay sequence, and secretary API telemetry path.
 
-**Active injector firmware with BLE config is now the default build (v5).** XIAO generates anti-nag frames on UART1 TX with runtime model switching (`model:x`, `model:3`, `model:y`), BLE configuration via "TeslaAntiNag" service, and double-click toggle. The firmware flashed to the physical bench XIAO is the same as the repository default. See `ACTIVE_INJECTOR.md`.
+**Repository default firmware is passive (`field_passive`).** Active injector firmware with BLE config is explicit via `bench_active_ble` or `chip_lab_active`. In active lab mode, XIAO generates anti-nag frames on UART1 TX with runtime model switching (`model:x`, `model:3`, `model:y`), BLE configuration via "TeslaAntiNag" service, and double-click toggle. See `ACTIVE_INJECTOR.md`.
 
 ## Hardware Under Test
 
@@ -153,6 +153,25 @@ NetworkAnalyser event/display passive capture still logged zero rows for XIAO-ge
 
 `tools/active-bench-proof.ps1` now automates this active self-receive proof and saves a log plus Markdown summary under `logs/`.
 
+### Evening revalidation, 2026-05-27
+
+The latest bench work is summarized in `docs/bench-revalidation-2026-05-27.md`.
+
+- `tools/build-all-envs.ps1` passed for all firmware environments.
+- `bench_active_ble` flashed successfully to the physical XIAO on `COM4`.
+- BLE advertising was fixed and verified: `cmd: BLE advertising=yes`, with the expected service and characteristic UUIDs. The root cause was an invalid too-fast NimBLE advertising interval that produced `rc=3` / `BLE_HS_EINVAL`.
+- Active Model X self-receive proof passed: `logs\active-bench-proof-20260527_205055.md`.
+- Representative proof frames used realistic non-zero payload bytes and validated with enhanced checksum/parity OK:
+
+```text
+ID=0x0C PID=0x4C [8B] data: 11 04 10 00 00 00 C0 00 | chk=CD enhanced parity=OK
+ID=0x0C PID=0x4C [8B] data: 0F 04 08 02 00 00 C0 02 | chk=D3 enhanced parity=OK
+```
+
+- Final XIAO state after the run was safe: `armed=no`, `running=no`, `faults=0`, `lockout=no`, `badChk=0`, `badPid=0`.
+- Current APG state is blocked: Windows reports `CM_PROB_FAILED_START`, APG transmit returns `Status: Error: Error sending script.`, and raw PICkitS initialization fails. This is a current APG hardware/driver state issue, not an XIAO firmware failure.
+- `tools\active-apg-raw-proof.ps1` now preflights APG raw monitor initialization before active TX. With the current APG failure it aborts before arming/transmitting.
+
 ## APG Known-ID Raw Observer Proof (May 27, 2026)
 
 The APG does see the XIAO active bench frames at the raw USART buffer layer. `monitor-apg-lin-bus.ps1 -RawFallback` bypasses the NetworkAnalyser event parser, polls `PICkitS.Basic.Retrieve_USART_Data`, scans for 8-byte payload + checksum windows, validates against the assumed raw ID, and writes normal CSV rows with `source=raw`.
@@ -185,3 +204,4 @@ ID=0x0C PID=0x4C [8B] data: 11 04 00 00 00 00 C0 0A source=raw
 - It cannot identify actual Model 3/Y steering IDs without passive vehicle capture.
 - It cannot prove Tesla accepts any anti-nag sequence. Vehicle work must start passive only.
 - Generic vehicle discovery still needs normal passive capture because raw fallback requires a known ID. The active Model X bench observer path is proven with APG raw fallback.
+- The APGDT001 must be recovered from its current Windows failed-start state before new APG transmit/capture evidence can be collected.

@@ -13,7 +13,8 @@ The project is no longer a loose experiment. The current baseline is:
 - Passive APG -> TJA1021 -> level shifter -> XIAO receive path is proven at 19200 baud.
 - Full no-car evidence passed: 80/80 exact APG -> XIAO matches across raw IDs `0x00` through `0x3F`.
 - Model X active bench TX is proven on the isolated bench via XIAO self-receive and APG known-ID raw fallback.
-- BLE active-lab builds compile and advertise as `TeslaAntiNag`, exposing model, mode, period, enable, status, and capabilities characteristics.
+- BLE active-lab builds compile with `NO_WIFI` and advertise as `TeslaAntiNag`, exposing model, mode, period, enable, status, and capabilities characteristics.
+- Latest evening bench revalidation passed active XIAO self-receive and BLE advertising proof; new APG-dependent proof is blocked by the APGDT001 Windows `CM_PROB_FAILED_START` state until device recovery.
 - Vehicle work is still passive-only. Model 3/Y steering IDs are candidates, not confirmed.
 
 ## Non-Negotiable Design Rules
@@ -35,12 +36,12 @@ The project is no longer a loose experiment. The current baseline is:
 - The BLE advertising retry was corrected to use boolean success and retry throttling, but phone-app BLE write testing still needs a captured proof log.
 - DONE: The custom `tx:` parser uses a shared auto-base parser; `0C`, `0x0C`, and `0d12` are predictable.
 - DONE: `NO_WIFI`, passive, and active builds are verified by `tools/build-all-envs.ps1`.
-- Firmware has frame counters and stats, but no persistent fault log. Add a small circular event log for arming, disarming, BLE writes, TX attempts, suppressed TX attempts, watchdog resets, and checksum/parity faults.
+- DONE: Firmware has frame counters, stats, and a persisted active event log for boot, arming, disarming, config changes, starts/stops, inhibits, and faults.
 - DONE: Active safety now records reset reason, last fault, fault count, fault lockout, RX-integrity lockout, dominant-line timeout lockout, rate limits, bus-busy inhibit, active timeout, and an `events` log with NVS persisted recent slots.
 
 ### Bench Gaps
 
-- Active Model X proof is good, but the bench needs a single master proof that runs passive, active self-receive, APG raw observer, BLE write, power-cycle persistence, and final stop-state verification.
+- Active Model X self-receive proof is good, but the bench still needs a single master proof that runs passive, active self-receive, APG raw observer, BLE write, power-cycle persistence, and final stop-state verification once the APG is recovered.
 - APG event/display mode still misses XIAO-generated active frames. Keep raw fallback for known-ID active bench proof, and add a logic-analyzer proof path so APG is not the only independent observer.
 - Hardware wiring is still jumper-based. Build a keyed fixture with strain relief, labels, test pads, and continuity checks.
 - TXD low/high diagnostics are manual. Automate a preflight that asks for measured voltages and records them in the proof artifact.

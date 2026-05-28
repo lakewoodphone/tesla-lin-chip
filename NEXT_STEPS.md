@@ -2,7 +2,7 @@
 
 Updated: 2026-05-27.
 
-Current state: passive bench receive is proven, full no-car evidence passed, and active Model X bench TX is proven by XIAO self-receive/ring evidence. Firmware v5.1 has explicit build profiles: default `field_passive`, `field_passive_nowifi`, `bench_active_ble`, and `chip_lab_active`. Active TX requires `safe:arm` before transmitting and `safe:off` disarms/stops output.
+Current state: passive bench receive is historically proven, full no-car evidence passed, and active Model X bench TX is proven by XIAO self-receive/ring evidence. Firmware v5.1 has explicit build profiles: default `field_passive`, `field_passive_nowifi`, `bench_active_ble`, and `chip_lab_active`. Active TX requires `safe:arm` before transmitting and `safe:off` disarms/stops output. The current APGDT001 needs recovery from Windows `CM_PROB_FAILED_START` before new APG transmit/capture proof can run.
 
 For the complete handoff, read `START_HERE.md` first.
 For the deeper implementation plan, read `IMPLEMENTATION_ROADMAP.md`.
@@ -22,22 +22,26 @@ For the deeper implementation plan, read `IMPLEMENTATION_ROADMAP.md`.
   - NetworkAnalyser event/display modes still log zero rows for XIAO-generated frames
   - direct PICkitS USART polling sees the external frame bytes
   - `active-apg-raw-proof.ps1` captured 11 checksum-valid `0x0C` rows with `source=raw`
-- BLE config service added: 4 characteristics (model, mode, period, enable), deferred advertising retry, `ble` serial command for diagnostics.
+- BLE config service added: model, mode, period, enable, status, and capabilities characteristics; `ble` serial command for diagnostics.
+- BLE advertising fixed and verified after replacing invalid NimBLE advertising intervals; active lab builds now report `advertising=yes` cleanly.
 - Firmware active safety now reports reset reason, fault count, last fault, and fault lockout; RX-integrity spikes or a dominant-line timeout while armed force output off and require manual `safe:off` before re-arming.
 - Car-day launcher now enforces passive preflight and requires XIAO `field_passive` output unless explicitly overridden for bench diagnostics.
 - Active proof scripts now require explicit isolated-bench confirmation before any TX test.
 - Analyzer can emit a review-only profile candidate file with `--candidate-json`; it must not auto-update firmware profiles.
 - Active docs and diagnostics added: `ACTIVE_INJECTOR.md`, `txd:low`, `txd:high`, `txd:uart`.
 - Roadmap Phase 0 mostly implemented: build profile split, default passive build, `version/config/safe:off/factory:reset`, NVS config CRC, BLE status/capabilities, safe arm gate, TX rate/session gates, all-env build script, capture session manifest, hardware preflight, and full bench proof wrapper.
+- 2026-05-27 evening active proof passed: `logs\active-bench-proof-20260527_205055.md`.
+- `tools\active-apg-raw-proof.ps1` now preflights APG raw monitor initialization before active TX and aborts before transmit if the APG cannot initialize.
 
 ## Next Work
 
-1. Keep root docs current and use `docs/archive/` for historical handoffs.
-2. Flash and hardware-test `field_passive` and `bench_active_ble` on COM4; software builds already pass.
-3. Run `tools/full-bench-proof.ps1 -RunActive -ConfirmBenchIsolation` on the isolated bench with the physical TX path connected, then attach the output folder to `BENCH_EVIDENCE.md`.
-4. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
-5. Before any vehicle session, run `tools/new-capture-session.ps1 -Mode car-passive`, `tools/preflight-hardware-check.ps1 -Mode car-passive`, and passive quick evidence.
-6. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
+1. Recover the APGDT001 from `CM_PROB_FAILED_START` by elevated device restart or physical USB replug/reseat.
+2. Rerun passive APG -> XIAO validation: `tools\validate-xiao-bench.ps1 -ComPort COM4 -Baud 19200 -BootWaitSeconds 4 -PerFrameTimeoutMs 2500 -KillExistingMonitor`.
+3. Rerun APG known-ID raw observer proof: `tools\active-apg-raw-proof.ps1 -ComPort COM4 -Baud 19200 -ConfirmBenchIsolation`.
+4. Keep root docs current and use `docs/archive/` for historical handoffs.
+5. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
+6. Before any vehicle session, run `tools/new-capture-session.ps1 -Mode car-passive`, `tools/preflight-hardware-check.ps1 -Mode car-passive`, and passive quick evidence.
+7. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
 
 ## Quick Validation Commands
 
@@ -63,7 +67,7 @@ Full no-car evidence:
 Active Model X bench proof, after enabling `ACTIVE_MODE` and flashing:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x -ConfirmBenchIsolation
 ```
 
 Expected proof: `stats` shows frames increasing with `badChk=0 badPid=0`; `ring` shows `ID=0x0C PID=0x4C [8B]` frames with enhanced checksum and parity OK.
@@ -71,8 +75,10 @@ Expected proof: `stats` shows frames increasing with `badChk=0 badPid=0`; `ring`
 APG known-ID raw observer proof, bench only:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
 ```
+
+`active-apg-raw-proof.ps1` now preflights APG initialization before active TX, so it exits before transmit if the APG is unavailable.
 
 ## Car Day Passive Flow
 

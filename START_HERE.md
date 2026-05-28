@@ -1,6 +1,6 @@
 # Tesla LIN Bench - Start Here
 
-Last updated: 2026-05-27 - roadmap hardening pass
+Last updated: 2026-05-27 - evening bench revalidation
 
 This is the canonical handoff for the Tesla LIN / anti-nag bench project. When the owner says "open the Tesla project", start here.
 
@@ -8,9 +8,13 @@ This is the canonical handoff for the Tesla LIN / anti-nag bench project. When t
 
 The bench is working and validated end-to-end for passive LIN receive at 19200 baud.
 **Firmware v5.1 now has explicit build profiles**: `field_passive` is the default, `field_passive_nowifi` validates the no-WiFi path, and `bench_active_ble` / `chip_lab_active` are named active lab builds.
+Active lab builds are BLE/USB-first and compile with `NO_WIFI`; field passive remains the only WiFi telemetry build.
 The no-car evidence suite passed a full raw-ID sweep: **80/80 exact XIAO matches, 0 APG failures, 0 bad checksum/parity frames posted to secretary**.
-Active Model X bench TX was validated on May 27: after fixing a disconnected D2 -> LV2 jumper, `model:x` + `antinag:start` produced >100 self-received `0x0C` frames with enhanced checksum/parity OK. APG known-ID raw fallback is also validated: `active-apg-raw-proof.ps1` captured 11 checksum-valid `0x0C` CSV rows with `source=raw`.
+Active Model X bench TX was validated on May 27: after fixing a disconnected D2 -> LV2 jumper, `model:x` + `antinag:start` produced self-received `0x0C` frames with enhanced checksum/parity OK. Latest revalidation: `tools\active-bench-proof.ps1 -ComPort COM4 -Model x -ConfirmBenchIsolation` passed at `logs\active-bench-proof-20260527_205055.md`.
+BLE advertising is now verified clean after fixing invalid NimBLE advertising intervals; `ble` reports `advertising=yes` with the expected `TeslaAntiNag` service UUIDs.
 Active TX now requires `safe:arm` first; `safe:off` stops output, clears fault lockout, and disarms. Active builds report reset reason, fault count, last fault, and lockout state. RX-integrity spikes or a dominant-line timeout while armed force active output off.
+
+Current APG caveat: the APGDT001 is present but Windows currently reports `CM_PROB_FAILED_START`, and APG sends fail with `Status: Error: Error sending script.` Historic APG proof remains valid, but new APG-dependent validation is blocked until the APG is restarted/replugged/recovered. See `docs/bench-revalidation-2026-05-27.md`.
 
 Active project path:
 
@@ -33,6 +37,7 @@ ACTIVE_INJECTOR.md                        Bench-only active TX wiring, operation
 IMPLEMENTATION_ROADMAP.md                 Full bench, passive car-test, and final-chip robustness roadmap
 README.md                                 Wiring, firmware, tools, gotchas
 NEXT_STEPS.md                             Current work plan and passive car-day flow
+docs/bench-revalidation-2026-05-27.md     Latest bench proof, BLE fix, and APG blocker
 src/main.cpp                              XIAO firmware v5.1 - build profiles, safe arm gate, NVS config, BLE status, ring buffer
 src/secrets.h.example                     Template for WiFi/API settings
 platformio.ini                            Build config: passive default, active bench/chip lab envs
@@ -158,17 +163,26 @@ Coverage:
 
 Durable summary: `BENCH_EVIDENCE.md`.
 
-Latest validation command:
+Historic passing validation command:
 
 ```powershell
 cd C:\Users\ezabz\Code\xiao-lin-bench
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate-xiao-bench.ps1 -KillExistingMonitor
 ```
 
-Result:
+Historic result:
 
 ```text
 RESULT PASS - all bench frames decoded as expected
+```
+
+Latest APG-dependent validation attempt:
+
+```text
+logs\xiao-bench-validation-20260527_204440.log
+RESULT FAIL - 5 frame validation(s) failed
+APG Status: Error: Error sending script.
+Windows APG state: CM_PROB_FAILED_START
 ```
 
 Decoded frames from the passing run:
@@ -192,7 +206,7 @@ Secretary LIN POST: 200 OK.
 Secretary LIN GET: returned stored bench-test frame.
 ```
 
-Latest APG raw observer proof:
+Historic APG raw observer proof:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8
@@ -205,6 +219,8 @@ XIAO TX lines observed: 55
 APG raw rows observed: 11
 PASS: APG raw fallback captured 11 checksum-valid known-ID frames.
 ```
+
+Current APG raw proof behavior: `tools\active-apg-raw-proof.ps1` preflights APG raw monitor initialization before active TX. With the APG in `CM_PROB_FAILED_START`, it aborts before active TX.
 
 ## Hardware Wiring
 
@@ -238,12 +254,13 @@ Before the car arrives:
 
 1. Keep the current bench wiring intact; passive RX and active Model X TX are proven on the isolated bench.
 2. Before future active tests, confirm XIAO D2 -> LV2 -> HV2 -> module TX using `txd:low`; the May 27 fault was a disconnected D2 -> LV2 jumper.
-3. Use `tools\active-bench-proof.ps1` to verify XIAO self-receive, and `tools\active-apg-raw-proof.ps1` when you want APG known-ID raw observer evidence.
+3. Use `tools\active-bench-proof.ps1` to verify XIAO self-receive. Use `tools\active-apg-raw-proof.ps1` only after the APG is out of `CM_PROB_FAILED_START`; it now preflights APG before active TX.
 	Both active proof scripts require `-ConfirmBenchIsolation` or an interactive `BENCH` confirmation.
 4. If WiFi telemetry is needed, set real WiFi/hotspot credentials in `src/secrets.h`, rebuild, and flash.
 5. If WiFi remains unavailable, use `tools/serial-to-lin-events.ps1`; USB telemetry is proven.
-6. Run the quick no-car suite before packing: `tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`.
-7. Pack APGDT001, XIAO bench, TJA1021 wiring, 12V supply/battery clip, ground jumper, and back-probes.
+6. Recover APGDT001: elevated PnP restart or physical USB replug/reseat, then confirm Windows no longer reports `CM_PROB_FAILED_START`.
+7. Run the quick no-car suite before packing: `tools\bench-evidence-suite.ps1 -Quick -VehicleId tesla-bench-precar`.
+8. Pack APGDT001, XIAO bench, TJA1021 wiring, 12V supply/battery clip, ground jumper, and back-probes.
 
 Car day:
 
@@ -317,7 +334,7 @@ Start by doing this:
 cd C:\Users\ezabz\Code\xiao-lin-bench
 Get-Content START_HERE.md
 Get-Content NEXT_STEPS.md
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate-xiao-bench.ps1 -KillExistingMonitor
+Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -match 'VID_04D8&PID_0A04' }
 ```
 
-Then continue from the first unchecked item in `NEXT_STEPS.md`.
+If the APG is no longer in `CM_PROB_FAILED_START`, rerun `tools\validate-xiao-bench.ps1 -KillExistingMonitor`. Then continue from the first unchecked item in `NEXT_STEPS.md`.

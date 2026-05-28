@@ -81,6 +81,7 @@ The XIAO advertises as **"TeslaAntiNag"** after boot (NimBLE). Connect with any 
 
 Writing `on` to Enable starts anti-nag only after `safe:arm`; `off` stops it. The double-click wheel button still toggles only after arming.
 Serial command `ble` prints full BLE state and UUIDs.
+Active lab builds compile with `NO_WIFI`, so BLE and USB serial are the lab control/evidence paths. BLE advertising was revalidated on 2026-05-27 after fixing the NimBLE interval to the valid `0x20`-`0x40` range; `ble` reports `advertising=yes`.
 
 Evidence from XIAO ring/self-receive while running `model:x` + `antinag:start`:
 
@@ -91,7 +92,9 @@ ID=0x0C PID=0x4C [8B] data: 0F 04 00 00 00 00 C0 02 | chk=DD enhanced parity=OK
 ID=0x0C PID=0x4C [8B] data: 10 00 00 00 00 00 C0 0A | chk=D8 enhanced parity=OK
 ```
 
-APG NetworkAnalyser event/display capture still logged zero rows for XIAO-generated frames in this session, but the APG raw USART buffer does see them. `tools\active-apg-raw-proof.ps1` captured 11 checksum-valid known-ID `0x0C` rows with `source=raw`, so the independent APG observer path is now proven for the Model X active bench stream.
+APG NetworkAnalyser event/display capture still logged zero rows for XIAO-generated frames in the original session, but the APG raw USART buffer saw them. `tools\active-apg-raw-proof.ps1` captured 11 checksum-valid known-ID `0x0C` rows with `source=raw`, so the independent APG observer path is proven historically for the Model X active bench stream.
+
+Current APG caveat: during the 2026-05-27 evening revalidation, the APGDT001 was present but Windows reported `CM_PROB_FAILED_START`, APG sends returned `Status: Error: Error sending script.`, and raw PICkitS initialization failed. `active-apg-raw-proof.ps1` now preflights the APG monitor before active TX and aborts before transmit if the APG cannot initialize.
 
 ## Bench Validation Steps
 
@@ -104,7 +107,7 @@ APG NetworkAnalyser event/display capture still logged zero rows for XIAO-genera
    ```
 3. Run the proof script:
    ```powershell
-   powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x
+   powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1 -ComPort COM4 -Model x -ConfirmBenchIsolation
    ```
 4. Or open serial manually: `platformio device monitor --port COM4 --baud 115200 --dtr 1 --rts 0`.
 5. Run `safe:arm`, `model:x`, then `antinag:start`.
@@ -113,9 +116,9 @@ APG NetworkAnalyser event/display capture still logged zero rows for XIAO-genera
    stats
    ring
    ```
-7. Optional: start APG known-ID raw fallback as an independent observer for the Model X bench stream:
+7. Optional: start APG known-ID raw fallback as an independent observer for the Model X bench stream after confirming the APG is not in `CM_PROB_FAILED_START`:
    ```
-   powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8
+   powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
    ```
 8. Verify alternating `0x0C` frames with `B0=0x11/0x0F` and neutral `B0=0x10`, with enhanced checksum/parity OK or `source=raw` APG rows.
 

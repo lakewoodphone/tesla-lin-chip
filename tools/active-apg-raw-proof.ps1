@@ -44,7 +44,6 @@ function Read-XiaoLines([System.IO.Ports.SerialPort]$Port, [int]$Milliseconds) {
 }
 
 if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Path $LogDir | Out-Null }
-$before = Get-Date
 $xiaoLines = @()
 
 Write-Host "=====================================================" -ForegroundColor Yellow
@@ -57,6 +56,14 @@ if (-not $ConfirmBenchIsolation) {
     if ($confirmation -ne "BENCH") { throw "Active APG raw proof aborted: bench isolation was not confirmed" }
 }
 
+Write-Host "Preflighting APG raw monitor initialization..." -ForegroundColor Yellow
+& $x86PowerShell -STA -NoProfile -ExecutionPolicy Bypass -File $monitorScript `
+    -Baud $Baud -DurationSeconds 1 -Mode DisplayAll `
+    -RawFallback -RawFallbackId $RawFallbackId -LogDir $LogDir
+$preflightExit = $LASTEXITCODE
+if ($preflightExit -ne 0) { throw "APG raw monitor preflight failed with code $preflightExit; active TX was not started" }
+
+$before = Get-Date
 $serial = Open-XiaoSerial $ComPort
 try {
     Send-XiaoCommand $serial "antinag:stop"

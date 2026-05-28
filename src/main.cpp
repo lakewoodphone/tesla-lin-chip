@@ -313,6 +313,7 @@ static void dumpActiveEvents() {
     for (uint32_t i = 0; i < ACTIVE_EVENT_LOG_SIZE; i++) {
       char key[8];
       snprintf(key, sizeof(key), "ev%02lu", (unsigned long)i);
+      if (!configPrefs.isKey(key)) continue;
       String value = configPrefs.getString(key, "");
       if (value.length() > 0) Serial.printf(" persisted[%02lu] %s\n", (unsigned long)i, value.c_str());
     }
@@ -630,7 +631,8 @@ class AntiNagServerCallbacks : public NimBLEServerCallbacks {
   void onDisconnect(NimBLEServer *pServer, NimBLEConnInfo& connInfo, int reason) override {
     bleClientConnected = false;
     Serial.println("BLE: client disconnected");
-    pServer->startAdvertising();
+    bleAdvPending = true;
+    bleLastAdvAttemptMs = 0;
   }
 };
 
@@ -690,8 +692,8 @@ static void initBleConfig() {
 
   NimBLEAdvertising *ad = NimBLEDevice::getAdvertising();
   ad->addServiceUUID(BLE_SVC_UUID);
-  ad->setMinInterval(0x06);
-  ad->setMaxInterval(0x12);
+  ad->setMinInterval(0x20);
+  ad->setMaxInterval(0x40);
   // Advertising will start in loop() when NimBLE host is ready
   bleAdvPending = true;
 
@@ -1233,8 +1235,11 @@ static void processCommand() {
   }
   if (strcmp(cmdBuf, "ble") == 0) {
     updateBleStatus();
+    NimBLEAdvertising *ad = NimBLEDevice::getAdvertising();
+    bool advertising = ad && ad->isAdvertising();
+    const char *advState = advertising ? "yes" : (bleAdvPending ? "pending" : "no");
     Serial.printf("cmd: BLE advertising=%s client=%s model=%s mode=%s period=%lums armed=%s running=%s last=%s\n",
-      bleServer ? "yes" : "no",
+      advState,
       bleClientConnected ? "connected" : "disconnected",
       modelName,
       antiNagMode == ANTI_NAG_MODE_DUTY ? "duty" : "always",
@@ -1639,7 +1644,7 @@ void loop() {
       (unsigned long)postFailCount,
       wifiOk ? WiFi.localIP().toString().c_str() : "off");
 #else
-    Serial.printf("alive d3=%d edges=%lu frames=%lu badChk=%lu badPid=%lu ovf=%lu short=%lu syncErr=%lu baud=%u lip=%u\n",
+    Serial.printf("alive d3=%d edges=%lu frames=%lu badChk=%lu badPid=%lu ovf=%lu short=%lu syncErr=%lu baud=%u lastByteMs=%lu\n",
       digitalRead(LIN_RX_PIN),
       (unsigned long)edges,
       (unsigned long)frameCount,
@@ -1648,7 +1653,8 @@ void loop() {
       (unsigned long)overflowCount,
       (unsigned long)shortFrameCount,
       (unsigned long)syncErrCount,
-      linBaud);
+      linBaud,
+      (unsigned long)lastByteMs);
 #endif
   }
 
@@ -1657,12 +1663,17 @@ void loop() {
   serviceAntiNag();
   if (mirrorActive && dblClickEnabled) serviceAliveTx();
   // Retry BLE advertising after NimBLE host sync. start() returns true on success.
-  if (bleAdvPending && NimBLEDevice::getAdvertising() && now - bleLastAdvAttemptMs >= 500) {
+  NimBLEAdvertising *ad = NimBLEDevice::getAdvertising();
+  if (bleAdvPending && ad && now - bleLastAdvAttemptMs >= 500) {
     bleLastAdvAttemptMs = now;
-    bool started = NimBLEDevice::getAdvertising()->start();
-    if (started) {
+    if (ad->isAdvertising()) {
       bleAdvPending = false;
-      Serial.println("BLE: advertising started");
+    } else {
+      bool started = ad->start();
+      if (started) {
+        bleAdvPending = false;
+        Serial.println("BLE: advertising started");
+      }
     }
   }
 #endif
