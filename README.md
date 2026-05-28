@@ -18,6 +18,7 @@ For the implementation plan that makes the bench, passive car testing, and final
 - BLE advertising was revalidated on 2026-05-27 after fixing invalid NimBLE advertising intervals; active lab builds report `advertising=yes` over serial.
 - Car-day tooling enforces passive preflight and verifies `field_passive` firmware by default.
 - APG known-ID raw fallback captures XIAO-generated active Model X frames after APG reseat: `active-apg-raw-proof.ps1` passed with 11 raw `ID=0x0C PID=0x4C` rows at `logs\lin-capture-20260527_212130.csv`.
+- Model 3/Y workflow is ready and waiting on the car: prepare with `tools/prepare-model3y-car-day.ps1`, capture with `tools/start-model3y-passive-capture.ps1`, analyze with `tools/process-model3y-capture.ps1`, then reprogram/prove a reviewed candidate on the isolated bench with `tools/stage-model3y-active-bench.ps1`.
 
 ## Hard Stops
 
@@ -153,10 +154,10 @@ Expected active proof: `ring` shows `ID=0x0C PID=0x4C [8B]` frames with `enhance
 Independent APG known-ID raw observer proof, bench only:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -Model x -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
 ```
 
-Expected APG raw proof: `PASS` with raw CSV rows for `ID=0x0C`, `PID=0x4C`, `source=raw`. The script preflights APG initialization before active TX, forces continuous active mode during capture, restores duty mode afterward, and exits before transmit if APG is unavailable.
+Expected APG raw proof: `PASS` with raw CSV rows for the selected model ID, `source=raw`. The script supports `-Model x|3|y|auto`, preflights APG initialization before active TX, forces continuous active mode during capture, restores duty mode afterward, and exits before transmit if APG is unavailable.
 
 ## Tooling
 
@@ -172,6 +173,10 @@ Expected APG raw proof: `PASS` with raw CSV rows for `ID=0x0C`, `PID=0x4C`, `sou
 | `tools/bench-evidence-suite.ps1` | Full APG/XIAO no-car evidence matrix | No, bench only |
 | `tools/active-bench-proof.ps1` | XIAO active TX self-receive proof | No, bench only |
 | `tools/active-apg-raw-proof.ps1` | XIAO active TX plus APG known-ID raw observer proof | No, bench only |
+| `tools/prepare-model3y-car-day.ps1` | Pre-arrival APG/XIAO health check and `field_passive` flash | Yes |
+| `tools/start-model3y-passive-capture.ps1` | Passive Model 3/Y capture wrapper with action windows | Yes, passive only |
+| `tools/process-model3y-capture.ps1` | Analyze a capture session and emit candidate JSON | Yes, post-capture |
+| `tools/stage-model3y-active-bench.ps1` | Apply reviewed 3/Y candidate and run bench-only active proofs | No, bench only |
 | `tools/send-netanalyser-headless.ps1` | APG headless LIN transmit | No, bench only |
 | `tools/antinag-replay.ps1` | APG anti-nag replay sequence | No, bench only |
 | `tools/serial-to-lin-events.ps1` | XIAO USB serial -> secretary API | Passive if source is passive |

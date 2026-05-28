@@ -16,6 +16,10 @@ Updated: 2026-05-27. Firmware v5.1 is current with passive default build profile
 | `tools/bench-evidence-suite.ps1` | Full no-car APG/XIAO evidence matrix | No | Bench only; baseline, candidates, checksums, ID sweep |
 | `tools/active-bench-proof.ps1` | XIAO active TX self-receive proof | No | Bench only; saves log and Markdown summary |
 | `tools/active-apg-raw-proof.ps1` | XIAO active TX plus APG known-ID raw observer proof | No | Bench only; starts/stops active TX and asserts raw CSV rows |
+| `tools/prepare-model3y-car-day.ps1` | Pre-arrival 3/Y readiness | Yes | Checks APG/XIAO, builds, flashes `field_passive`, verifies passive identity |
+| `tools/start-model3y-passive-capture.ps1` | Passive 3/Y capture launcher | Yes | Creates session, writes action windows, runs passive car-day capture |
+| `tools/process-model3y-capture.ps1` | Post-capture 3/Y analysis | Yes | Runs summary/analyzer and emits candidate JSON |
+| `tools/stage-model3y-active-bench.ps1` | Bench-only 3/Y active staging | No | Edits reviewed profile ID, flashes active build, runs bench proofs |
 | `tools/send-netanalyser-headless.ps1` | APG headless LIN transmit | No | Bench only; preferred APG send path |
 | `tools/antinag-replay.ps1` | APG-generated anti-nag sequence | No | Bench only |
 | `tools/serial-to-lin-events.ps1` | XIAO USB serial -> secretary API | Passive if source is passive | WiFi fallback telemetry bridge |
@@ -124,7 +128,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-bench-proof.ps1
 Active Model X proof with APG raw observer:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -Model x -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
+```
+
+Model 3/Y car arrival flow:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\prepare-model3y-car-day.ps1 -ComPort COM4
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\start-model3y-passive-capture.ps1 -Model 3 -VehicleId tesla-model-3-YYYYMMDD -Baud 19200 -DurationSeconds 180
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\process-model3y-capture.ps1 -SessionDir logs\sessions\<session-folder>
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\stage-model3y-active-bench.ps1 -CandidateJson logs\sessions\<session-folder>\model-profile-candidate.json -Model 3 -UseTopCandidate -ConfirmProfileUpdate -ConfirmBenchIsolation
 ```
 
 USB serial telemetry fallback:
@@ -184,5 +197,5 @@ Active bench proof command flow is automated by `tools/active-bench-proof.ps1`.
 ## Known Tooling Gaps
 
 - Generic APG event/display capture is still the right first path for vehicle discovery, but it does not report the XIAO-generated active bench stream. That bench case is settled through known-ID raw fallback (`source=raw` CSV rows), not NetworkAnalyser events.
-- `active-apg-raw-proof.ps1` preflights APG raw monitor initialization before starting active TX, forces `mode:always` during the APG capture window, restores `mode:duty` afterward, and exits before transmit if APG initialization fails.
+- `active-apg-raw-proof.ps1` preflights APG raw monitor initialization before starting active TX, supports `-Model x|3|y|auto`, forces `mode:always` during the APG capture window, restores `mode:duty` afterward, and exits before transmit if APG initialization fails.
 - XIAO WiFi was unavailable on the bench (`NO_AP_FOUND`). USB serial telemetry is the reliable fallback.

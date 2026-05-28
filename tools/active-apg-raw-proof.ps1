@@ -1,9 +1,11 @@
 param(
     [string] $ComPort = "COM4",
+    [ValidateSet("x", "3", "y", "auto")]
+    [string] $Model = "x",
     [UInt16] $Baud = 19200,
     [int] $DurationSeconds = 6,
     [int] $MinFrames = 8,
-    [Byte] $RawFallbackId = 0x0C,
+    [Byte] $RawFallbackId = 0,
     [string] $LogDir = "",
     [switch] $ConfirmBenchIsolation
 )
@@ -46,8 +48,16 @@ function Read-XiaoLines([System.IO.Ports.SerialPort]$Port, [int]$Milliseconds) {
 if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Path $LogDir | Out-Null }
 $xiaoLines = @()
 
+if (-not $PSBoundParameters.ContainsKey("RawFallbackId") -or $RawFallbackId -eq 0) {
+    switch ($Model) {
+        "3" { $RawFallbackId = 0x1A }
+        "y" { $RawFallbackId = 0x1A }
+        default { $RawFallbackId = 0x0C }
+    }
+}
+
 Write-Host "=====================================================" -ForegroundColor Yellow
-Write-Host "  Active APG Raw Proof - Model X known-ID capture" -ForegroundColor Yellow
+Write-Host "  Active APG Raw Proof - Model $Model known-ID capture" -ForegroundColor Yellow
 Write-Host "  COM: $ComPort   Baud: $Baud   Raw ID: 0x$($RawFallbackId.ToString('X2'))" -ForegroundColor Yellow
 Write-Host "=====================================================" -ForegroundColor Yellow
 
@@ -70,7 +80,7 @@ try {
     Send-XiaoCommand $serial "antinag:stop"
     Send-XiaoCommand $serial "txd:uart"
     Send-XiaoCommand $serial "safe:arm"
-    Send-XiaoCommand $serial "model:x"
+    Send-XiaoCommand $serial "model:$Model"
     Send-XiaoCommand $serial "mode:always"
     $xiaoLines += Read-XiaoLines $serial 500
     Send-XiaoCommand $serial "antinag:start"

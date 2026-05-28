@@ -2,7 +2,7 @@
 
 Updated: 2026-05-27.
 
-Current state: passive bench receive is proven, full no-car evidence passed again after APG reseat, and active Model X bench TX is proven by both XIAO self-receive/ring evidence and APG known-ID raw fallback. Firmware v5.1 has explicit build profiles: default `field_passive`, `field_passive_nowifi`, `bench_active_ble`, and `chip_lab_active`. Active TX requires `safe:arm` before transmitting and `safe:off` disarms/stops output. The current APGDT001 state is healthy after physical reseat (`CM_PROB_NONE`).
+Current state: passive bench receive is proven, full no-car evidence passed again after APG reseat, and active Model X bench TX is proven by both XIAO self-receive/ring evidence and APG known-ID raw fallback. Firmware v5.1 has explicit build profiles: default `field_passive`, `field_passive_nowifi`, `bench_active_ble`, and `chip_lab_active`. Active TX requires `safe:arm` before transmitting and `safe:off` disarms/stops output. The current APGDT001 state is healthy after physical reseat (`CM_PROB_NONE`). We are waiting only on a Model 3/Y arriving for passive capture.
 
 For the complete handoff, read `START_HERE.md` first.
 For the deeper implementation plan, read `IMPLEMENTATION_ROADMAP.md`.
@@ -34,14 +34,16 @@ For the deeper implementation plan, read `IMPLEMENTATION_ROADMAP.md`.
 - 2026-05-27 APG reseat cleared `CM_PROB_FAILED_START`; quick passive validation passed at `logs\xiao-bench-validation-20260527_211238.log`.
 - Full passive evidence suite passed after reseat: `logs\bench-evidence-20260527_211310\bench-evidence-20260527_211310.md` with 80/80 exact matches and 0 APG failures.
 - `tools\active-apg-raw-proof.ps1` now preflights APG raw monitor initialization, forces `mode:always` while APG is monitoring, restores `mode:duty`, and passed with 11 APG raw rows at `logs\lin-capture-20260527_212130.csv`.
+- Model 3/Y arrival workflow scripts added: `tools\prepare-model3y-car-day.ps1`, `tools\start-model3y-passive-capture.ps1`, `tools\process-model3y-capture.ps1`, and `tools\stage-model3y-active-bench.ps1`.
 
 ## Next Work
 
-1. Keep root docs current and use `docs/archive/` for historical handoffs.
-2. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
-3. Before any vehicle session, run `tools/new-capture-session.ps1 -Mode car-passive`, `tools/preflight-hardware-check.ps1 -Mode car-passive`, and passive quick evidence.
-4. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
-5. If APG returns to `CM_PROB_FAILED_START`, recover it by elevated device restart or physical USB replug/reseat before APG-dependent tests.
+1. Before the car arrives, run `tools\prepare-model3y-car-day.ps1 -ComPort COM4`.
+2. When the Model 3/Y arrives, run `tools\start-model3y-passive-capture.ps1 -Model 3 -VehicleId tesla-model-3-YYYYMMDD` and follow its printed action plan.
+3. Immediately after capture, run `tools\process-model3y-capture.ps1 -SessionDir <session folder>`.
+4. Review `model-profile-candidate.json`; for bench-only active staging, run `tools\stage-model3y-active-bench.ps1 -CandidateJson <candidate> -Model 3 -UseTopCandidate -ConfirmProfileUpdate -ConfirmBenchIsolation`.
+5. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
+6. If APG returns to `CM_PROB_FAILED_START`, recover it by elevated device restart or physical USB replug/reseat before APG-dependent tests.
 
 ## Quick Validation Commands
 
@@ -84,6 +86,19 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.p
 
 Do not transmit on the vehicle bus.
 
+Preferred wrapper:
+
+```powershell
+cd C:\Users\ezabz\Code\xiao-lin-bench
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\start-model3y-passive-capture.ps1 -Model 3 -VehicleId tesla-model-3-YYYYMMDD -Baud 19200 -DurationSeconds 180
+```
+
+After capture:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\process-model3y-capture.ps1 -SessionDir logs\sessions\<session-folder>
+```
+
 ```powershell
 cd C:\Users\ezabz\Code\xiao-lin-bench
 cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\monitor-apg-lin-bus.ps1 -Baud 19200 -DurationSeconds 120
@@ -112,6 +127,7 @@ Model 3/Y steering IDs are not confirmed. Candidate IDs are `0x1A` and `0x1B`, b
 3. Run `tools/analyze-lin-capture.py`.
 4. Identify IDs whose payload changes only during the control action.
 5. Update `MODEL_PROFILES[]` only after confirmation.
+6. To bench-test a reviewed candidate immediately, use `tools/stage-model3y-active-bench.ps1`; it edits the provisional firmware ID, flashes `bench_active_ble`, and runs active proofs on the isolated bench only.
 
 ## Hard Stops
 

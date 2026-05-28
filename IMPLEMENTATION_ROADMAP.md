@@ -15,6 +15,7 @@ The project is no longer a loose experiment. The current baseline is:
 - Model X active bench TX is proven on the isolated bench via XIAO self-receive and APG known-ID raw fallback.
 - BLE active-lab builds compile with `NO_WIFI` and advertise as `TeslaAntiNag`, exposing model, mode, period, enable, status, and capabilities characteristics.
 - Latest evening bench revalidation passed active XIAO self-receive, BLE advertising proof, passive APG -> XIAO evidence after APG reseat, and APG known-ID raw observer proof.
+- Model 3/Y arrival workflow is scripted end-to-end up to the safety gate: prepare passive firmware, capture passive action windows, analyze candidate IDs, then apply a reviewed candidate and run bench-only active proofs.
 - Vehicle work is still passive-only. Model 3/Y steering IDs are candidates, not confirmed.
 
 ## Non-Negotiable Design Rules
@@ -237,6 +238,7 @@ Each capture should record:
   - checksum validity
   - idle stability
 - DONE: Emit a review-only model profile candidate JSON with `--candidate-json`; it explicitly says firmware updates are blocked until repeated passive captures agree.
+- DONE: Add Model 3/Y workflow wrappers for pre-arrival prep, passive capture, post-capture analysis, and bench-only active staging.
 - Add report sections for confirmed, candidate, unrelated, and noisy IDs.
 
 Exit gate:
@@ -425,11 +427,11 @@ Required before calling hardware final:
 
 ## Immediate Next 12 Actions
 
-1. Flash `field_passive` and verify `version`/`config` output on COM4 before any car capture.
-2. Run enforced passive preflight with `tools/preflight-hardware-check.ps1 -Mode car-passive -RequirePass`.
-3. Run `tools/new-capture-session.ps1 -Mode car-passive` and keep all APG/XIAO/analyzer artifacts in the session folder.
-4. Run passive Model X/3/Y captures and update model confidence from repeated passive evidence only.
-5. Use `tools/analyze-lin-capture.py --windows manifest.json --candidate-json model-profile-candidate.json` after each capture.
+1. Run `tools/prepare-model3y-car-day.ps1` before the car arrives.
+2. Run `tools/start-model3y-passive-capture.ps1` when the Model 3/Y arrives and follow its timed action plan.
+3. Run `tools/process-model3y-capture.ps1` immediately after capture.
+4. Review `model-profile-candidate.json`, then use `tools/stage-model3y-active-bench.ps1` only on the isolated bench to reprogram and prove XIAO active output.
+5. Repeat passive Model 3/Y captures as needed and update model confidence from repeated passive evidence only.
 6. Complete BLE phone proof on isolated bench and save screenshots/export in the proof folder.
 7. Build the labeled bench fixture with physical TX enable switch and test pads.
 8. Add logic-analyzer proof if the hardware is available.

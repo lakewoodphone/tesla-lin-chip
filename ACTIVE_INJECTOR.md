@@ -116,11 +116,13 @@ APG caveat: during the 2026-05-27 evening revalidation, the APGDT001 initially r
    stats
    ring
    ```
-7. Optional: start APG known-ID raw fallback as an independent observer for the Model X bench stream. The script preflights APG before TX and requires isolated-bench confirmation:
+7. Optional: start APG known-ID raw fallback as an independent observer for the selected model stream. The script preflights APG before TX and requires isolated-bench confirmation:
    ```
-   powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
+   powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -Model x -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
    ```
 8. Verify alternating `0x0C` frames with `B0=0x11/0x0F` and neutral `B0=0x10`, with enhanced checksum/parity OK or `source=raw` APG rows.
+
+For Model 3/Y after passive capture, use `tools\stage-model3y-active-bench.ps1` on the isolated bench. It updates the reviewed provisional ID, flashes `bench_active_ble`, and runs both active proof paths.
 
 ## TX Path Debug Checklist
 

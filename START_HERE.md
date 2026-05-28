@@ -1,6 +1,6 @@
 # Tesla LIN Bench - Start Here
 
-Last updated: 2026-05-27 - evening bench revalidation plus APG reseat proof
+Last updated: 2026-05-28 - awaiting Model 3/Y passive capture
 
 This is the canonical handoff for the Tesla LIN / anti-nag bench project. When the owner says "open the Tesla project", start here.
 
@@ -16,6 +16,8 @@ BLE advertising is now verified clean after fixing invalid NimBLE advertising in
 Active TX now requires `safe:arm` first; `safe:off` stops output, clears fault lockout, and disarms. Active builds report reset reason, fault count, last fault, and lockout state. RX-integrity spikes or a dominant-line timeout while armed force active output off.
 
 Current APG state: the APGDT001 recovered after physical reseat. Windows reports `CM_PROB_NONE` for the APG HID interfaces, APG transmit works, and APG raw monitor initialization works. If `CM_PROB_FAILED_START` recurs, physically replug/reseat or use elevated PnP restart before APG-dependent tests. See `docs/bench-revalidation-2026-05-27.md`.
+
+Current operational state: we are waiting only on the Model 3 or Y arriving. Before it arrives, run `tools\prepare-model3y-car-day.ps1` to flash/verify `field_passive`. When it arrives, run `tools\start-model3y-passive-capture.ps1`; after capture, run `tools\process-model3y-capture.ps1`; after human review of the candidate ID, use `tools\stage-model3y-active-bench.ps1` to reprogram and prove the XIAO on the isolated bench only.
 
 Active project path:
 
@@ -49,6 +51,10 @@ tools/new-capture-session.ps1             Creates manifest-backed bench/car capt
 tools/bench-evidence-suite.ps1            No-car evidence matrix + API posting
 tools/active-bench-proof.ps1              Active Model X bench TX proof runner
 tools/active-apg-raw-proof.ps1            Active Model X TX + APG known-ID raw observer proof
+tools/prepare-model3y-car-day.ps1         Pre-arrival APG/XIAO health check and field_passive flash
+tools/start-model3y-passive-capture.ps1   One-command passive Model 3/Y capture with action windows
+tools/process-model3y-capture.ps1         Analyze capture and emit model-profile-candidate.json
+tools/stage-model3y-active-bench.ps1      Apply reviewed 3/Y ID and run bench-only active proofs
 tools/serial-to-lin-events.ps1            USB serial -> secretary fallback telemetry
 tools/car-day-launcher.ps1                Unified car-day entry point (NEW)
 tools/send-netanalyser-headless.ps1       Proven APG transmit path
@@ -252,6 +258,13 @@ Critical wiring facts:
 
 ## Current Next Action
 
+If the car has not arrived yet:
+
+```powershell
+cd C:\Users\ezabz\Code\xiao-lin-bench
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\prepare-model3y-car-day.ps1 -ComPort COM4
+```
+
 Before the car arrives:
 
 1. Keep the current bench wiring intact; passive RX and active Model X TX are proven on the isolated bench.
@@ -265,14 +278,13 @@ Before the car arrives:
 
 Car day:
 
-1. Use APG passive monitor first.
+1. Use the wrapper: `tools\start-model3y-passive-capture.ps1 -Model 3 -VehicleId tesla-model-3-YYYYMMDD`.
 2. Do not transmit on the vehicle bus.
-3. Use `field_passive` firmware and let `tools/car-day-launcher.ps1` enforce passive preflight/build checks.
-4. Capture at 19200 first.
-5. If no traffic appears, retry 9600 only as a fallback.
-6. Save APG `.csv` and `.txt` logs.
-7. Run `tools/analyze-lin-capture.py --windows <manifest.json> --candidate-json <candidate.json>` plus `tools/summarize-lin-capture.ps1`.
-7. Compare payload changes while toggling locks, windows, seat belt, HVAC, and steering controls.
+3. Confirm the preflight says TX physical state is disconnected/off.
+4. Capture at 19200 first; retry 9600 only if 19200 shows no traffic after wiring is checked.
+5. Follow the printed 180s action plan: idle, left scroll up/down/click, right scroll up/down/click, idle.
+6. Run `tools\process-model3y-capture.ps1 -SessionDir <session folder>`.
+7. If the candidate ID is convincing, return to the isolated bench and run `tools\stage-model3y-active-bench.ps1`; this is not a vehicle script.
 
 ## Commands
 
