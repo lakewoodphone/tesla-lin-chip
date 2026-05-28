@@ -5,9 +5,9 @@ This records the bench work performed on `ZABZ-TECH` after the roadmap hardening
 ## Hardware State
 
 - XIAO ESP32-C3: `COM4`, USB VID/PID `303A:1001`, MAC `80:f1:b2:60:4e:88`.
-- APGDT001: USB VID/PID `04D8:0A04`, present in Windows as `USB Input Device` but currently failed-start.
-- APG Windows state: `Status=Error`, `Problem=CM_PROB_FAILED_START`, `ConfigManagerErrorCode=CM_PROB_FAILED_START`.
-- Non-elevated `pnputil /restart-device` was attempted and failed with `Access is denied`.
+- Initial APGDT001 state: USB VID/PID `04D8:0A04`, present in Windows as `USB Input Device` but failed-start with `Status=Error`, `Problem=CM_PROB_FAILED_START`, `ConfigManagerErrorCode=CM_PROB_FAILED_START`.
+- Non-elevated `pnputil /restart-device` was attempted before the reseat and failed with `Access is denied`.
+- Final APGDT001 state after physical reseat: both HID interfaces are `Status=OK`, `Problem=CM_PROB_NONE`, `ConfigManagerErrorCode=CM_PROB_NONE`.
 
 ## Firmware And BLE Fix
 
@@ -33,11 +33,11 @@ Result:
 RESULT PASS - active bench frames observed in XIAO ring
 ```
 
-Artifact summary:
+Latest artifact summary:
 
 ```text
-logs\active-bench-proof-20260527_205055.md
-logs\active-bench-proof-20260527_205055.log
+logs\active-bench-proof-20260527_211924.md
+logs\active-bench-proof-20260527_211924.log
 ```
 
 Observed proof details:
@@ -59,44 +59,76 @@ Final XIAO safe state after all proof attempts:
 
 ```text
 cmd: safe=off armed=no
-cmd: config fw=v5.1 build=bench_active_ble reset=unknown model=x id=0x0C mode=duty period=20000ms armed=no running=no mirror=no tx=4 inhibit=0 last=none faults=0 fault=none lockout=no nvs=loaded crc=0x200CDC6E
-cmd: frames=4 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 edges=0 ring=4 wifi=disabled build=bench_active_ble active=yes reset=unknown
+cmd: config fw=v5.1 build=bench_active_ble reset=unknown model=x id=0x0C mode=duty period=20000ms armed=no running=no mirror=no tx=45 inhibit=0 last=none faults=0 fault=none lockout=no nvs=loaded crc=0x200CDC6E
+cmd: BLE advertising=yes client=disconnected model=x mode=duty period=20000ms armed=no running=no last=none
+cmd: frames=45 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 edges=0 ring=45 wifi=disabled build=bench_active_ble active=yes reset=unknown
 ```
 
-## APG Blocker
+## APG Recovery And Passive Proof
 
-Passive APG -> XIAO validation is currently blocked by the APG device, not by the XIAO firmware.
+The physical APG reseat cleared the Windows failed-start state. After reseat, APG transmit and raw monitor initialization both worked again.
 
-Failed command:
+Quick passive APG -> XIAO validation:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate-xiao-bench.ps1 -ComPort COM4 -Baud 19200 -BootWaitSeconds 4 -PerFrameTimeoutMs 2500 -KillExistingMonitor
 ```
 
-Observed result:
+Result:
 
 ```text
-RESULT FAIL - 5 frame validation(s) failed
-APG Status: Error: Error sending script.
+logs\xiao-bench-validation-20260527_211238.log
+RESULT PASS - all bench frames decoded as expected
 ```
 
-The raw PICkitS path also failed to initialize:
+Full passive evidence suite:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\bench-evidence-suite.ps1 -ComPort COM4 -Baud 19200 -VehicleId tesla-bench-reseat-20260527 -BootWaitSeconds 4 -PerFrameTimeoutMs 2200 -NoPost
+```
+
+Result:
 
 ```text
-Could not initialize APG/PICkit Serial.
+Bench evidence complete: 80/80 exact matches, observed=80, apgFailures=0
+Report: logs\bench-evidence-20260527_211310\bench-evidence-20260527_211310.md
+CSV:    logs\bench-evidence-20260527_211310\bench-evidence-20260527_211310.csv
+JSON:   logs\bench-evidence-20260527_211310\bench-evidence-20260527_211310.json
 ```
 
-`tools\active-apg-raw-proof.ps1` was hardened after this run: it now preflights APG raw monitor initialization before arming XIAO active TX. With the APG in the current failed-start state, it aborts before active TX:
+## APG Raw Observer Proof After Reseat
+
+The first post-reseat active raw observer attempt initialized APG successfully but observed zero rows because the proof script inherited persisted `mode=duty period=20000ms`, consumed the immediate startup burst, and then started APG monitoring during the quiet duty window.
+
+`tools\active-apg-raw-proof.ps1` was tightened after that failure. It now:
+
+1. Preflights APG raw monitor initialization before active TX.
+2. Forces `mode:always` during the APG monitor capture window.
+3. Stops active TX, runs `safe:off`, and restores `mode:duty` afterward.
+
+Command:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -ComPort COM4 -Baud 19200 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
+```
+
+Result:
 
 ```text
-APG raw monitor preflight failed with code 1; active TX was not started
+CSV: logs\lin-capture-20260527_212130.csv
+XIAO TX lines observed: 41
+APG raw rows observed: 11
+PASS: APG raw fallback captured 11 checksum-valid known-ID frames.
 ```
 
-## Next APG Recovery Step
+Representative APG raw rows:
 
-Recover the APG before relying on APG-based validation again:
+```text
+0x0C 0x4C 0F-04-00-00-00-00-C0-0D error=0 baud=19200
+0x0C 0x4C 11-04-00-00-00-00-C0-08 error=0 baud=19200
+0x0C 0x4C 0F-04-00-00-00-00-C0-0B error=0 baud=19200
+```
 
-1. Run VS Code/PowerShell elevated and retry `pnputil /restart-device "USB\VID_04D8&PID_0A04\..."`, or physically replug/reseat the APG.
-2. Confirm Windows no longer reports `CM_PROB_FAILED_START`.
-3. Rerun `tools\validate-xiao-bench.ps1` for passive APG transmit -> XIAO receive.
-4. Rerun `tools\active-apg-raw-proof.ps1 -ConfirmBenchIsolation` for independent APG known-ID raw observation.
+## Recurrence Note
+
+If APG returns to `CM_PROB_FAILED_START`, recover it with elevated PnP restart or physical USB replug/reseat before relying on APG transmit/capture tools. The active raw proof now aborts before transmit when APG cannot initialize.

@@ -9,7 +9,7 @@ For the implementation plan that makes the bench, passive car testing, and final
 ## Current Status
 
 - Passive LIN receive is bench-verified at 19200 baud.
-- Full no-car evidence passed on 2026-05-26: 80/80 exact APG -> XIAO matches across raw IDs `0x00` through `0x3F`, with 0 checksum/parity failures.
+- Full no-car evidence passed on 2026-05-26 and again after APG reseat on 2026-05-27: 80/80 exact APG -> XIAO matches across raw IDs `0x00` through `0x3F`, with 0 APG failures.
 - Active Model X bench TX is verified on the isolated bench. `model:x` + `antinag:start` produced more than 100 self-received `0x0C` frames with enhanced checksum and parity OK.
 - Active improvements applied: bus-idle collision guard (2 ms silence before TX), realistic scroll payloads (non-zero B2/B3), and mirror/alive frame injection (`0x0D` at 500 ms via `mirror:on`).
 - Active safety now reports reset reason, fault count, last fault, and lockout state. RX-integrity spikes or a dominant-line timeout while armed force active output off and block re-arm until `safe:off` is run after inspection.
@@ -17,7 +17,7 @@ For the implementation plan that makes the bench, passive car testing, and final
 - BLE service "TeslaAntiNag" in active builds exposes model (x/3/y/auto), mode (duty/always), period (5-120s), enable (on/off), status, and capabilities characteristics. Enable requires `safe:arm` first.
 - BLE advertising was revalidated on 2026-05-27 after fixing invalid NimBLE advertising intervals; active lab builds report `advertising=yes` over serial.
 - Car-day tooling enforces passive preflight and verifies `field_passive` firmware by default.
-- APG known-ID raw fallback has captured XIAO-generated active Model X frames historically. Current APG-dependent proof is blocked until the APGDT001 is recovered from Windows `CM_PROB_FAILED_START`.
+- APG known-ID raw fallback captures XIAO-generated active Model X frames after APG reseat: `active-apg-raw-proof.ps1` passed with 11 raw `ID=0x0C PID=0x4C` rows at `logs\lin-capture-20260527_212130.csv`.
 
 ## Hard Stops
 
@@ -156,7 +156,7 @@ Independent APG known-ID raw observer proof, bench only:
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
 ```
 
-Expected APG raw proof after APG recovery: `PASS` with raw CSV rows for `ID=0x0C`, `PID=0x4C`, `source=raw`. The script preflights APG initialization before active TX.
+Expected APG raw proof: `PASS` with raw CSV rows for `ID=0x0C`, `PID=0x4C`, `source=raw`. The script preflights APG initialization before active TX, forces continuous active mode during capture, restores duty mode afterward, and exits before transmit if APG is unavailable.
 
 ## Tooling
 
@@ -200,7 +200,7 @@ cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -
 | Issue | Current understanding |
 |---|---|
 | APG NetworkAnalyser event/display modes log zero rows for XIAO-generated active frames | Settled: use `monitor-apg-lin-bus.ps1 -RawFallback -RawFallbackId 0x0C` or `active-apg-raw-proof.ps1` for known-ID bench observation. Generic vehicle discovery still uses normal passive event capture first. |
-| APGDT001 reports `CM_PROB_FAILED_START` / `Error sending script` | Current blocker for new APG evidence. Recover by elevated PnP restart or physical USB replug/reseat, then rerun passive and APG raw proofs. |
+| APGDT001 reports `CM_PROB_FAILED_START` / `Error sending script` | Reseat/replug or use elevated PnP restart before APG-dependent tests. The May 27 physical reseat recovered APG to `CM_PROB_NONE`, and passive plus APG raw proofs passed afterward. |
 | XIAO WiFi reports `NO_AP_FOUND` | Use USB serial and `serial-to-lin-events.ps1` unless WiFi credentials are repaired |
 | `PermissionError` on COM4 | A serial monitor is holding the port; stop PlatformIO/terminal process |
 | Direct `send-apg-lin-frame.ps1` baud looks wrong | Use NetworkAnalyser-based tools for real validation |

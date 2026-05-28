@@ -160,7 +160,7 @@ The latest bench work is summarized in `docs/bench-revalidation-2026-05-27.md`.
 - `tools/build-all-envs.ps1` passed for all firmware environments.
 - `bench_active_ble` flashed successfully to the physical XIAO on `COM4`.
 - BLE advertising was fixed and verified: `cmd: BLE advertising=yes`, with the expected service and characteristic UUIDs. The root cause was an invalid too-fast NimBLE advertising interval that produced `rc=3` / `BLE_HS_EINVAL`.
-- Active Model X self-receive proof passed: `logs\active-bench-proof-20260527_205055.md`.
+- Active Model X self-receive proof passed again after APG reseat: `logs\active-bench-proof-20260527_211924.md`.
 - Representative proof frames used realistic non-zero payload bytes and validated with enhanced checksum/parity OK:
 
 ```text
@@ -169,8 +169,10 @@ ID=0x0C PID=0x4C [8B] data: 0F 04 08 02 00 00 C0 02 | chk=D3 enhanced parity=OK
 ```
 
 - Final XIAO state after the run was safe: `armed=no`, `running=no`, `faults=0`, `lockout=no`, `badChk=0`, `badPid=0`.
-- Current APG state is blocked: Windows reports `CM_PROB_FAILED_START`, APG transmit returns `Status: Error: Error sending script.`, and raw PICkitS initialization fails. This is a current APG hardware/driver state issue, not an XIAO firmware failure.
-- `tools\active-apg-raw-proof.ps1` now preflights APG raw monitor initialization before active TX. With the current APG failure it aborts before arming/transmitting.
+- APGDT001 recovered after physical reseat: Windows reports `CM_PROB_NONE`, passive APG transmit works, and raw PICkitS initialization works.
+- Quick passive APG -> XIAO validation passed: `logs\xiao-bench-validation-20260527_211238.log`.
+- Full passive evidence suite passed again: `logs\bench-evidence-20260527_211310\bench-evidence-20260527_211310.md` with 80/80 exact matches, observed=80, apgFailures=0.
+- `tools\active-apg-raw-proof.ps1` now preflights APG raw monitor initialization before active TX, forces `mode:always` during capture to avoid duty-cycle quiet windows, then stops output, runs `safe:off`, and restores `mode:duty`.
 
 ## APG Known-ID Raw Observer Proof (May 27, 2026)
 
@@ -179,13 +181,14 @@ The APG does see the XIAO active bench frames at the raw USART buffer layer. `mo
 Command:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -ComPort COM4 -Baud 19200 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
 ```
 
 Result:
 
 ```text
-XIAO TX lines observed: 55
+CSV: logs\lin-capture-20260527_212130.csv
+XIAO TX lines observed: 41
 APG raw rows observed: 11
 PASS: APG raw fallback captured 11 checksum-valid known-ID frames.
 ```
@@ -193,9 +196,9 @@ PASS: APG raw fallback captured 11 checksum-valid known-ID frames.
 Representative APG raw CSV rows:
 
 ```text
-ID=0x0C PID=0x4C [8B] data: 0F 04 00 00 00 00 C0 04 source=raw
-ID=0x0C PID=0x4C [8B] data: 10 00 00 00 00 00 C0 06 source=raw
-ID=0x0C PID=0x4C [8B] data: 11 04 00 00 00 00 C0 0A source=raw
+ID=0x0C PID=0x4C [8B] data: 0F 04 00 00 00 00 C0 0D source=raw error=0 baud=19200
+ID=0x0C PID=0x4C [8B] data: 11 04 00 00 00 00 C0 08 source=raw error=0 baud=19200
+ID=0x0C PID=0x4C [8B] data: 0F 04 00 00 00 00 C0 0B source=raw error=0 baud=19200
 ```
 
 ## Remaining No-Car Limits
@@ -204,4 +207,4 @@ ID=0x0C PID=0x4C [8B] data: 11 04 00 00 00 00 C0 0A source=raw
 - It cannot identify actual Model 3/Y steering IDs without passive vehicle capture.
 - It cannot prove Tesla accepts any anti-nag sequence. Vehicle work must start passive only.
 - Generic vehicle discovery still needs normal passive capture because raw fallback requires a known ID. The active Model X bench observer path is proven with APG raw fallback.
-- The APGDT001 must be recovered from its current Windows failed-start state before new APG transmit/capture evidence can be collected.
+- If the APGDT001 returns to Windows failed-start state, recover it before APG-dependent validation; the current post-reseat state is healthy and proven.

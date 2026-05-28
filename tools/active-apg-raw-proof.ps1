@@ -64,14 +64,17 @@ $preflightExit = $LASTEXITCODE
 if ($preflightExit -ne 0) { throw "APG raw monitor preflight failed with code $preflightExit; active TX was not started" }
 
 $before = Get-Date
+$monitorExit = 1
 $serial = Open-XiaoSerial $ComPort
 try {
     Send-XiaoCommand $serial "antinag:stop"
     Send-XiaoCommand $serial "txd:uart"
     Send-XiaoCommand $serial "safe:arm"
     Send-XiaoCommand $serial "model:x"
+    Send-XiaoCommand $serial "mode:always"
+    $xiaoLines += Read-XiaoLines $serial 500
     Send-XiaoCommand $serial "antinag:start"
-    $xiaoLines += Read-XiaoLines $serial 1000
+    $xiaoLines += Read-XiaoLines $serial 500
 
     & $x86PowerShell -STA -NoProfile -ExecutionPolicy Bypass -File $monitorScript `
         -Baud $Baud -DurationSeconds $DurationSeconds -Mode DisplayAll `
@@ -80,11 +83,13 @@ try {
 
     Send-XiaoCommand $serial "antinag:stop"
     Send-XiaoCommand $serial "safe:off"
+    Send-XiaoCommand $serial "mode:duty"
     $xiaoLines += Read-XiaoLines $serial 800
 } finally {
     if ($serial -and $serial.IsOpen) {
         try { $serial.WriteLine("antinag:stop") } catch {}
         try { $serial.WriteLine("safe:off") } catch {}
+        try { $serial.WriteLine("mode:duty") } catch {}
         $serial.Close()
     }
 }

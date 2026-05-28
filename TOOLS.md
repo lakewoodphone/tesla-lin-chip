@@ -178,11 +178,11 @@ Active bench proof command flow is automated by `tools/active-bench-proof.ps1`.
 - NetworkAnalyser frame strings use raw LIN IDs, not protected PIDs. Send `0C 12 34`, not `4C 12 34`.
 - `Network_Load` initializes hardware at 9600; the working sender calls `Change_LIN_BAUD_Rate` after load.
 - NetworkAnalyser event/display modes can miss externally generated XIAO active frames. For known-ID bench observation, `monitor-apg-lin-bus.ps1 -RawFallback` bypasses NetworkAnalyser and polls `PICkitS.Basic.Retrieve_USART_Data` directly, then checksum-validates frames using `-RawFallbackId`.
-- If Windows shows the APGDT001 as `CM_PROB_FAILED_START`, APG send/capture tools will fail. Recover the device first with an elevated PnP restart or physical USB replug/reseat.
+- If Windows shows the APGDT001 as `CM_PROB_FAILED_START`, APG send/capture tools will fail. Recover the device first with an elevated PnP restart or physical USB replug/reseat; the May 27 reseat restored `CM_PROB_NONE` and both passive/APG raw proofs passed afterward.
 - `send-apg-lin-frame.ps1` is kept for API discovery/debug only. Use NetworkAnalyser-based tools for real validation.
 
 ## Known Tooling Gaps
 
 - Generic APG event/display capture is still the right first path for vehicle discovery, but it does not report the XIAO-generated active bench stream. That bench case is settled through known-ID raw fallback (`source=raw` CSV rows), not NetworkAnalyser events.
-- `active-apg-raw-proof.ps1` now preflights APG raw monitor initialization before starting active TX; if APG initialization fails, it exits before transmit.
+- `active-apg-raw-proof.ps1` preflights APG raw monitor initialization before starting active TX, forces `mode:always` during the APG capture window, restores `mode:duty` afterward, and exits before transmit if APG initialization fails.
 - XIAO WiFi was unavailable on the bench (`NO_AP_FOUND`). USB serial telemetry is the reliable fallback.

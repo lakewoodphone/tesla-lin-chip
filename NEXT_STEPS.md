@@ -2,7 +2,7 @@
 
 Updated: 2026-05-27.
 
-Current state: passive bench receive is historically proven, full no-car evidence passed, and active Model X bench TX is proven by XIAO self-receive/ring evidence. Firmware v5.1 has explicit build profiles: default `field_passive`, `field_passive_nowifi`, `bench_active_ble`, and `chip_lab_active`. Active TX requires `safe:arm` before transmitting and `safe:off` disarms/stops output. The current APGDT001 needs recovery from Windows `CM_PROB_FAILED_START` before new APG transmit/capture proof can run.
+Current state: passive bench receive is proven, full no-car evidence passed again after APG reseat, and active Model X bench TX is proven by both XIAO self-receive/ring evidence and APG known-ID raw fallback. Firmware v5.1 has explicit build profiles: default `field_passive`, `field_passive_nowifi`, `bench_active_ble`, and `chip_lab_active`. Active TX requires `safe:arm` before transmitting and `safe:off` disarms/stops output. The current APGDT001 state is healthy after physical reseat (`CM_PROB_NONE`).
 
 For the complete handoff, read `START_HERE.md` first.
 For the deeper implementation plan, read `IMPLEMENTATION_ROADMAP.md`.
@@ -30,18 +30,18 @@ For the deeper implementation plan, read `IMPLEMENTATION_ROADMAP.md`.
 - Analyzer can emit a review-only profile candidate file with `--candidate-json`; it must not auto-update firmware profiles.
 - Active docs and diagnostics added: `ACTIVE_INJECTOR.md`, `txd:low`, `txd:high`, `txd:uart`.
 - Roadmap Phase 0 mostly implemented: build profile split, default passive build, `version/config/safe:off/factory:reset`, NVS config CRC, BLE status/capabilities, safe arm gate, TX rate/session gates, all-env build script, capture session manifest, hardware preflight, and full bench proof wrapper.
-- 2026-05-27 evening active proof passed: `logs\active-bench-proof-20260527_205055.md`.
-- `tools\active-apg-raw-proof.ps1` now preflights APG raw monitor initialization before active TX and aborts before transmit if the APG cannot initialize.
+- 2026-05-27 evening active self-receive proof passed again: `logs\active-bench-proof-20260527_211924.md`.
+- 2026-05-27 APG reseat cleared `CM_PROB_FAILED_START`; quick passive validation passed at `logs\xiao-bench-validation-20260527_211238.log`.
+- Full passive evidence suite passed after reseat: `logs\bench-evidence-20260527_211310\bench-evidence-20260527_211310.md` with 80/80 exact matches and 0 APG failures.
+- `tools\active-apg-raw-proof.ps1` now preflights APG raw monitor initialization, forces `mode:always` while APG is monitoring, restores `mode:duty`, and passed with 11 APG raw rows at `logs\lin-capture-20260527_212130.csv`.
 
 ## Next Work
 
-1. Recover the APGDT001 from `CM_PROB_FAILED_START` by elevated device restart or physical USB replug/reseat.
-2. Rerun passive APG -> XIAO validation: `tools\validate-xiao-bench.ps1 -ComPort COM4 -Baud 19200 -BootWaitSeconds 4 -PerFrameTimeoutMs 2500 -KillExistingMonitor`.
-3. Rerun APG known-ID raw observer proof: `tools\active-apg-raw-proof.ps1 -ComPort COM4 -Baud 19200 -ConfirmBenchIsolation`.
-4. Keep root docs current and use `docs/archive/` for historical handoffs.
-5. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
-6. Before any vehicle session, run `tools/new-capture-session.ps1 -Mode car-passive`, `tools/preflight-hardware-check.ps1 -Mode car-passive`, and passive quick evidence.
-7. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
+1. Keep root docs current and use `docs/archive/` for historical handoffs.
+2. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
+3. Before any vehicle session, run `tools/new-capture-session.ps1 -Mode car-passive`, `tools/preflight-hardware-check.ps1 -Mode car-passive`, and passive quick evidence.
+4. For Model 3/Y, do passive capture first and confirm steering IDs before adding new active profiles.
+5. If APG returns to `CM_PROB_FAILED_START`, recover it by elevated device restart or physical USB replug/reseat before APG-dependent tests.
 
 ## Quick Validation Commands
 
@@ -78,7 +78,7 @@ APG known-ID raw observer proof, bench only:
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
 ```
 
-`active-apg-raw-proof.ps1` now preflights APG initialization before active TX, so it exits before transmit if the APG is unavailable.
+`active-apg-raw-proof.ps1` preflights APG initialization before active TX, forces continuous active mode during APG monitoring, restores duty mode afterward, and exits before transmit if APG is unavailable.
 
 ## Car Day Passive Flow
 

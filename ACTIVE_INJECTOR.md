@@ -92,9 +92,9 @@ ID=0x0C PID=0x4C [8B] data: 0F 04 00 00 00 00 C0 02 | chk=DD enhanced parity=OK
 ID=0x0C PID=0x4C [8B] data: 10 00 00 00 00 00 C0 0A | chk=D8 enhanced parity=OK
 ```
 
-APG NetworkAnalyser event/display capture still logged zero rows for XIAO-generated frames in the original session, but the APG raw USART buffer saw them. `tools\active-apg-raw-proof.ps1` captured 11 checksum-valid known-ID `0x0C` rows with `source=raw`, so the independent APG observer path is proven historically for the Model X active bench stream.
+APG NetworkAnalyser event/display capture still logged zero rows for XIAO-generated frames in the original session, but the APG raw USART buffer sees them. `tools\active-apg-raw-proof.ps1` captured 11 checksum-valid known-ID `0x0C` rows with `source=raw` after the APG reseat on 2026-05-27, so the independent APG observer path is proven for the Model X active bench stream.
 
-Current APG caveat: during the 2026-05-27 evening revalidation, the APGDT001 was present but Windows reported `CM_PROB_FAILED_START`, APG sends returned `Status: Error: Error sending script.`, and raw PICkitS initialization failed. `active-apg-raw-proof.ps1` now preflights the APG monitor before active TX and aborts before transmit if the APG cannot initialize.
+APG caveat: during the 2026-05-27 evening revalidation, the APGDT001 initially reported `CM_PROB_FAILED_START`, APG sends returned `Status: Error: Error sending script.`, and raw PICkitS initialization failed. A physical reseat recovered the APG to `CM_PROB_NONE`. `active-apg-raw-proof.ps1` preflights the APG monitor before active TX, aborts before transmit if APG cannot initialize, forces `mode:always` during capture, and restores `mode:duty` afterward.
 
 ## Bench Validation Steps
 
@@ -116,7 +116,7 @@ Current APG caveat: during the 2026-05-27 evening revalidation, the APGDT001 was
    stats
    ring
    ```
-7. Optional: start APG known-ID raw fallback as an independent observer for the Model X bench stream after confirming the APG is not in `CM_PROB_FAILED_START`:
+7. Optional: start APG known-ID raw fallback as an independent observer for the Model X bench stream. The script preflights APG before TX and requires isolated-bench confirmation:
    ```
    powershell -NoProfile -ExecutionPolicy Bypass -File tools\active-apg-raw-proof.ps1 -DurationSeconds 6 -MinFrames 8 -ConfirmBenchIsolation
    ```
