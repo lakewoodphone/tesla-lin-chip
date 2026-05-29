@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-LIN payload calculator — generate Tesla anti-nag frames or verify checksums.
+LIN payload calculator - generate Tesla anti-nag frames or verify checksums.
 
 Bench-only tool. Generates correct LIN 2.1 enhanced checksums for ID 0x0C
 frames and can verify capture payloads.
@@ -10,12 +10,12 @@ Usage:
     python lin-payload-calc.py verify 0x0C 11 04 00 00 00 00 C0 0F CE
     python lin-payload-calc.py checksum 0x0C 10 00 00 00 00 00 C0 0F
     python lin-payload-calc.py idle [--id 0x0C] [--counter 0]
-    python lin-payload-calc.py scan 0x0C 0x0D 0x0E 0x0F 0x1A 0x1B
+    python lin-payload-calc.py scan 0x0C 0x2A 0x2B 0x3C
 """
 
 import sys
 
-# ── LIN protocol helpers ──────────────────────────────────────────────
+# -- LIN protocol helpers ----------------------------------------------
 
 def make_protected_id(raw_id: int) -> int:
     """Compute LIN 2.x protected ID (PID) from raw 6-bit ID."""
@@ -66,14 +66,14 @@ def verify_frame(frame_hex: str) -> dict:
     }
 
 
-# ── Commands ──────────────────────────────────────────────────────────
+# -- Commands ----------------------------------------------------------
 
 def cmd_antinag(id_hex: str = "0x0C", cycles: int = 8):
     """Generate alternating UP/DOWN anti-nag frame table."""
     raw_id = int(id_hex, 16)
     pid = make_protected_id(raw_id)
 
-    print(f"Anti-nag injection table — ID={id_hex} PID=0x{pid:02X}")
+    print(f"Anti-nag injection table - ID={id_hex} PID=0x{pid:02X}")
     print(f"LIN 2.1 enhanced checksum  |  Bench use ONLY")
     print(f"{'B0':>4} {'B1':>4} {'B2':>4} {'B3':>4} {'B4':>4} {'B5':>4} {'B6':>4} {'B7':>4} {'CHK':>4}  direction  ctr")
     print("-" * 60)
@@ -106,14 +106,14 @@ def cmd_verify(frame_str: str):
     print(f"Frame:  {result['id_hex']} {' '.join(result['data'])} chk={result['rx_checksum']}")
     print(f"PID:    {result['pid_hex']}  (ID {result['id_hex']})")
     print(f"Data:   {result['data_len']} bytes")
-    print(f"Enhanced: expected {result['enhanced_expected']} — {'✓ MATCH' if result['enhanced_match'] else '✗ MISMATCH'}")
-    print(f"Classic:  expected {result['classic_expected']} — {'✓ MATCH' if result['classic_match'] else '✗ MISMATCH'}")
+    print(f"Enhanced: expected {result['enhanced_expected']} - {'MATCH' if result['enhanced_match'] else 'MISMATCH'}")
+    print(f"Classic:  expected {result['classic_expected']} - {'MATCH' if result['classic_match'] else 'MISMATCH'}")
     if result['enhanced_match']:
         print("\nResult: PASS (enhanced checksum matches)")
     elif result['classic_match']:
         print("\nResult: PASS (classic checksum matches)")
     else:
-        print("\nResult: FAIL — no checksum variant matches")
+        print("\nResult: FAIL - no checksum variant matches")
 
 
 def cmd_checksum(id_hex: str, *data_bytes: str):
@@ -144,7 +144,7 @@ def cmd_scan(*id_hexes: str):
         print(f"{id_str:>6} 0x{pid:02X}   8B  0x{enh:02X}   0x{cls:02X}")
 
 
-# ── Main ──────────────────────────────────────────────────────────────
+# -- Main --------------------------------------------------------------
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -187,7 +187,7 @@ if __name__ == "__main__":
         cmd_checksum(sys.argv[2], *sys.argv[3:])
 
     elif cmd == "scan":
-        ids = sys.argv[2:] if len(sys.argv) > 2 else ["0x0C", "0x1A", "0x1B"]
+        ids = sys.argv[2:] if len(sys.argv) > 2 else ["0x0C", "0x2A", "0x2B", "0x3C"]
         cmd_scan(*ids)
 
     else:

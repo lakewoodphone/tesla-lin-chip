@@ -17,8 +17,20 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
-$pio = Join-Path $env:USERPROFILE ".platformio\penv\Scripts\platformio.exe"
-if (-not (Test-Path $pio)) { throw "PlatformIO not found: $pio" }
+
+function Resolve-PlatformIo {
+    $candidates = @(
+        (Join-Path $env:USERPROFILE ".platformio\penv\Scripts\platformio.exe")
+    )
+    foreach ($candidate in $candidates) {
+        if (Test-Path $candidate) { return $candidate }
+    }
+    $cmd = Get-Command platformio -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+    throw "PlatformIO not found. Install PlatformIO or add platformio.exe to PATH."
+}
+
+$pio = Resolve-PlatformIo
 
 function Assert-UsbHealthy {
     $devices = @(Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -match 'VID_04D8&PID_0A04|VID_303A&PID_1001' })

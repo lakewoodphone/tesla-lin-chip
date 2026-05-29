@@ -18,7 +18,9 @@ For the implementation plan that makes the bench, passive car testing, and final
 - BLE advertising was revalidated on 2026-05-27 after fixing invalid NimBLE advertising intervals; active lab builds report `advertising=yes` over serial.
 - Car-day tooling enforces passive preflight and verifies `field_passive` firmware by default.
 - APG known-ID raw fallback captures XIAO-generated active Model X frames after APG reseat: `active-apg-raw-proof.ps1` passed with 11 raw `ID=0x0C PID=0x4C` rows at `logs\lin-capture-20260527_212130.csv`.
-- Model 3/Y workflow is ready and waiting on the car: prepare with `tools/prepare-model3y-car-day.ps1`, capture with `tools/start-model3y-passive-capture.ps1`, analyze with `tools/process-model3y-capture.ps1`, then reprogram/prove a reviewed candidate on the isolated bench with `tools/stage-model3y-active-bench.ps1`.
+- Model 3/Y steering LIN was captured on 2026-05-28. The confirmed left wheel control ID is `0x2A` (7 bytes) and right wheel control ID is `0x2B` (6 bytes). Left wheel byte[0] is `0x0D` volume up, `0x0B` volume down, `0x2C` click, `0x0C` idle. See `docs/model3y-steering-lin-2026-05-28.md`.
+- `car_passthrough` is a new dual-transceiver firmware profile for the actual cut-wire bridge design. See `docs/model3y-passthrough-volume.md`.
+- Final active-use hardware requires a custom dual-LIN passthrough PCB, not a one-LIN board. Current Rev A order core is `ESP32-S3-WROOM-1U-N8R8` plus 2x `TJA1021T/20`. See `docs/final-board-ordering-decision-2026-05-29.md`.
 
 ## Hard Stops
 
@@ -26,6 +28,7 @@ For the implementation plan that makes the bench, passive car testing, and final
 - Do not run `validate-xiao-bench.ps1`, `bench-evidence-suite.ps1`, `send-netanalyser-headless.ps1`, `antinag-replay.ps1`, or active firmware commands on a vehicle.
 - Vehicle work starts passive only: APG passive monitor plus XIAO passive receive.
 - Do not assume Model 3/Y IDs match Model X. Capture first, then label.
+- Do not use the old `0x1A` Model 3/Y candidate for current Model 3 volume work; the confirmed left scroll wheel ID is `0x2A`.
 - Do not use the old `C:\Users\ezabz\Code\Schematics\firmware\anti-nag-v1` path as active firmware.
 
 ## Hardware
@@ -85,8 +88,8 @@ Active mode (`bench_active_ble` / `chip_lab_active`, bench only):
 - Active TX requires serial `safe:arm` before any frame, BLE enable, TXD diagnostic, or custom `tx:` command can transmit. Use `safe:off` to stop and disarm.
 - Two modes: `mode:duty` (burst UP -> DOWN every `period:N` ms, default 20s) or `mode:always` (constant alternation every 300ms).
 - Double-click scroll wheel button: two fast presses toggles chip output on/off.
-- Model profiles: `model:x` (`0x0C` confirmed), `model:3` (`0x1A` candidate), `model:y` (`0x1A` candidate), `model:auto`.
-- Active commands: `safe:arm`, `safe:off`, `factory:reset`, `config`, `model`, `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `mode:duty`, `mode:always`, `period:20000`, `mirror:on`, `mirror:off`, `tx:`.
+- Model profiles: `model:x` (`0x0C` confirmed), `model:3` (`0x2A` confirmed left scroll wheel), `model:y` (`0x2A` likely; verify passively), `model:auto`.
+- Active commands: `safe:arm`, `safe:off`, `factory:reset`, `config`, `model`, `model:x`, `model:3`, `model:y`, `antinag:start`, `antinag:stop`, `antinag:single`, `vol:up`, `vol:down`, `vol:click`, `vol:idle`, `mode:duty`, `mode:always`, `period:20000`, `mirror:on`, `mirror:off`, `tx:`.
 - Active event log: `events` prints recent RAM events and persisted NVS slots for boot, arm, config, start/stop, inhibits, and faults.
 - Diagnostics: `txd:low`, `txd:high`, `txd:uart`.
 - BLE: NimBLE config service with model/mode/period/enable plus status/capabilities. Advertises as "TeslaAntiNag". Double-click wheel button still toggles on/off only after arming.
@@ -112,6 +115,12 @@ Build active bench firmware explicitly:
 
 ```powershell
 python -m platformio run -e bench_active_ble
+```
+
+Build the dual-transceiver passthrough prototype:
+
+```powershell
+python -m platformio run -e car_passthrough
 ```
 
 Upload to the XIAO on COM4:
@@ -177,6 +186,7 @@ Expected APG raw proof: `PASS` with raw CSV rows for the selected model ID, `sou
 | `tools/start-model3y-passive-capture.ps1` | Passive Model 3/Y capture wrapper with action windows | Yes, passive only |
 | `tools/process-model3y-capture.ps1` | Analyze a capture session and emit candidate JSON | Yes, post-capture |
 | `tools/stage-model3y-active-bench.ps1` | Apply reviewed 3/Y candidate and run bench-only active proofs | No, bench only |
+| `tools/inject-vol-scroll.py` | Confirmed 0x2A left-volume active proof with JSON run logs | No, bench only |
 | `tools/send-netanalyser-headless.ps1` | APG headless LIN transmit | No, bench only |
 | `tools/antinag-replay.ps1` | APG anti-nag replay sequence | No, bench only |
 | `tools/serial-to-lin-events.ps1` | XIAO USB serial -> secretary API | Passive if source is passive |
@@ -199,6 +209,8 @@ cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -
 - `NEXT_STEPS.md` - current work plan.
 - `TOOLS.md` - tool reference.
 - `docs/archive/` - old passive-only and capture-history notes.
+- `docs/final-board-ordering-decision-2026-05-29.md` - current direct Rev A order decision.
+- `docs/final-chip-architecture.md` - current dual-LIN active passthrough board architecture.
 
 ## Known Issues
 

@@ -20,10 +20,10 @@ $repoRoot = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 function Get-LatestSession {
     $sessionRoot = Join-Path $repoRoot "logs\sessions"
     $latest = Get-ChildItem $sessionRoot -Directory -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -match 'car-passive' } |
+        Where-Object { $_.Name -match 'car-passive|guided' } |
         Sort-Object LastWriteTime -Descending |
         Select-Object -First 1
-    if (-not $latest) { throw "No car-passive session found under $sessionRoot" }
+    if (-not $latest) { throw "No Model 3/Y capture session found under $sessionRoot" }
     return $latest.FullName
 }
 
@@ -35,12 +35,29 @@ try {
     $manifestPath = Join-Path $SessionDir "manifest.json"
     if (-not (Test-Path $manifestPath)) { throw "manifest.json not found in $SessionDir" }
 
+    $guidedLog = Get-ChildItem $SessionDir -Filter "xiao-guided-serial*.log" -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+
+    $byteReport = Join-Path $SessionDir "analysis-byte-report.txt"
+    if ($guidedLog) {
+        Write-Host "Running guided byte analysis..." -ForegroundColor Yellow
+        & python tools\analyze-log-bytes.py $SessionDir 2>&1 | Tee-Object -FilePath $byteReport
+        if ($LASTEXITCODE -ne 0) { throw "analyze-log-bytes failed" }
+        Write-Host "Byte report: $byteReport" -ForegroundColor Cyan
+    }
+
     if (-not $CsvPath) {
         $csv = Get-ChildItem $SessionDir -Filter "lin-capture-*.csv" -ErrorAction SilentlyContinue |
             Sort-Object LastWriteTime -Descending |
             Select-Object -First 1
-        if (-not $csv) { throw "No lin-capture-*.csv found in $SessionDir" }
-        $CsvPath = $csv.FullName
+        if ($csv) { $CsvPath = $csv.FullName }
+    }
+
+    if (-not $CsvPath) {
+        Write-Host "No APG CSV found; guided byte analysis complete." -ForegroundColor Yellow
+        Write-Host "Confirmed 2026-05-28 Model 3 map: left wheel ID 0x2A, right wheel ID 0x2B, byte[0] 0x0D up / 0x0B down / 0x2C click / 0x0C idle." -ForegroundColor Green
+        return
     }
     $CsvPath = (Resolve-Path $CsvPath).Path
 

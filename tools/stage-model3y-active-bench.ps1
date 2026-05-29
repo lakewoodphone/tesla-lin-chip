@@ -40,9 +40,14 @@ function Convert-IdHex([string] $IdText) {
 
 function Update-ProfileLine([string] $Content, [string] $ProfileName, [int] $RawId, [string] $SourceLeaf) {
     $idHex = "{0:X2}" -f $RawId
-    $note = "Model $ProfileName provisional from passive capture $SourceLeaf"
-    $pattern = '\{"' + [regex]::Escape($ProfileName) + '",\s*0x[0-9A-Fa-f]{2},\s*8,\s*"[^"]*"\}'
-    $replacement = ('{{"{0}",    0x{1}, 8, "{2}"}}' -f $ProfileName, $idHex, $note)
+    $dataLen = if ($RawId -eq 0x2A) { 7 } else { 8 }
+    $note = if ($RawId -eq 0x2A) {
+        "Model $ProfileName left scroll wheel from guided capture $SourceLeaf"
+    } else {
+        "Model $ProfileName provisional from passive capture $SourceLeaf"
+    }
+    $pattern = '\{"' + [regex]::Escape($ProfileName) + '",\s*0x[0-9A-Fa-f]{2},\s*[0-9]+,\s*"[^"]*"\}'
+    $replacement = ('{{"{0}",    0x{1}, {2}, "{3}"}}' -f $ProfileName, $idHex, $dataLen, $note)
     $updated = [regex]::Replace($Content, $pattern, $replacement, 1)
     if ($updated -eq $Content) { throw "Could not update MODEL_PROFILES entry for $ProfileName" }
     return $updated

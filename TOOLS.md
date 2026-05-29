@@ -1,6 +1,6 @@
 # xiao-lin-bench Tools Reference
 
-Updated: 2026-05-27. Firmware v5.1 is current with passive default build profiles, active bench BLE/USB build, safe arm gating, NVS config, and BLE status. Passive tools are ready for Model X/3/Y. Active Model X bench TX is verified on the isolated bench.
+Updated: 2026-05-28. Firmware v5.1/v5.2 now has passive default builds, active bench BLE/USB, confirmed Model 3 left-volume frames, and a separate `car_passthrough` dual-transceiver prototype. Active Model X bench TX is verified; Model 3 left wheel ID `0x2A` and right wheel ID `0x2B` are confirmed from guided capture.
 
 ## Tool Inventory
 
@@ -8,7 +8,7 @@ Updated: 2026-05-27. Firmware v5.1 is current with passive default build profile
 |---|---|---|---|
 | `tools/monitor-apg-lin-bus.ps1` | APG passive LIN capture | Yes | Receive-only; use 32-bit PowerShell |
 | `tools/car-day-launcher.ps1` | Passive car-day APG/XIAO launcher | Yes, passive-only | Enforces passive preflight and `field_passive` firmware by default |
-| `tools/build-all-envs.ps1` | Compile supported firmware environments | Yes | Builds passive, no-WiFi, active bench, chip lab |
+| `tools/build-all-envs.ps1` | Compile supported firmware environments | Yes | Builds passive, no-WiFi, active bench, chip lab, passthrough |
 | `tools/new-capture-session.ps1` | Create manifest-backed capture folder | Yes | Creates manifest JSON and checklist README |
 | `tools/preflight-hardware-check.ps1` | Record hardware preflight evidence | Yes | Interactive power/ground/TX/RX checklist; `-RequirePass` exits nonzero on failed gate |
 | `tools/full-bench-proof.ps1` | One-command isolated-bench proof wrapper | No | Builds, preflights, passive proof; active/APG raw proof require `-RunActive -ConfirmBenchIsolation` |
@@ -18,8 +18,9 @@ Updated: 2026-05-27. Firmware v5.1 is current with passive default build profile
 | `tools/active-apg-raw-proof.ps1` | XIAO active TX plus APG known-ID raw observer proof | No | Bench only; starts/stops active TX and asserts raw CSV rows |
 | `tools/prepare-model3y-car-day.ps1` | Pre-arrival 3/Y readiness | Yes | Checks APG/XIAO, builds, flashes `field_passive`, verifies passive identity |
 | `tools/start-model3y-passive-capture.ps1` | Passive 3/Y capture launcher | Yes | Creates session, writes action windows, runs passive car-day capture |
-| `tools/process-model3y-capture.ps1` | Post-capture 3/Y analysis | Yes | Runs summary/analyzer and emits candidate JSON |
+| `tools/process-model3y-capture.ps1` | Post-capture 3/Y analysis | Yes | Supports guided serial sessions and APG CSV sessions |
 | `tools/stage-model3y-active-bench.ps1` | Bench-only 3/Y active staging | No | Edits reviewed profile ID, flashes active build, runs bench proofs |
+| `tools/inject-vol-scroll.py` | Confirmed Model 3/Y left-volume proof | No | Sends/logs `0x2A` 7-byte frames with counter table |
 | `tools/send-netanalyser-headless.ps1` | APG headless LIN transmit | No | Bench only; preferred APG send path |
 | `tools/antinag-replay.ps1` | APG-generated anti-nag sequence | No | Bench only |
 | `tools/serial-to-lin-events.ps1` | XIAO USB serial -> secretary API | Passive if source is passive | WiFi fallback telemetry bridge |
@@ -60,6 +61,7 @@ USE:
   send-netanalyser-headless.ps1
   antinag-replay.ps1
   active-apg-raw-proof.ps1
+  inject-vol-scroll.py --dry-run or bench-only serial
   active firmware commands only after safe:arm
 ```
 
@@ -140,6 +142,19 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\process-model3y-captur
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\stage-model3y-active-bench.ps1 -CandidateJson logs\sessions\<session-folder>\model-profile-candidate.json -Model 3 -UseTopCandidate -ConfirmProfileUpdate -ConfirmBenchIsolation
 ```
 
+Confirmed Model 3/Y left volume proof, bench only:
+
+```powershell
+python tools\inject-vol-scroll.py COM7 up 8 --dry-run
+python tools\inject-vol-scroll.py COM7 down --count 5
+```
+
+Dual-transceiver passthrough prototype build:
+
+```powershell
+python -m platformio run -e car_passthrough
+```
+
 USB serial telemetry fallback:
 
 ```powershell
@@ -167,11 +182,15 @@ events           Print recent active events plus persisted event slots
 stats            Print reset reason, frame counters, build mode, and active/passive state
 model             Show current active profile
 model:x           Model X, ID 0x0C, confirmed
-model:3           Model 3 candidate, ID 0x1A, unconfirmed
-model:y           Model Y candidate, ID 0x1A, unconfirmed
+model:3           Model 3 left wheel, ID 0x2A, confirmed from 2026-05-28 capture
+model:y           Model Y likely left wheel, ID 0x2A, verify passively first
 antinag:start     Start active frames after safe:arm
 antinag:stop      Stop active frames
 antinag:single    Send one active frame
+vol:up            Send one confirmed Model 3/Y left volume-up frame on ID 0x2A
+vol:down          Send one confirmed Model 3/Y left volume-down frame on ID 0x2A
+vol:click         Send one confirmed Model 3/Y left click frame on ID 0x2A
+vol:idle          Send one confirmed Model 3/Y left idle frame on ID 0x2A
 mode:duty         Duty-cycle mode: burst UP -> DOWN every `period` ms
 mode:always       Always mode: constant alternation every 300ms
 period:60000      Set duty-cycle period (5000-120000ms, default 20000)

@@ -1,8 +1,8 @@
 # Next Steps - xiao-lin-bench
 
-Updated: 2026-05-27.
+Updated: 2026-05-29.
 
-Current state: passive bench receive is proven, full no-car evidence passed again after APG reseat, and active Model X bench TX is proven by both XIAO self-receive/ring evidence and APG known-ID raw fallback. Firmware v5.1 has explicit build profiles: default `field_passive`, `field_passive_nowifi`, `bench_active_ble`, and `chip_lab_active`. Active TX requires `safe:arm` before transmitting and `safe:off` disarms/stops output. The current APGDT001 state is healthy after physical reseat (`CM_PROB_NONE`). We are waiting only on a Model 3/Y arriving for passive capture.
+Current state: passive bench receive is proven, full no-car evidence passed again after APG reseat, active Model X bench TX is proven, and the Model 3 steering LIN capture succeeded on 2026-05-28. The confirmed left scroll wheel ID is `0x2A` with 7 data bytes; byte[0] is `0x0D` volume up, `0x0B` volume down, `0x2C` click, `0x0C` idle. The right scroll wheel ID is `0x2B` with 6 data bytes. The current active work is robust bench proof and dual-transceiver passthrough development, not more ID discovery.
 
 For the complete handoff, read `START_HERE.md` first.
 For the deeper implementation plan, read `IMPLEMENTATION_ROADMAP.md`.
@@ -35,14 +35,18 @@ For the deeper implementation plan, read `IMPLEMENTATION_ROADMAP.md`.
 - Full passive evidence suite passed after reseat: `logs\bench-evidence-20260527_211310\bench-evidence-20260527_211310.md` with 80/80 exact matches and 0 APG failures.
 - `tools\active-apg-raw-proof.ps1` now preflights APG raw monitor initialization, forces `mode:always` while APG is monitoring, restores `mode:duty`, and passed with 11 APG raw rows at `logs\lin-capture-20260527_212130.csv`.
 - Model 3/Y arrival workflow scripts added: `tools\prepare-model3y-car-day.ps1`, `tools\start-model3y-passive-capture.ps1`, `tools\process-model3y-capture.ps1`, and `tools\stage-model3y-active-bench.ps1`.
+- Model 3 guided capture completed: `logs\sessions\20260528_211119-guided-tesla-model-3-20260528` with 51,113 parsed frames and saved `analysis-byte-report.txt`.
+- Confirmed `0x2A` left wheel and `0x2B` right wheel control bytes; old `0x1A` candidate is superseded.
+- Replaced quick `tools\inject-vol-scroll.py` with a logged/counter-aware 0x2A volume proof tool and archived the quick version under `tools\archive\`.
+- Added `car_passthrough` dual-transceiver firmware prototype and documentation.
 
 ## Next Work
 
-1. Before the car arrives, run `tools\prepare-model3y-car-day.ps1 -ComPort COM4`.
-2. When the Model 3/Y arrives, run `tools\start-model3y-passive-capture.ps1 -Model 3 -VehicleId tesla-model-3-YYYYMMDD` and follow its printed action plan.
-3. Immediately after capture, run `tools\process-model3y-capture.ps1 -SessionDir <session folder>`.
-4. Review `model-profile-candidate.json`; for bench-only active staging, run `tools\stage-model3y-active-bench.ps1 -CandidateJson <candidate> -Model 3 -UseTopCandidate -ConfirmProfileUpdate -ConfirmBenchIsolation`.
-5. If wireless telemetry matters, update `src/secrets.h`, rebuild, and verify WiFi or keep using USB serial telemetry.
+1. Restore steering wheel controls after the short event before any further vehicle-side active work.
+2. Bench-build and validate `bench_active_ble` with the corrected `vol:up` / `vol:down` frames.
+3. Bench-build `car_passthrough` and validate it only with a two-transceiver fixture or simulator.
+4. Extract and validate the right-wheel `0x2B` counter model before any right-wheel injection.
+5. Start final-chip Rev A as a compact custom single PCB, not a stack of boards: `ESP32-S3-WROOM-1U-N8R8`, two `TJA1021T/20` LIN transceivers, U.FL antenna, keyed connectors, protected 12V input, physical arm gate, secure boot/flash encryption, signed firmware/profile packages, per-device activation, and fixture/VIN-label binding. See `docs/final-board-ordering-decision-2026-05-29.md`, `docs/final-chip-architecture.md`, `docs/chip-sourcing-shortlist-2026-05-29.md`, `docs/single-board-rev-a-product-spec-2026-05-29.md`, and `docs/secure-provisioning-anti-cloning-2026-05-29.md`.
 6. If APG returns to `CM_PROB_FAILED_START`, recover it by elevated device restart or physical USB replug/reseat before APG-dependent tests.
 
 ## Quick Validation Commands
@@ -120,7 +124,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\summarize-lin-capture.
 
 ## Model 3/Y Discovery
 
-Model 3/Y steering IDs are not confirmed. Candidate IDs are `0x1A` and `0x1B`, but the workflow is passive capture first:
+Model 3 steering IDs are now confirmed for this vehicle:
+
+```text
+0x2A left wheel, 7 bytes: byte[0] 0x0D up / 0x0B down / 0x2C click / 0x0C idle
+0x2B right wheel, 6 bytes: same byte[0] pattern, counter model not yet injection-ready
+```
+
+For any new Model Y or different trim/year, keep the workflow passive first:
 
 1. Capture idle baseline.
 2. Operate scroll up/down, wheel click, and relevant steering controls.

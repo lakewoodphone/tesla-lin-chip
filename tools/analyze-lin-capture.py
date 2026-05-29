@@ -91,25 +91,43 @@ ID_REFERENCE = {
         "notes": "Completely static across all captures.",
         "priority": "INFO",
     },
-    # === Model 3/Y candidates (from community reports - NOT YET CONFIRMED) ===
+    # === Model 3/Y steering wheel IDs confirmed by guided capture 20260528_211119 ===
+    "0x2A": {
+        "model": "3/Y",
+        "bus": "steering",
+        "label": "Left scroll wheel controls",
+        "length": 7,
+        "checksum": "enhanced",
+        "notes": "Confirmed on 2026-05-28 Model 3 capture. B0: 0x0D up, 0x0B down, 0x2C click, 0x0C idle.",
+        "priority": "CONFIRMED",
+    },
+    "0x2B": {
+        "model": "3/Y",
+        "bus": "steering",
+        "label": "Right scroll wheel controls",
+        "length": 6,
+        "checksum": "enhanced",
+        "notes": "Confirmed on 2026-05-28 Model 3 capture. Same B0 control pattern; counter model not injection-ready.",
+        "priority": "CONFIRMED",
+    },
+    # === Historical Model 3/Y candidates (superseded for the 2026-05-28 car) ===
     "0x1A": {
         "model": "3/Y",
         "bus": "steering",
-        "label": "CANDIDATE - scroll/buttons?",
+        "label": "SUPERSEDED candidate - not observed as steering control in 2026-05-28 capture",
         "length": 8,
         "checksum": "enhanced",
-        "notes": "Unconfirmed, reported in community as possible steering ID. "
-                 "Capture and check B0/scroll correlation.",
-        "priority": "INVESTIGATE",
+        "notes": "Historical community candidate; current Model 3 capture proved 0x2A/0x2B instead.",
+        "priority": "LOW",
     },
     "0x1B": {
         "model": "3/Y",
         "bus": "steering",
-        "label": "CANDIDATE - scroll/buttons?",
+        "label": "SUPERSEDED candidate - not observed as steering control in 2026-05-28 capture",
         "length": 8,
         "checksum": "enhanced",
-        "notes": "Unconfirmed alternative steering ID candidate.",
-        "priority": "INVESTIGATE",
+        "notes": "Historical alternative candidate; current Model 3 capture proved 0x2A/0x2B instead.",
+        "priority": "LOW",
     },
     "0x3C": {
         "model": "all",

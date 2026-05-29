@@ -18,6 +18,8 @@
 
 #include "secrets.h"
 
+#ifndef PASSTHROUGH_MODE
+
 #ifdef ACTIVE_MODE
 #include <NimBLEDevice.h>
 #include <Preferences.h>
@@ -102,8 +104,8 @@ struct ModelProfile {
 
 static const ModelProfile MODEL_PROFILES[] = {
   {"x",    0x0C, 8, "Model X steering (confirmed)"},
-  {"3",    0x1A, 8, "Model 3 candidate (unconfirmed)"},
-  {"y",    0x1A, 8, "Model Y candidate (unconfirmed, may match 3)"},
+  {"3",    0x2A, 7, "Model 3 left scroll wheel from 2026-05-28 capture"},
+  {"y",    0x2A, 7, "Model Y likely same as Model 3 left scroll wheel; verify passively"},
   {"auto", 0x0C, 8, "Default: scan and discover via passive first"},
 };
 static const int NUM_MODEL_PROFILES = sizeof(MODEL_PROFILES) / sizeof(ModelProfile);
@@ -155,7 +157,7 @@ static bool parseUintToken(const char *text, const char **next, uint32_t maxValu
   if ((token[0] == '0') && (token[1] == 'x' || token[1] == 'X')) {
     base = 16;
     number = token + 2;
-  } else if ((token[0] == '0') && (token[1] == 'd' || token[1] == 'D')) {
+  } else if (len > 2 && (token[0] == '0') && (token[1] == 'd' || token[1] == 'D')) {
     base = 10;
     number = token + 2;
   } else if (preferHexByte && len <= 2) {
@@ -884,6 +886,80 @@ static bool txSendFrame(uint8_t rawId, const uint8_t *data, uint8_t dataLen) {
   return true;
 }
 
+static const uint8_t MODEL3Y_LEFT_COUNTER_B6[16] = {
+  0x7F, 0x62, 0x45, 0x58, 0x0B, 0x16, 0x31, 0x2C,
+  0x97, 0x8A, 0xAD, 0xB0, 0xE3, 0xFE, 0xD9, 0xC4
+};
+
+static bool activeProfileIsModel3YLeft() {
+  return activeProfile && activeProfile->controlId == 0x2A && activeProfile->dataLen == 7;
+}
+
+static uint8_t model3yControlByte(int direction) {
+  if (direction == 2) return 0x2C;
+  if (direction > 0) return 0x0D;
+  if (direction < 0) return 0x0B;
+  return 0x0C;
+}
+
+static uint8_t buildActiveProfileFrame(int direction, int counter, uint8_t *data) {
+  uint8_t ctr = (uint8_t)(counter & 0x0F);
+  if (activeProfileIsModel3YLeft()) {
+    data[0] = model3yControlByte(direction);
+    data[1] = 0x80;
+    data[2] = 0x3F;
+    data[3] = 0x96;
+    data[4] = 0x00;
+    data[5] = (uint8_t)(0xF0 + ctr);
+    data[6] = MODEL3Y_LEFT_COUNTER_B6[ctr];
+    return 7;
+  }
+
+  uint8_t b0 = 0x10;
+  uint8_t b1 = 0x00;
+  uint8_t b2 = 0x00;
+  uint8_t b3 = 0x00;
+  if (direction > 0) {
+    b0 = 0x11;
+    b1 = 0x04;
+    b2 = 0x10;
+    b3 = (uint8_t)(counter * 2);
+  } else if (direction < 0) {
+    b0 = 0x0F;
+    b1 = 0x04;
+    b2 = 0x08;
+    b3 = 0x02;
+  }
+  data[0] = b0;
+  data[1] = b1;
+  data[2] = b2;
+  data[3] = b3;
+  data[4] = 0x00;
+  data[5] = 0x00;
+  data[6] = 0xC0;
+  data[7] = ctr;
+  return 8;
+}
+
+static bool txSendActiveProfileFrame(int direction, int counter) {
+  uint8_t data[8] = {0};
+  uint8_t len = buildActiveProfileFrame(direction, counter, data);
+  return txSendFrame(activeProfile->controlId, data, len);
+}
+
+static bool txSendModel3YVolumeFrame(int direction, int counter) {
+  uint8_t data[7] = {0};
+  uint8_t ctr = (uint8_t)(counter & 0x0F);
+  data[0] = model3yControlByte(direction);
+  data[1] = 0x80;
+  data[2] = 0x3F;
+  data[3] = 0x96;
+  data[4] = 0x00;
+  data[5] = (uint8_t)(0xF0 + ctr);
+  data[6] = MODEL3Y_LEFT_COUNTER_B6[ctr];
+  return txSendFrame(0x2A, data, 7);
+}
+
 static void serviceAntiNag() {
   if (!antiNagActive || !dblClickEnabled) return;
   uint32_t now = millis();
@@ -896,14 +972,10 @@ static void serviceAntiNag() {
     if (dutyBurstDone) return;
     if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) return;
 
-    int ctr = antiNagCtr % 16;
     if (antiNagDirection == 1) {
-      uint8_t data[8] = {0x11, 0x04, 0x10, (uint8_t)(antiNagCtr*2), 0x00, 0x00, 0xC0, (uint8_t)ctr};
-      if (txSendFrame(activeProfile->controlId, data, 8)) antiNagDirection = -1;
+      if (txSendActiveProfileFrame(1, antiNagCtr)) antiNagDirection = -1;
     } else {
-      int ctr2 = (antiNagCtr + 1) % 16;
-      uint8_t data[8] = {0x0F, 0x04, 0x08, 0x02, 0x00, 0x00, 0xC0, (uint8_t)ctr2};
-      if (txSendFrame(activeProfile->controlId, data, 8)) {
+      if (txSendActiveProfileFrame(-1, antiNagCtr + 1)) {
         antiNagDirection = 1;
         dutyBurstDone = true;
       }
@@ -913,10 +985,7 @@ static void serviceAntiNag() {
     if (now - lastDutyBurstMs < TX_ALTERNATION_GAP_MS) return;
     if (now - lastByteMs < TX_BUS_IDLE_MIN_MS) return;
     lastDutyBurstMs = now;
-    int ctr = antiNagCtr % 16;
-    int b0 = (antiNagDirection == 1) ? 0x11 : 0x0F;
-    uint8_t data[8] = {(uint8_t)b0, 0x04, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
-    if (txSendFrame(activeProfile->controlId, data, 8)) {
+    if (txSendActiveProfileFrame(antiNagDirection, antiNagCtr)) {
       antiNagDirection = -antiNagDirection;
       antiNagCtr++;
     }
@@ -1043,7 +1112,7 @@ static void processCommand() {
   if (strcmp(cmdBuf, "safe:off") == 0) {
 #ifdef ACTIVE_MODE
     activeTxArmed = false;
-  faultLockout = false;
+    faultLockout = false;
     stopActiveOutput("safe_off");
     Serial.println("cmd: safe=off armed=no");
 #else
@@ -1155,12 +1224,32 @@ static void processCommand() {
   }
   if (strcmp(cmdBuf, "antinag:single") == 0) {
     if (!ensureArmedForActive("cmd: antinag:single")) return;
-    int ctr = antiNagCtr % 16;
-    int b0 = (antiNagDirection == 1) ? 0x11 : 0x0F;
-    uint8_t data[8] = {(uint8_t)b0, 0x04, 0x00, 0x00, 0x00, 0x00, 0xC0, (uint8_t)ctr};
-    if (txSendFrame(activeProfile->controlId, data, 8)) {
+    int ctr = antiNagCtr & 0x0F;
+    if (txSendActiveProfileFrame(antiNagDirection, antiNagCtr)) {
       Serial.printf("cmd: antinag single model=%s dir=%s ctr=%d\n", modelName, antiNagDirection == 1 ? "UP" : "DOWN", ctr);
       antiNagDirection = -antiNagDirection;
+      antiNagCtr++;
+    }
+    return;
+  }
+  if (strncmp(cmdBuf, "vol:", 4) == 0) {
+    if (!ensureArmedForActive("cmd: vol")) return;
+    const char *action = cmdBuf + 4;
+    int direction = 0;
+    if (strcmp(action, "up") == 0) {
+      direction = 1;
+    } else if (strcmp(action, "down") == 0) {
+      direction = -1;
+    } else if (strcmp(action, "click") == 0) {
+      direction = 2;
+    } else if (strcmp(action, "idle") == 0) {
+      direction = 0;
+    } else {
+      Serial.println("cmd: vol unknown. Use vol:up, vol:down, vol:click, or vol:idle");
+      return;
+    }
+    if (txSendModel3YVolumeFrame(direction, antiNagCtr)) {
+      Serial.printf("cmd: vol=%s id=0x2A ctr=%d\n", action, antiNagCtr & 0x0F);
       antiNagCtr++;
     }
     return;
@@ -1532,7 +1621,7 @@ void setup() {
   delay(1500);
   Serial.printf("LIN receiver %s - build=%s active=%s wifi=%s reset=%s\n", FIRMWARE_VERSION, BUILD_PROFILE, ACTIVE_STATE_LABEL, WIFI_STATE_LABEL, resetReasonLabel());
   Serial.printf("Vehicle: %s  Default Baud: %u\n", vehicleId, linBaud);
-  Serial.println("Commands: version  config  safe:off  vehicle:<id>  baud:<rate>  raw:0/1  ring  stats");
+  Serial.println("Commands: version  config  safe:off  vehicle:<id>  baud:<rate>  raw:0/1  ring  stats  vol:up/down");
 
 #ifndef NO_WIFI
   connectWifiBlocking();
@@ -1682,3 +1771,5 @@ void loop() {
   serviceTelemetry();
 #endif
 }
+
+#endif  // PASSTHROUGH_MODE

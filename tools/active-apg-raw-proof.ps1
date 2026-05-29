@@ -50,8 +50,8 @@ $xiaoLines = @()
 
 if (-not $PSBoundParameters.ContainsKey("RawFallbackId") -or $RawFallbackId -eq 0) {
     switch ($Model) {
-        "3" { $RawFallbackId = 0x1A }
-        "y" { $RawFallbackId = 0x1A }
+        "3" { $RawFallbackId = 0x2A }
+        "y" { $RawFallbackId = 0x2A }
         default { $RawFallbackId = 0x0C }
     }
 }

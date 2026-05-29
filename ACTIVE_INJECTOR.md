@@ -28,8 +28,8 @@ XIAO D2/GPIO4 (UART1 TX) -> level shifter LV/B2 -> level shifter HV/A2 -> TJA102
 | model | LIN ID | Source | Confidence |
 |---|---|---|---|
 | `x` | `0x0C` | Real Model X capture | CONFIRMED |
-| `3` | `0x1A` | Community candidate | UNCONFIRMED |
-| `y` | `0x1A` | Assumed same as 3 | UNCONFIRMED |
+| `3` | `0x2A` | Guided Model 3 capture 20260528_211119, left wheel | CONFIRMED |
+| `y` | `0x2A` | Likely same as 3, still verify passively | LIKELY |
 | `auto` | `0x0C` | Default fallback | DEFAULT |
 
 ## Serial Commands (Active Mode)
@@ -37,8 +37,8 @@ XIAO D2/GPIO4 (UART1 TX) -> level shifter LV/B2 -> level shifter HV/A2 -> TJA102
 ```
 model             Show current profile
 model:x           Model X (ID=0x0C)
-model:3           Model 3 (ID=0x1A)
-model:y           Model Y (ID=0x1A)
+model:3           Model 3 left wheel (ID=0x2A)
+model:y           Model Y likely left wheel (ID=0x2A, verify passively)
 antinag:start     Start alternating UP / NEUTRAL / DOWN injection
 antinag:stop      Stop injection
 antinag:single    Send one UP or DOWN frame, toggle direction
@@ -49,6 +49,10 @@ config            Print runtime and persisted config state
 mirror:on         Enable periodic 0x0D alive/mirror frames
 mirror:off        Disable mirror frames
 tx:id,b0,...      Send custom frame, e.g. tx:0C,10,00,00,00,00,00,C0,00
+vol:up            Send one confirmed Model 3/Y left volume-up frame on ID 0x2A
+vol:down          Send one confirmed Model 3/Y left volume-down frame on ID 0x2A
+vol:click         Send one confirmed Model 3/Y left click frame on ID 0x2A
+vol:idle          Send one confirmed Model 3/Y left idle frame on ID 0x2A
 txd:low           Bench diagnostic: hold XIAO D2/TXD low
 txd:high          Bench diagnostic: hold XIAO D2/TXD high
 txd:uart          Return D2/TXD to UART mode after diagnostics
@@ -122,7 +126,9 @@ APG caveat: during the 2026-05-27 evening revalidation, the APGDT001 initially r
    ```
 8. Verify alternating `0x0C` frames with `B0=0x11/0x0F` and neutral `B0=0x10`, with enhanced checksum/parity OK or `source=raw` APG rows.
 
-For Model 3/Y after passive capture, use `tools\stage-model3y-active-bench.ps1` on the isolated bench. It updates the reviewed provisional ID, flashes `bench_active_ble`, and runs both active proof paths.
+For Model 3/Y left volume proof, use `tools\inject-vol-scroll.py` or serial `vol:up`/`vol:down` on the isolated bench first. The old `0x1A` candidate is superseded by the 2026-05-28 capture: left wheel is `0x2A`, right wheel is `0x2B`.
+
+The actual cut-wire bridge direction is documented in `docs/model3y-passthrough-volume.md` and builds with `python -m platformio run -e car_passthrough`.
 
 ## TX Path Debug Checklist
 
@@ -143,5 +149,6 @@ If XIAO D2 is low but LV2 is high, the D2 -> LV2 jumper is disconnected or on th
 
 - TX path is for **isolated bench only** with APG in passive monitor mode.
 - Disconnect TX from TJA1021 before any vehicle connection.
-- Model 3/Y profiles use unconfirmed candidate IDs.
+- Model 3/Y active bench volume uses confirmed left wheel ID `0x2A`; right wheel remains capture-confirmed but not yet injection-modeled.
+- One-transceiver bench TX is not the final passthrough install. The passthrough design requires two LIN transceivers.
 - Use `field_passive` for vehicle work. Do not flash `bench_active_ble`, `chip_lab_active`, or legacy `xiao_esp32c3` onto a vehicle-connected setup.

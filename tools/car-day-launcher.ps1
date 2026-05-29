@@ -9,7 +9,7 @@
       3. XIAO passive capture (real-time decode + WiFi telemetry)
       4. Post-capture summary
 
-    Works for Tesla Model 3, Y, and X — no assumptions about IDs.
+    Works for Tesla Model 3, Y, and X - no assumptions about IDs.
     Captures whatever the bus actually emits.
 
 .PARAMETER Baud
@@ -82,6 +82,18 @@ function Write-Session($msg) {
 function Test-XiaoPort {
     $ports = [System.IO.Ports.SerialPort]::GetPortNames()
     return $ports -contains $XiaoPort
+}
+
+function Resolve-PlatformIo {
+    $candidates = @(
+        (Join-Path $env:USERPROFILE ".platformio\penv\Scripts\platformio.exe")
+    )
+    foreach ($candidate in $candidates) {
+        if (Test-Path $candidate) { return $candidate }
+    }
+    $cmd = Get-Command platformio -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+    throw "PlatformIO not found. Install PlatformIO or add platformio.exe to PATH."
 }
 
 function Send-XiaoCommand {
@@ -207,10 +219,11 @@ if (-not $ApgOnly) {
 
     if (Test-XiaoPort) {
         Write-Session "Starting XIAO serial monitor on $XiaoPort"
-        & "C:\Users\ezabz\.platformio\penv\Scripts\platformio.exe" device monitor --port $XiaoPort --baud 115200 --dtr 1 --rts 0
+        $pio = Resolve-PlatformIo
+        & $pio device monitor --port $XiaoPort --baud 115200 --dtr 1 --rts 0
         Write-Session "XIAO monitor stopped"
     } else {
-        Write-Warning "XIAO not found on $XiaoPort — skip monitor"
+        Write-Warning "XIAO not found on $XiaoPort - skip monitor"
     }
 }
 

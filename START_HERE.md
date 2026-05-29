@@ -1,6 +1,6 @@
 # Tesla LIN Bench - Start Here
 
-Last updated: 2026-05-28 - awaiting Model 3/Y passive capture
+Last updated: 2026-05-29 - dual-LIN final board order decision added
 
 This is the canonical handoff for the Tesla LIN / anti-nag bench project. When the owner says "open the Tesla project", start here.
 
@@ -17,7 +17,13 @@ Active TX now requires `safe:arm` first; `safe:off` stops output, clears fault l
 
 Current APG state: the APGDT001 recovered after physical reseat. Windows reports `CM_PROB_NONE` for the APG HID interfaces, APG transmit works, and APG raw monitor initialization works. If `CM_PROB_FAILED_START` recurs, physically replug/reseat or use elevated PnP restart before APG-dependent tests. See `docs/bench-revalidation-2026-05-27.md`.
 
-Current operational state: we are waiting only on the Model 3 or Y arriving. Before it arrives, run `tools\prepare-model3y-car-day.ps1` to flash/verify `field_passive`. When it arrives, run `tools\start-model3y-passive-capture.ps1`; after capture, run `tools\process-model3y-capture.ps1`; after human review of the candidate ID, use `tools\stage-model3y-active-bench.ps1` to reprogram and prove the XIAO on the isolated bench only.
+Current operational state: the Model 3 steering LIN capture succeeded on 2026-05-28. The confirmed left wheel control ID is `0x2A` with 7 data bytes; byte[0] is `0x0D` volume up, `0x0B` volume down, `0x2C` click, `0x0C` idle. The confirmed right wheel control ID is `0x2B` with 6 data bytes. The old `0x1A` Model 3/Y candidate is superseded. See `docs/model3y-steering-lin-2026-05-28.md`.
+
+The active proof path now has a counter-aware serial tool, `tools\inject-vol-scroll.py`, plus direct firmware commands `vol:up`, `vol:down`, `vol:click`, and `vol:idle`. The actual cut-wire passthrough direction is a separate dual-transceiver firmware profile, `car_passthrough`, documented in `docs/model3y-passthrough-volume.md`.
+
+Final active-use hardware direction is now locked to a custom two-LIN passthrough PCB. The current Rev A ordering core is `ESP32-S3-WROOM-1U-N8R8` plus 2x `TJA1021T/20`; nRF5340/NORA/BL5340 is now a backup security path, not the primary cheapest-reliable Rev A default. See `docs/final-board-ordering-decision-2026-05-29.md` and `docs/final-chip-architecture.md`.
+
+Vehicle-side work is paused until the steering wheel controls recover from the wiring short and all conductors are insulated. Bench proof comes before any further car-side active work.
 
 Active project path:
 
@@ -41,7 +47,12 @@ IMPLEMENTATION_ROADMAP.md                 Full bench, passive car-test, and fina
 README.md                                 Wiring, firmware, tools, gotchas
 NEXT_STEPS.md                             Current work plan and passive car-day flow
 docs/bench-revalidation-2026-05-27.md     Latest bench proof, BLE fix, APG reseat, and raw observer pass
+docs/model3y-steering-lin-2026-05-28.md   Canonical Model 3 capture analysis and volume byte map
+docs/model3y-passthrough-volume.md        Dual-transceiver passthrough architecture and commands
+docs/final-board-ordering-decision-2026-05-29.md Current Rev A ordering decision
+docs/final-chip-architecture.md            Current custom dual-LIN active board architecture
 src/main.cpp                              XIAO firmware v5.1 - build profiles, safe arm gate, NVS config, BLE status, ring buffer
+src/car_passthrough.cpp                   car_passthrough firmware prototype for cut-wire bridge
 src/secrets.h.example                     Template for WiFi/API settings
 platformio.ini                            Build config: passive default, active bench/chip lab envs
 tools/build-all-envs.ps1                  Compile every supported firmware environment
@@ -55,6 +66,7 @@ tools/prepare-model3y-car-day.ps1         Pre-arrival APG/XIAO health check and 
 tools/start-model3y-passive-capture.ps1   One-command passive Model 3/Y capture with action windows
 tools/process-model3y-capture.ps1         Analyze capture and emit model-profile-candidate.json
 tools/stage-model3y-active-bench.ps1      Apply reviewed 3/Y ID and run bench-only active proofs
+tools/inject-vol-scroll.py                Confirmed Model 3/Y 0x2A left-volume proof tool with JSON logs
 tools/serial-to-lin-events.ps1            USB serial -> secretary fallback telemetry
 tools/car-day-launcher.ps1                Unified car-day entry point (NEW)
 tools/send-netanalyser-headless.ps1       Proven APG transmit path
@@ -162,7 +174,7 @@ Secretary stats: total_frames=80, unique_ids=64, bad_checksum=0, bad_parity=0
 Coverage:
 
 - Model X `0x0C` idle/up/down frames.
-- Model 3/Y candidate IDs `0x1A` and `0x1B`.
+- Historical Model 3/Y candidate IDs `0x1A` and `0x1B`, now superseded by live capture (`0x2A` left wheel, `0x2B` right wheel).
 - `0x3C` enhanced and classic checksum cases.
 - Every raw LIN ID `0x00` through `0x3F`.
 - Anti-nag UP/DOWN sequence plus neutral end frame.

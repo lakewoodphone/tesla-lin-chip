@@ -14,7 +14,7 @@
 
 .PARAMETER Id
     LIN raw ID to send. Default 0x0C (Model X steering). For Model 3/Y
-    candidate testing, try 0x1A or 0x1B.
+    left-volume bench testing, use 0x2A; the old 0x1A/0x1B candidates are historical.
 
 .PARAMETER Repeat
     Number of UP/DOWN cycles. Default 8 (16 frames).
