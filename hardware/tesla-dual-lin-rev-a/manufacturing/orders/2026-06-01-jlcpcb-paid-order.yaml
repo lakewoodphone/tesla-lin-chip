@@ -1,0 +1,78 @@
+project: tesla-dual-lin-rev-a
+revision: A
+vendor: JLCPCB
+ordered_at: 2026-06-01
+order_status_at_record_time: paid; PCB and PCBA file review pending
+account:
+  email: lakewoodphoneandtech@gmail.com
+  customer_number_seen: 12760394A
+order_ids_seen:
+  combined_order: W20260601024169336
+  pcb_order: Y3-12760394A
+  pcba_order: SMT026060163168-1276...
+ordered_items:
+  bare_pcb:
+    quantity: 5
+    layers: 4
+    board_size_mm: [100, 56]
+    jlc_edge_rail_panel_size_seen_mm: [100, 70]
+    soldermask: green
+    surface_finish: HASL with lead
+    build_time: 3 days
+    price_usd: 7.00
+  pcba:
+    quantity: 5
+    service: Standard PCBA
+    side: top only
+    parts_selection: by customer
+    build_time: 3-4 days
+    price_usd: 121.58
+    reason_standard_required: U1 ESP32-S3-WROOM-1U-N8R8 showed Standard-only in JLC part matching.
+checkout:
+  product_description: Programmable Controller - HS Code 853890
+  shipping_method: DHL Express CPT
+  shipping_time: 2-4 business days
+  merchandise_total_usd: 128.58
+  shipping_usd: 29.86
+  coupon_usd: -15.00
+  payment_method: PayPal
+  payment_fee_usd: 0.72
+  sales_tax_usd: 9.55
+  paid_total_usd: 153.71
+uploaded_files:
+  source_package_zip: build/quote/jlcpcb-mini-order-2026-06-01.zip
+  gerbers: build/quote/jlcpcb-mini-order-2026-06-01/tesla-dual-lin-rev-a-gerbers.zip
+  bom: build/quote/jlcpcb-mini-order-2026-06-01/jlcpcb-smt-first-bom.csv
+  cpl: build/quote/jlcpcb-mini-order-2026-06-01/jlcpcb-smt-first-cpl.csv
+jlc_part_matching:
+  bom_rows_detected: 23
+  parts_confirmed: 23
+  unmatched_rows_after_final_package: 0
+  selected_special_parts:
+    F1: SMD1812P050TF/30 / C12559, 1812 resettable fuse, 500mA hold, 30V
+    L1: IHLP2020CZER100M5A / C511407, 10uH power inductor
+    U1: ESP32-S3-WROOM-1U-N8R8 / C2980300
+    U2: TJA1021T/20/C,118 / C271675
+    U3: TJA1021T/20/C,118 / C271675
+    U4: LM5164DDAR / C477928
+excluded_from_smt_order:
+  manual_or_secondary_parts:
+    - J2 car harness Micro-Fit 1x04
+    - J3 wheel harness Micro-Fit 1x04
+    - SW1 DPDT physical arm switch
+  dnp_parts:
+    - D_LINA_MASTER1
+    - D_LINB_MASTER1
+    - R_LINA_MASTER1
+    - R_LINB_MASTER1
+watch_items:
+  - Watch JLC file review; order cannot be canceled once production begins.
+  - If JLC asks substitution questions, do not approve substitutions for U1, U2, U3, U4, J1, D1-D4, Q1, F1, FB1, or L1 without engineering review.
+  - Confirm placement/orientation in JLC preview or review output if JLC sends a correction.
+  - Source and install J2/J3/SW1 separately before bench harness tests.
+  - Run incoming inspection and first-article tests before any vehicle install.
+repo_verification_before_commit:
+  structured_docs: passed JSON/YAML load for project metadata, quote package notes, quote attempt, and this order record
+  package_regeneration: passed; 23 SMT BOM rows, 0 vendor-match-needed rows, 38 CPL rows, 3 manual/secondary rows, 2 DNP rows
+  hardware_input_validator: passed via hardware/tesla-dual-lin-rev-a/tools/validate_rev_a_inputs.py
+  firmware_build: passed via PlatformIO env rev_a_passthrough

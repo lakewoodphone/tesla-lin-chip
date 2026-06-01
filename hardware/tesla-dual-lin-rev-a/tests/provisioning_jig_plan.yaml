@@ -1,0 +1,45 @@
+project: tesla-dual-lin-rev-a
+revision: A
+goal: flash and test boards without hand-soldering wires
+pogo_interface:
+  minimum_nets:
+    - GND
+    - 3V3
+    - VBAT_PROTECTED
+    - USB_D_MINUS
+    - USB_D_PLUS
+    - UART0_TX
+    - UART0_RX
+    - EN
+    - BOOT_GPIO0
+    - LIN_A
+    - LIN_B
+    - LIN_EN
+    - LIN_EN_DRIVE
+  preferred_pad_diameter_mm: 1.5
+  preferred_pitch_mm: 2.54
+  placement: bottom side, single edge-accessible row where possible
+fixture_sequence:
+  - clamp board into nonconductive fixture with physical arm switch in safe/off position
+  - apply current-limited 12V to VBAT_IN or VBAT_PROTECTED test feed depending on stage
+  - verify 3V3 rail before firmware flashing
+  - assert EN/BOOT sequence and flash rev_a_passthrough firmware
+  - read ESP32 MAC and write serial/test record
+  - command safe:off and verify LIN_EN is low
+  - move physical arm to armed in fixture and command safe:arm; verify LIN_EN transitions high
+  - run LIN A loopback/simulator receive and transmit check
+  - run LIN B loopback/simulator receive and transmit check
+  - command safe:off and verify no LIN TX activity
+production_record_fields:
+  - board_serial
+  - esp32_mac
+  - firmware_version
+  - operator
+  - date_time
+  - idle_current_ma
+  - armed_current_ma
+  - lin_a_result
+  - lin_b_result
+  - usb_result
+  - ble_result
+  - final_status

@@ -1,0 +1,84 @@
+project: tesla-dual-lin-rev-a
+revision: A
+board_size_mm: [60, 35]
+coordinate_system: KiCad board origin at upper-left seed outline, x right, y down
+zones:
+  - name: car_harness_and_protection
+    bounds_mm: [0, 0, 15, 35]
+    priority: high
+    place:
+      - J2 car-side harness connector or pads
+      - F1 input PPTC/fuse
+      - Q1 reverse polarity MOSFET
+      - D1 VBAT TVS
+      - D2 LIN_A ESD
+      - U2 car-side TJA1021 near LIN_A entry
+    rules:
+      - VBAT transient loop must be short and wide
+      - D1 ground return must go directly into ground plane
+      - LIN_A ESD goes connector-side of any series element
+  - name: power_conversion
+    bounds_mm: [15, 0, 30, 18]
+    priority: high
+    place:
+      - U4 buck regulator
+      - L1 shielded inductor
+      - input and output capacitors
+      - FB1 input ferrite/filter
+    rules:
+      - keep switch node compact and away from ESP32 antenna
+      - keep regulator input capacitor adjacent to VIN/GND
+      - route 3V3 as short/wide feed toward ESP32
+  - name: esp32_rf_and_service
+    bounds_mm: [30, 0, 60, 24]
+    priority: high
+    place:
+      - U1 ESP32-S3-WROOM-1U
+      - J1 USB-C on board edge
+      - D4 USB ESD near J1
+      - EN/BOOT support components
+    rules:
+      - preserve ESP32 module keepout and U.FL access
+      - keep USB D+/D- short and paired over ground
+      - keep buck switch node out of RF area
+  - name: wheel_harness_and_second_lin
+    bounds_mm: [0, 18, 30, 35]
+    priority: high
+    place:
+      - J3 wheel-side harness connector or pads
+      - D3 LIN_B ESD
+      - U3 wheel-side TJA1021 near LIN_B entry
+    rules:
+      - keep LIN_B short from connector to protection to transceiver
+      - preserve clearance from noisy power switch node
+  - name: user_safety_controls
+    bounds_mm: [30, 24, 60, 35]
+    priority: medium
+    place:
+      - SW1 physical arm switch
+      - SW2 optional mode switch
+      - status/fault LEDs if populated
+    rules:
+      - SW1 safe/off marking must be obvious on silkscreen
+      - SW1 must physically force LIN_EN low in safe position
+  - name: bottom_test_access
+    side: bottom
+    bounds_mm: [5, 28, 55, 35]
+    priority: high
+    place:
+      - TP_ARRAY pogo pads
+    rules:
+      - keep pads unobstructed by components and mounting hardware
+      - prefer single row where fixture access permits
+      - include GND pads at both ends if space allows
+fiducials:
+  footprint: Fiducial:Fiducial_1mm_Mask2mm
+  minimum_count: 3
+  recommended_locations_mm:
+    - [3, 3]
+    - [57, 3]
+    - [57, 32]
+mechanical_risks:
+  - J2/J3 connector location may change after Tesla harness inspection
+  - USB-C access direction depends on steering-wheel cavity packaging
+  - external antenna route and retention must be checked with a physical mockup

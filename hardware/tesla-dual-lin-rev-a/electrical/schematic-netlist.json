@@ -1,0 +1,366 @@
+{
+    "schema_version": 1,
+    "project": "tesla-dual-lin-rev-a",
+    "status": "pre_kicad_source_of_truth",
+    "pin_number_policy": "Functional pin mapping is captured here; exact package pin numbers must be verified in the KiCad symbol/footprint pass before fabrication.",
+    "components": {
+        "U1": {
+            "mpn": "ESP32-S3-WROOM-1U-N8R8",
+            "role": "MCU/BLE/native USB",
+            "connections": {
+                "3V3": "3V3",
+                "GND": "GND",
+                "EN": "EN",
+                "GPIO0": "BOOT_GPIO0",
+                "GPIO19": "USB_D_MINUS",
+                "GPIO20": "USB_D_PLUS",
+                "GPIO43": "UART0_TX",
+                "GPIO44": "UART0_RX",
+                "GPIO4": "LIN_A_RXD",
+                "GPIO5": "LIN_A_TXD",
+                "GPIO6": "LIN_B_RXD",
+                "GPIO7": "LIN_B_TXD",
+                "GPIO8": "LIN_EN_DRIVE",
+                "GPIO9": "ARM_SENSE",
+                "TBD_NON_STRAP_6": "MODE_0"
+            }
+        },
+        "U2": {
+            "mpn": "TJA1021T/20/C,118",
+            "role": "car-side LIN transceiver",
+            "pin_numbers": {
+                "RXD": 1,
+                "SLP_N": 2,
+                "WAKE_N": 3,
+                "TXD": 4,
+                "GND": 5,
+                "LIN": 6,
+                "VBAT": 7,
+                "INH": 8
+            },
+            "connections": {
+                "VBAT": "VBAT_PROTECTED",
+                "GND": "GND",
+                "LIN": "LIN_A_TJA",
+                "TXD": "LIN_A_TXD",
+                "RXD": "LIN_A_RXD",
+                "SLP_N": "LIN_EN",
+                "WAKE_N": "WAKE_A_N",
+                "INH": "INH_A_TP"
+            }
+        },
+        "U3": {
+            "mpn": "TJA1021T/20/C,118",
+            "role": "wheel-side LIN transceiver",
+            "pin_numbers": {
+                "RXD": 1,
+                "SLP_N": 2,
+                "WAKE_N": 3,
+                "TXD": 4,
+                "GND": 5,
+                "LIN": 6,
+                "VBAT": 7,
+                "INH": 8
+            },
+            "connections": {
+                "VBAT": "VBAT_PROTECTED",
+                "GND": "GND",
+                "LIN": "LIN_B_TJA",
+                "TXD": "LIN_B_TXD",
+                "RXD": "LIN_B_RXD",
+                "SLP_N": "LIN_EN",
+                "WAKE_N": "WAKE_B_N",
+                "INH": "INH_B_TP"
+            }
+        },
+        "U4": {
+            "mpn": "LM5164DDA 100V 1A synchronous buck",
+            "role": "robust first-article protected VBAT to 3V3 buck regulator",
+            "pin_numbers": {
+                "GND": 1,
+                "VIN": 2,
+                "EN_UVLO": 3,
+                "RON": 4,
+                "FB": 5,
+                "PGOOD": 6,
+                "BST": 7,
+                "SW": 8,
+                "EP": 9
+            },
+            "connections": {
+                "VIN": "VBAT_FILTERED",
+                "GND": "GND",
+                "EP": "GND",
+                "EN_UVLO": "BUCK_EN",
+                "RON": "BUCK_RON",
+                "FB": "BUCK_FB",
+                "PGOOD": "BUCK_PGOOD",
+                "BST": "BUCK_BST",
+                "SW": "BUCK_SW"
+            }
+        },
+        "J1": {
+            "mpn": "USB-C USB2 receptacle TBD",
+            "role": "service/provisioning port",
+            "connections": {
+                "D_MINUS_A_B": "USB_D_MINUS",
+                "D_PLUS_A_B": "USB_D_PLUS",
+                "VBUS": "USB_VBUS",
+                "CC1": "CC1",
+                "CC2": "CC2",
+                "GND": "GND"
+            }
+        },
+        "J2": {
+            "mpn": "Molex Micro-Fit 3.0 43650-0415 4-circuit vertical header",
+            "role": "vehicle-side harness service interface; Tesla X178 adapter pigtail mates here",
+            "connections": {
+                "1_VBAT": "VBAT_IN",
+                "2_GND": "GND",
+                "3_RESERVED": "NC",
+                "4_LIN": "LIN_A"
+            }
+        },
+        "J3": {
+            "mpn": "Molex Micro-Fit 3.0 43650-0415 4-circuit vertical header",
+            "role": "wheel module harness service interface; Tesla wheel-side adapter pigtail mates here",
+            "connections": {
+                "1_VBAT": "VBAT_PROTECTED",
+                "2_GND": "GND",
+                "3_RESERVED": "NC",
+                "4_LIN": "LIN_B"
+            }
+        },
+        "SW1": {
+            "mpn": "DPDT physical arm switch TBD",
+            "role": "hard LIN_EN gate plus independent ARM_SENSE position contact",
+            "connections": {
+                "LIN_SAFE_THROW": "GND",
+                "LIN_ARM_THROW": "LIN_EN_DRIVE",
+                "LIN_COMMON": "LIN_EN",
+                "SENSE_SAFE_THROW": "GND",
+                "SENSE_ARM_THROW": "3V3",
+                "SENSE_COMMON": "ARM_SENSE"
+            }
+        },
+        "R_LINEN_PD1": {
+            "mpn": "100k",
+            "role": "LIN_EN default pulldown",
+            "connections": {
+                "1": "LIN_EN",
+                "2": "GND"
+            }
+        },
+        "R_ARMSENSE_PD1": {
+            "mpn": "100k",
+            "role": "ARM_SENSE default pulldown during switch travel or missing switch",
+            "connections": {
+                "1": "ARM_SENSE",
+                "2": "GND"
+            }
+        },
+        "R_WAKE_A1": {
+            "mpn": "100k",
+            "role": "car-side TJA1021 WAKE_N unused-state pullup",
+            "connections": {
+                "1": "WAKE_A_N",
+                "2": "VBAT_PROTECTED"
+            }
+        },
+        "R_WAKE_B1": {
+            "mpn": "100k",
+            "role": "wheel-side TJA1021 WAKE_N unused-state pullup",
+            "connections": {
+                "1": "WAKE_B_N",
+                "2": "VBAT_PROTECTED"
+            }
+        },
+        "R_LINA_SER1": {
+            "mpn": "10R",
+            "role": "car-side LIN damping/protection series resistor",
+            "connections": {
+                "1": "LIN_A",
+                "2": "LIN_A_TJA"
+            }
+        },
+        "R_LINB_SER1": {
+            "mpn": "10R",
+            "role": "wheel-side LIN damping/protection series resistor",
+            "connections": {
+                "1": "LIN_B",
+                "2": "LIN_B_TJA"
+            }
+        },
+        "R_LINA_TXD_PU1": {
+            "mpn": "100k",
+            "role": "car-side TJA1021 TXD recessive/default pullup",
+            "connections": {
+                "1": "LIN_A_TXD",
+                "2": "3V3"
+            }
+        },
+        "R_LINB_TXD_PU1": {
+            "mpn": "100k",
+            "role": "wheel-side TJA1021 TXD recessive/default pullup",
+            "connections": {
+                "1": "LIN_B_TXD",
+                "2": "3V3"
+            }
+        },
+        "R_LINA_MASTER1": {
+            "mpn": "DNP 1k",
+            "role": "optional car-side LIN master pullup resistor, DNP unless topology requires this board to command the segment",
+            "connections": {
+                "1": "LIN_A_MASTER_PU",
+                "2": "LIN_A"
+            }
+        },
+        "R_LINB_MASTER1": {
+            "mpn": "DNP 1k",
+            "role": "optional wheel-side LIN master pullup resistor, DNP unless topology requires this board to command the segment",
+            "connections": {
+                "1": "LIN_B_MASTER_PU",
+                "2": "LIN_B"
+            }
+        },
+        "D_LINA_MASTER1": {
+            "mpn": "DNP small switching diode",
+            "role": "optional car-side LIN master pullup diode in series with R_LINA_MASTER1",
+            "connections": {
+                "1": "VBAT_PROTECTED",
+                "2": "LIN_A_MASTER_PU"
+            }
+        },
+        "D_LINB_MASTER1": {
+            "mpn": "DNP small switching diode",
+            "role": "optional wheel-side LIN master pullup diode in series with R_LINB_MASTER1",
+            "connections": {
+                "1": "VBAT_PROTECTED",
+                "2": "LIN_B_MASTER_PU"
+            }
+        },
+        "D2": {
+            "mpn": "PESD1LIN-class",
+            "role": "car-side LIN ESD clamp near harness entry",
+            "connections": {
+                "A": "LIN_A",
+                "K": "GND"
+            }
+        },
+        "D3": {
+            "mpn": "PESD1LIN-class",
+            "role": "wheel-side LIN ESD clamp near harness entry",
+            "connections": {
+                "A": "LIN_B",
+                "K": "GND"
+            }
+        },
+        "R_FB_TOP1": {
+            "mpn": "174k 1%",
+            "role": "LM5164 feedback high-side resistor for 1.2V reference target near 3.3V",
+            "connections": {
+                "1": "3V3",
+                "2": "BUCK_FB"
+            }
+        },
+        "R_FB_BOT1": {
+            "mpn": "100k 1%",
+            "role": "LM5164 feedback low-side resistor for 1.2V reference target near 3.3V",
+            "connections": {
+                "1": "BUCK_FB",
+                "2": "GND"
+            }
+        },
+        "R_BUCK_EN1": {
+            "mpn": "100k 1%",
+            "role": "LM5164 always-on enable tie from filtered protected input",
+            "connections": {
+                "1": "VBAT_FILTERED",
+                "2": "BUCK_EN"
+            }
+        },
+        "R_BUCK_RON1": {
+            "mpn": "200k 1% preliminary",
+            "role": "LM5164 RON resistor placeholder; final switching frequency must be set from TI calculator or WEBENCH before production",
+            "connections": {
+                "1": "VBAT_FILTERED",
+                "2": "BUCK_RON"
+            }
+        },
+        "R_PGOOD_PU1": {
+            "mpn": "100k 1%",
+            "role": "LM5164 open-drain PGOOD pullup for test visibility",
+            "connections": {
+                "1": "BUCK_PGOOD",
+                "2": "3V3"
+            }
+        },
+        "C_BST1": {
+            "mpn": "100nF 50V X7R",
+            "role": "LM5164 bootstrap capacitor",
+            "connections": {
+                "1": "BUCK_BST",
+                "2": "BUCK_SW"
+            }
+        },
+        "L1": {
+            "mpn": "10uH shielded Isat >=1.5A preliminary",
+            "role": "buck output inductor; final value follows LM5164 design calculation",
+            "connections": {
+                "1": "BUCK_SW",
+                "2": "3V3"
+            }
+        },
+        "R_CC1": {
+            "mpn": "5.1k",
+            "role": "USB-C CC1 device pulldown",
+            "connections": {
+                "1": "CC1",
+                "2": "GND"
+            }
+        },
+        "R_CC2": {
+            "mpn": "5.1k",
+            "role": "USB-C CC2 device pulldown",
+            "connections": {
+                "1": "CC2",
+                "2": "GND"
+            }
+        },
+        "TP_ARRAY": {
+            "mpn": "test pads",
+            "role": "pogo programming and production test",
+            "required_nets": [
+                "GND",
+                "3V3",
+                "VBAT_PROTECTED",
+                "USB_D_MINUS",
+                "USB_D_PLUS",
+                "UART0_TX",
+                "UART0_RX",
+                "EN",
+                "BOOT_GPIO0",
+                "LIN_A",
+                "LIN_B",
+                "LIN_A_TJA",
+                "LIN_B_TJA",
+                "LIN_EN",
+                "LIN_EN_DRIVE",
+                "ARM_SENSE",
+                "WAKE_A_N",
+                "WAKE_B_N",
+                "INH_A_TP",
+                "INH_B_TP",
+                "BUCK_PGOOD"
+            ]
+        }
+    },
+    "unresolved_before_kicad_release": [
+        "Confirm GPIO4-GPIO9 are acceptable on the final ESP32-S3-WROOM-1U-N8R8 footprint and do not conflict with board-specific boot/provisioning behavior.",
+        "Verify TJA1021T SO-8 symbol pin numbers against NXP datasheet during schematic review; local KiCad symbol currently maps RXD=1, SLP_N=2, WAKE_N=3, TXD=4, GND=5, LIN=6, VBAT=7, INH=8.",
+        "Verify LM5164 RON/frequency, inductor, input caps, output caps, bootstrap cap, ripple network, and EN/UVLO values with TI calculator or WEBENCH before production release.",
+        "Verify DPDT arm switch footprint, actuator direction, and contact mapping before schematic release.",
+        "Confirm LIN series resistor and ESD placement in layout review after connector orientation is known.",
+        "Choose exact harness connectors after mechanical inspection of Tesla wheel harness."
+    ]
+}

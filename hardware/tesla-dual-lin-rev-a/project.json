@@ -1,0 +1,62 @@
+{
+    "project_id": "tesla-dual-lin-rev-a",
+    "status": "first_article_jlcpcb_order_paid_under_review",
+    "cad_target": "KiCad 10.x CLI workflow",
+    "manufacturing_target": {
+        "pilot_quantity": 5,
+        "production_quantity": 100,
+        "preferred_pilot_vendor": "JLCPCB Standard PCBA first because ESP32-S3-WROOM-1U-N8R8 is Standard-only in JLC; PCBWay as sourcing/DFM fallback",
+        "assembly_policy": "single-side SMT assembled by PCBA vendor; J2/J3 Molex Micro-Fit 3.0 4-circuit connector interfaces must be populated by THT/vendor or secondary operation"
+    },
+    "validated_research_artifacts": [
+        "personal-secretary-mvp/docs/research/responses/2026-05-29-100-unit-dual-lin-ble-passthrough-board-manufacturing-plan-ad722f1f.md",
+        "personal-secretary-mvp/docs/research/responses/2026-05-29-dual-lin-esp32-s3-rev-a-schematic-and-pcba-design-rules-68f254d3.md",
+        "personal-secretary-mvp/docs/research/responses/2026-05-29-cost-optimized-rev-a-dual-lin-esp32-s3-pcba-bom-research-8380af65.md",
+        "personal-secretary-mvp/docs/research/responses/2026-05-31-tesla-dual-lin-rev-a-order-readiness-quick-research-n-ncontext-we-have-a-kicad-4-b9bb8748.md",
+        "personal-secretary-mvp/docs/research/responses/2026-05-31-research-directive-tesla-steering-wheel-lin-harness-connector-identification-5cdd8b12.md"
+    ],
+    "non_negotiables": [
+        "two independent LIN physical channels",
+        "native wheel controls must keep working in healthy passthrough mode",
+        "LIN TX defaults disabled when MCU is reset, blank, booting, unarmed, or faulted",
+        "physical arm gate required before any active/passthrough TX",
+        "USB-C service/provisioning with recovery pads",
+        "protected automotive 12V input",
+        "bottom-side pogo pads for programming and test",
+        "external 2.4GHz antenna path for Rev A"
+    ],
+    "blocked_until": [
+        "exact ESP32-S3 module footprint verified against Espressif land pattern",
+        "TJA1021 mode/default-state circuit reviewed against NXP datasheet",
+        "support-part LCSC/JLCPCB supplier IDs verified before quote; first paid JLC order used 23/23 matched SMT rows",
+        "automotive protection BOM checked against assembler availability",
+        "LM5164 RON/frequency, ripple network, inductor, capacitor, and EN/UVLO values verified with TI calculator/WEBENCH before production release",
+        "ESP32-S3 module footprint manually compared against Espressif land pattern",
+        "bench dual-LIN passthrough wiring validated with two transceivers"
+    ],
+    "known_non_blocking_first_article_followups": [
+        "First JLCPCB Standard PCBA order placed 2026-06-01 for 5 assembled boards; total paid was $153.71 and file review was pending at order creation.",
+        "100x56mm board preserves both connector interfaces and reduces board area versus the original 100x60mm package; further compact cost-down remains a separate layout iteration",
+        "70x42mm compact attempt was not DRC-clean; compact layout needs a deliberate placement/routing iteration",
+        "J2/J3 are populated Molex Micro-Fit 3.0 4-circuit service connectors with pin 3 reserved to match the Tesla-documented 4-cavity VBAT/GND/NC/LIN interface; exact Tesla OEM connector mate remains an adapter-pigtail physical-inspection follow-up",
+        "DNP LIN master pullup/diode footprints are present; populate only on the channel where this board intentionally commands an isolated LIN segment"
+    ],
+    "cost_targets_usd_excluding_harness": {
+        "cost_down_10_units": [
+            24,
+            38
+        ],
+        "cost_down_100_units": [
+            16,
+            27
+        ],
+        "lm5164_first_article_10_units": [
+            28,
+            43
+        ],
+        "lm5164_first_article_100_units": [
+            18,
+            32
+        ]
+    }
+}

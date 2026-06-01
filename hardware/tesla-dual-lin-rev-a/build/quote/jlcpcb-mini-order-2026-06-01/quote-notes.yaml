@@ -1,0 +1,51 @@
+project: tesla-dual-lin-rev-a
+revision: A
+prepared_at: 2026-06-01
+order_intent: 3 usable assembled bench-test boards
+practical_jlc_order_quantity: 5
+quantity_note: JLCPCB quote flow showed 5 PCB minimum and PCBA quantity options of 5 or 2 during the first live quote attempt.
+vendor_first_choice: JLCPCB PCBA
+vendor_fallback: PCBWay PCBA or SMT-first JLCPCB plus local manual install
+board:
+    size_mm: [100, 56]
+    layers: 4
+    finish_preference: HASL_with_lead_for_first_bench_batch
+    soldermask: green or cheapest available
+    assembly_side: single-sided top
+upload_files:
+  gerbers: tesla-dual-lin-rev-a-gerbers.zip
+  jlc_bom: jlcpcb-smt-first-bom.csv
+  jlc_cpl: jlcpcb-smt-first-cpl.csv
+  original_bom: original-kicad-bom.csv
+  original_cpl: original-kicad-cpl.csv
+assembly_plan:
+  vendor_smt_rows: 23
+  vendor_missing_lcsc_rows: 0
+  manual_or_secondary_rows: 3
+  dnp_rows: 2
+manual_or_secondary_parts:
+  - designator: J2
+    comment: car harness Micro-Fit 1x04
+    plan: Manual or JLC/PCBWay secondary operation after quote review
+  - designator: J3
+    comment: wheel harness Micro-Fit 1x04
+    plan: Manual or JLC/PCBWay secondary operation after quote review
+  - designator: SW1
+    comment: DPDT physical arm
+    plan: Manual or JLC/PCBWay secondary operation after quote review
+dnp_parts:
+  - designator: D_LINA_MASTER1,D_LINB_MASTER1
+    comment: DNP LIN master diode
+    reason: DNP by topology default
+  - designator: R_LINA_MASTER1,R_LINB_MASTER1
+    comment: DNP 1k
+    reason: DNP by topology default
+quote_review_checks:
+  - Confirm JLC placement preview orientation before paying.
+  - Confirm ESP32-S3-WROOM-1U-N8R8 and TJA1021T part matches.
+  - If LM5164DDA is unavailable, stop and review substitution before ordering.
+  - Confirm selected F1 PPTC and L1 inductor package/orientation in JLC preview before payment.
+  - Do not populate DNP LIN master pullup/diode parts for vehicle-side testing.
+  - Order Molex 43025-0400 housings and 43030-series terminals separately for bench pigtails.
+  - If the quote UI forces a 5-board minimum, order 5 assembled boards and reserve 2 as spares/rework units.
+  - No checkout/payment without owner approval of final quote total and ETA.

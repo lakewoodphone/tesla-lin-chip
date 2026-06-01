@@ -1,0 +1,5 @@
+scenario,quantity,bom_low_usd,bom_high_usd,pcba_low_usd,pcba_high_usd,total_low_usd,total_high_usd,excludes,notes
+cost_down_pilot,10,12,18,12,20,24,38,harness/external antenna jig shipping taxes,Later MP2459-class buck cost-down scenario retained after datasheet and bench validation
+cost_down_batch,100,10,15,6,12,16,27,harness/external antenna jig shipping taxes,Later cost-down scenario assumes setup amortized and common LCSC/JLC parts
+lm5164_first_article_pilot,10,14,23,12,20,28,43,harness/external antenna jig shipping taxes,Robust first-article Rev A target with LM5164DDA buck and stronger protection margin
+lm5164_first_article_batch,100,12,20,6,12,18,32,harness/external antenna jig shipping taxes,Recommended target if vehicle testing will be repeated or customer-adjacent

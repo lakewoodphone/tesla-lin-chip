@@ -1,0 +1,145 @@
+project: tesla-dual-lin-rev-a
+revision: A
+decision_date: 2026-05-29
+goal: affordable robust 100-unit-ready dual-LIN ESP32-S3 PCBA
+
+source_backing:
+  completed_research_artifacts:
+    - personal-secretary-mvp/docs/research/responses/2026-05-29-100-unit-dual-lin-ble-passthrough-board-manufacturing-plan-ad722f1f.md
+    - personal-secretary-mvp/docs/research/responses/2026-05-29-dual-lin-esp32-s3-rev-a-schematic-and-pcba-design-rules-68f254d3.md
+    - personal-secretary-mvp/docs/research/responses/2026-05-29-cost-optimized-rev-a-dual-lin-esp32-s3-pcba-bom-research-8380af65.md
+  live_closure_job:
+    job_id: f19c0816-ef6a-44c3-bc8c-167cc22b492e
+    status_at_decision_time: running
+    note: targeted closure job is durable tracking; Rev A decisions below use completed research plus local KiCad/NXP symbol verification.
+  local_source_checks:
+    - source: KiCad 10 Interface_CAN_LIN.kicad_sym symbol TJA1021xT
+      path: C:/Users/ezabz/AppData/Local/Programs/KiCad/10.0/share/kicad/symbols/Interface_CAN_LIN.kicad_sym
+      finding: SOIC-8 symbol maps RXD=1, SLP_N=2, WAKE_N=3, TXD=4, GND=5, LIN=6, VBAT=7, INH=8.
+    - source: NXP TJA1021 datasheet URL referenced by KiCad symbol and research artifact
+      url: https://www.nxp.com/docs/en/data-sheet/TJA1021.pdf
+      note: direct NXP download was blocked locally; LCSC/Farnell mirrors were downloaded for later manual review.
+    - source: Espressif ESP32-S3-WROOM-1/1U datasheet
+      url: https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf
+      finding: native USB uses GPIO19 D- and GPIO20 D+; module requires 3.3V rail sized for radio peaks.
+    - source: TI LM5164 datasheet and KiCad 10 Regulator_Switching symbol LM5164DDA
+      url: https://www.ti.com/product/LM5164
+      finding: LM5164DDA is an active 6V-100V 1A synchronous buck in 8-pin SOIC PowerPAD; symbol maps GND=1, VIN=2, EN/UVLO=3, RON=4, FB=5, PGOOD=6, BST=7, SW=8, EP=9.
+    - source: Tesla steering-wheel LIN connector research artifact
+      path: personal-secretary-mvp/docs/research/responses/2026-05-31-research-directive-tesla-steering-wheel-lin-harness-connector-identification-5cdd8b12.md
+      finding: Public Tesla Model Y SOP6 steering-wheel switch inline data identifies a 4-cavity VBAT/GND/unused/LIN interface, but does not prove the OEM physical connector family; Rev A uses Molex Micro-Fit 3.0 43650-0415 board-side service connectors plus adapter pigtails.
+
+tja1021_soic8:
+  selected_mpn: TJA1021T/20/C,118
+  package: SOIC-8
+  kicad_symbol: Interface_CAN_LIN:TJA1021xT
+  kicad_footprint: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
+  pinout:
+    "1": RXD
+    "2": SLP_N
+    "3": WAKE_N
+    "4": TXD
+    "5": GND
+    "6": LIN
+    "7": VBAT
+    "8": INH
+  rev_a_mode_decisions:
+    bus_role: responder_or_bridge_node_only
+    default_no_master_pullup_populated: true
+    optional_dnp_master_pullup_footprints: true
+    reason: Tesla vehicle side is assumed to provide the LIN commander/master bias; Rev A leaves strong 1k plus diode LIN master pullups DNP by default, with footprints available only if bench evidence proves an isolated commanded segment requires one.
+    vbat: VBAT_PROTECTED with 100nF plus 1uF local decoupling per transceiver
+    lin: 10R series resistor plus PESD1LIN-class ESD at each harness entry
+    slp_n: common post-switch LIN_EN net, external 100k pulldown, safe switch throw hard-ties LIN_EN to GND
+    wake_n: pulled high to VBAT_PROTECTED through 100k and exposed only as optional test net; no MCU GPIO for Rev A
+    inh: not used to enable the buck regulator; exposed only as optional no-load test net
+    txd: firmware must set TXD pins to recessive/idle before asserting LIN_EN_DRIVE; SLP_N gate is the hardware safety layer
+    rxd: direct 3.3V-compatible MCU input, no level shifter
+  default_off_chain:
+    - MCU reset/blank/bootloader leaves LIN_EN_DRIVE low or high-Z.
+    - R_LINEN_PD holds LIN_EN low.
+    - SW1 safe position shorts LIN_EN to GND regardless of firmware.
+    - SW1 second pole shorts ARM_SENSE to GND in safe/off and to 3V3 in armed position.
+    - Both TJA1021 SLP_N pins stay low, keeping transceivers asleep.
+    - Firmware can enter normal LIN only after physical arm is on and safe:arm asserts LIN_EN_DRIVE.
+  physical_arm_switch:
+    type: DPDT slide switch
+    pole_a_common: LIN_EN
+    pole_a_safe_throw: GND
+    pole_a_arm_throw: LIN_EN_DRIVE
+    pole_b_common: ARM_SENSE
+    pole_b_safe_throw: GND
+    pole_b_arm_throw: 3V3
+    arm_sense_default: 100k pulldown to GND
+    reason: firmware must be able to read the physical arm position before it asserts LIN_EN_DRIVE.
+
+esp32_s3_wroom_1u:
+  selected_mpn: ESP32-S3-WROOM-1U-N8R8
+  lcsc: C2980300
+  footprint: RF_Module:ESP32-S3-WROOM-1U
+  footprint_status: verify_against_espressif_land_pattern_before_fab
+  pin_policy:
+    usb_d_minus: GPIO19
+    usb_d_plus: GPIO20
+    uart0_tx_recovery_pad: GPIO43
+    uart0_rx_recovery_pad: GPIO44
+    boot: GPIO0 with 10k pullup to 3V3 and pogo/button pull-to-GND
+    reset: EN with 10k pullup to 3V3, 1uF to GND, pogo/button pull-to-GND
+    gpio46: do not drive high during boot; leave unused or pad-only if exposed later
+    lin_a_rxd: GPIO4
+    lin_a_txd: GPIO5
+    lin_b_rxd: GPIO6
+    lin_b_txd: GPIO7
+    lin_en_drive: GPIO8
+    arm_sense: GPIO9
+  notes:
+    - GPIO4-GPIO9 are intentionally kept away from native USB and UART recovery pins.
+    - Final schematic review must confirm module pins are not reserved by flash/PSRAM internals on the N8R8 module.
+
+power_front_end:
+  default_path: VBAT_IN -> Q1 reverse polarity PFET -> F1 PPTC -> D1 TVS -> FB1 ferrite/filter -> U4 buck -> 3V3
+  rev_a_default_buck:
+    class: LM5164DDA 100V 1A synchronous buck
+    footprint_target: Package_SO:HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.41x3.1mm_ThermalVias
+    reason: accessible TI datasheet and KiCad symbol, much stronger automotive transient margin for first articles, integrated synchronous rectifier, low quiescent current, and no loop compensation components
+    feedback_assumption: 1.2V reference from TI datasheet
+    feedback_values:
+      top: 174k 1% 0603
+      bottom: 100k 1% 0603
+      expected_vout: 3.29V
+    ron_resistor: 200k 1% preliminary; finalize with TI WEBENCH or LM5164 switching-frequency equation before production release
+    inductor: 10uH shielded, Isat >= 1.5A, DCR low enough for 500mA continuous
+    input_caps: 10uF 50V X7R plus 100nF 50V at VIN/GND
+    output_caps: 22uF 10V X7R plus 100nF at VOUT/GND
+    bootstrap_cap: 100nF from BST to SW
+    enable_policy: always-on from protected input for Rev A; do not use TJA1021 INH to gate buck
+  later_cost_down_buck:
+    class: MP2459DT-LF-Z/MP1584 36V-class buck
+    trigger: only after exact datasheet, pinout, feedback reference, and bench transient margins are verified
+  input_protection:
+    reverse_polarity: AO4407A-class P-channel MOSFET, SO-8, Vds margin >= 30V, current margin >= 2A
+    overcurrent: 1812 PPTC, 0.5A to 0.75A hold, voltage rating suitable for vehicle rail
+    low_cost_tvs: SMBJ24A or SMBJ26A, SMB package
+    robust_tvs: SM8S33A or SM8S36A, larger high-surge automotive TVS
+    filter: 1206 ferrite 600R@100MHz, 2A class plus 47uF 35V-50V bulk near buck zone
+
+usb_service:
+  connector: TYPE-C-31-M-12-class USB2 receptacle
+  cc: two 5.1k 1% 0603 Rd resistors to GND
+  data: GPIO19/GPIO20 routed as D-/D+ pair through low-cap USB ESD near connector
+  vbus_policy: service/detect only in Rev A; no USB-to-vehicle backfeed
+  optional_usb_power: blocked until a defined ORing/power-mux circuit is added and tested
+
+lin_protection:
+  per_line:
+    series_resistor: 10R 0603, placed near TJA1021 LIN pin or between ESD and transceiver per layout review
+    esd: PESD1LIN/PESD1CAN-class single-line automotive ESD, SOD-323 or SOT-23
+  forbidden_for_rev_a:
+    - adding LIN master pullup/diode on either side without bench proof
+    - tying car-side and wheel-side LIN together except through intentional test/bypass fixture
+
+known_remaining_blockers:
+  - Physical Tesla OEM harness connector family and pin geometry still require mechanical inspection for the adapter pigtail; board-side J2/J3 service connectors are now Molex Micro-Fit 3.0 43650-0415 4-circuit headers.
+  - LM5164 RON/frequency, ripple network, inductor, and capacitor values must be checked with TI calculator/WEBENCH before production release.
+  - ESP32-S3-WROOM-1U KiCad footprint must be compared against Espressif land pattern and paste recommendations.
+  - First article must prove no LIN dominant pulse during reset, bootloader, safe/off, arming, firmware crash, and brownout.

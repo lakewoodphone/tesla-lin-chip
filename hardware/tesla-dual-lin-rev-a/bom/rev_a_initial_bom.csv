@@ -1,0 +1,32 @@
+refdes,qty,function,mpn,manufacturer,package_or_footprint,primary_supplier,primary_supplier_part,assembly_policy,status,notes
+U1,1,MCU/BLE module,ESP32-S3-WROOM-1U-N8R8,Espressif,SMD module 19.2x18mm,LCSC,C2980300,SMT by PCBA vendor,primary,External U.FL antenna variant; verify Espressif land pattern and MSL handling
+U2 U3,2,LIN transceiver,"TJA1021T/20/C,118",NXP,SO-8,LCSC,C271675,SMT by PCBA vendor,primary,Two required for inline passthrough; direct 3.3V MCU logic compatible
+U4,1,Automotive buck regulator,LM5164DDA 100V 1A synchronous buck,Texas Instruments,8-pin SOIC PowerPAD / DDA,DigiKey/Mouser/TI/LCSC,TBD,SMT by PCBA vendor,selected_verify_calculation,"Robust first-article default; preliminary 174k/100k FB, 10uH inductor, 10uF 50V input, 22uF output, 100nF bootstrap; RON/frequency and ripple network require TI calculator before production"
+Q1,1,Reverse polarity ideal diode MOSFET,AO4407A-class P-channel MOSFET,TBD,SO-8,LCSC/JLCPCB,TBD,SMT by PCBA vendor,selected_verify_supplier,Select by low Rds(on) Vds gate rating and source/drain orientation
+F1,1,Input overcurrent protection,1812 resettable PPTC 0.5-0.75A hold,Littelfuse/Bourns or compatible,1812,LCSC/JLCPCB,TBD,SMT by PCBA vendor,selected_verify_supplier,Confirm voltage rating and hot-environment derating against measured board load
+D1,1,VBAT TVS,SMBJ24A/SMBJ26A class,Littelfuse/ST/Diodes,SMB,LCSC/JLCPCB,TBD,SMT by PCBA vendor,selected_verify_supplier,Low-cost default; robust SM8S option remains for vehicle pilot if needed
+D2 D3,2,LIN ESD/TVS,PESD1LIN/PESD1CAN-class single-line ESD,Nexperia/ST/Diodes,SOD-323 or SOT-23,LCSC/JLCPCB,TBD,SMT by PCBA vendor,selected_verify_supplier,Place near car and wheel connectors with 10R series resistors
+D4,1,USB data ESD,USBLC6-2SC6-class low-cap array,ST/Semtech/compatible,SOT-23-6,LCSC/JLCPCB,TBD,SMT by PCBA vendor,selected_verify_supplier,Low-capacitance USB2 D+/D- protection near connector
+J1,1,USB-C service connector,TYPE-C-31-M-12 class,TBD,USB-C 16-pin SMT,LCSC/JLCPCB,TBD,SMT if available,selected_verify_supplier,Device-only; CC1/CC2 each need 5.1k pulldown and VBUS must not backfeed VBAT
+J2,1,Car-side harness service connector,Molex Micro-Fit 3.0 43650-0415 4-circuit vertical header,Molex,Connector_Molex:Molex_Micro-Fit_3.0_43650-0415_1x04_P3.00mm_Vertical,DigiKey/Mouser/JLCPCB-local,TBD,THT by vendor or installed secondary operation,selected_first_article,Populated keyed/latching board connector; pinout 1 VBAT_IN 2 GND 3 NC 4 LIN_A; board-side cable mate Molex 43025-0400 plus 43030-series terminals
+J3,1,Wheel-side harness service connector,Molex Micro-Fit 3.0 43650-0415 4-circuit vertical header,Molex,Connector_Molex:Molex_Micro-Fit_3.0_43650-0415_1x04_P3.00mm_Vertical,DigiKey/Mouser/JLCPCB-local,TBD,THT by vendor or installed secondary operation,selected_first_article,Populated keyed/latching board connector; pinout 1 VBAT_PROTECTED 2 GND 3 NC 4 LIN_B; board-side cable mate Molex 43025-0400 plus 43030-series terminals
+SW1,1,Physical arm switch,CK JS202011JCQN-class DPDT slide switch,C&K or compatible,SMD/THT vendor-specific,LCSC/JLCPCB,TBD,manual or SMT/THT by vendor,selected_verify_supplier,One pole gates LIN_EN; second pole drives ARM_SENSE high only when armed
+SW2,1,Mode switch,TBD slide switch,C&K or equivalent,SMD/THT TBD,DigiKey/Mouser,TBD,manual or SMT/THT by vendor,candidate,Firmware input only; not sole safety gate
+TP1-TP20,20,Pogo/test pads,KiCad test pad,Custom,1.5mm exposed pad,N/A,N/A,PCB copper,primary,GND 3V3 VBAT USB+ USB- UART_TX UART_RX EN BOOT LIN_A LIN_B LIN_A_TJA LIN_B_TJA LIN_EN LIN_EN_DRIVE ARM_SENSE WAKE_A_N WAKE_B_N INH_A_TP INH_B_TP
+R_CC1 R_CC2,2,USB-C CC pulldown,5.1k 1%,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,primary,One from each CC pin to GND
+R_EN1 R_BOOT1,2,ESP boot/reset pullups,10k 1%,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,primary,EN and GPIO0 pullups
+R_LINEN_PD1,1,LIN_EN default pulldown,100k 1%,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,primary,Keeps both SLP_N lines low unless armed and firmware-enabled
+R_ARMSENSE_PD1,1,ARM_SENSE default pulldown,100k 1%,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,primary,Keeps physical arm sense low during switch travel or missing-switch faults
+R_WAKE_A1 R_WAKE_B1,2,TJA1021 WAKE_N pullups,100k 1%,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,selected_verify_datasheet,Pull active-low local wake pins high to VBAT_PROTECTED when unused
+R_LINA_TXD_PU1 R_LINB_TXD_PU1,2,TJA1021 TXD recessive defaults,100k 1%,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,primary,External pullups keep each LIN TXD recessive if MCU pins float during reset/boot/fault
+R_LINA_MASTER1 R_LINB_MASTER1 D_LINA_MASTER1 D_LINB_MASTER1,4,Optional LIN master termination,DNP 1k plus SOD-323 diode,Any,0603/SOD-323,LCSC/JLCPCB,TBD,DNP unless topology requires,dnp_topology_option,Populate only on the segment where this board intentionally acts as LIN master/commander
+R_LINA_SER1 R_LINB_SER1,2,LIN series resistors,10R 1%,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,selected,Between harness-side LIN net and TJA1021 LIN pin
+R_FB_TOP1 R_FB_BOT1,2,Buck feedback divider,174k/100k 1%,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,selected_verify_calculation,Preliminary for LM5164 1.2V feedback reference near 3.3V
+R_BUCK_EN1 R_BUCK_RON1 R_PGOOD_PU1,3,LM5164 control resistors,100k/200k/100k 1%,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,selected_verify_calculation,EN tie RON frequency-set placeholder and PGOOD pullup; final RON before production
+C_BST1,1,LM5164 bootstrap capacitor,100nF 50V X7R,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,selected,From BST to SW
+C_EN1,1,ESP32 EN reset capacitor,1uF 10V X7R,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,primary,EN-to-GND reset/boot stability capacitor
+C_U1_DEC1 C_U2_DEC1 C_U3_DEC1 C_U4_DEC1,4,Local IC decoupling,100nF 50V X7R,Any,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,primary,Local decoupling at ESP32 module LIN transceiver VBAT pins and buck input
+C_BULK_IN,1,VBAT bulk capacitor,47-100uF 35-50V,TBD,SMD electrolytic/polymer,DigiKey/Mouser,TBD,SMT/THT by vendor,candidate,Choose after regulator input design
+C_3V3_BULK,1,3V3 bulk capacitor,22uF 10V X7R,TBD,0805/1206,LCSC/JLCPCB,TBD,SMT by PCBA vendor,candidate,Near ESP32 module rail
+C_DECOUPLE,8,Local decoupling,100nF 50V X7R,TBD,0603,LCSC/JLCPCB,TBD,SMT by PCBA vendor,primary,Near IC supply pins and connector protection blocks
+ANT1,1,External BLE antenna,2.4GHz U.FL antenna,TBD,U.FL cable antenna,DigiKey/Mouser/Amazon,TBD,manual install,candidate,Validate placement in steering-wheel cavity

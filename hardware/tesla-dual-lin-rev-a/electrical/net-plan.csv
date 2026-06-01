@@ -1,0 +1,36 @@
+net,block,voltage_domain,criticality,description
+VBAT_IN,power,vehicle_12v,high,Raw input from harness before board protection
+VBAT_PROTECTED,power,vehicle_12v,high,After fuse/reverse protection/TVS; feeds buck and TJA1021 VBAT pins
+VBAT_FILTERED,power,vehicle_12v,high,Post-ferrite/filter input to buck regulator
+GND,power,ground,high,Common signal and power ground; continuous plane required
+3V3,power,3.3v,high,Regulated rail for ESP32 and logic; design for at least 500mA useful output
+LIN_A,lin,vehicle_12v_signal,high,Car-side LIN physical line
+LIN_B,lin,vehicle_12v_signal,high,Wheel-side LIN physical line
+LIN_A_TJA,lin,vehicle_12v_signal,high,Car-side TJA1021 LIN pin after series resistor
+LIN_B_TJA,lin,vehicle_12v_signal,high,Wheel-side TJA1021 LIN pin after series resistor
+LIN_A_TXD,lin,3.3v_logic,high,ESP32 to car-side transceiver TXD; default safe before arm
+LIN_A_RXD,lin,3.3v_logic,high,Car-side transceiver RXD to ESP32
+LIN_B_TXD,lin,3.3v_logic,high,ESP32 to wheel-side transceiver TXD; default safe before arm
+LIN_B_RXD,lin,3.3v_logic,high,Wheel-side transceiver RXD to ESP32
+LIN_EN_DRIVE,lin,3.3v_logic,high,ESP32 firmware enable drive before physical arm switch
+LIN_EN,lin,3.3v_logic,high,Post-switch gated SLP_N enable; external pulldown; physical arm interlock
+ARM_SENSE,safety,3.3v_logic,high,Independent DPDT physical arm switch sense contact into ESP32 GPIO9; high only in armed position
+WAKE_A_N,lin,vehicle_12v_signal,medium,Car-side TJA1021 local wake pin pulled high for unused state
+WAKE_B_N,lin,vehicle_12v_signal,medium,Wheel-side TJA1021 local wake pin pulled high for unused state
+INH_A_TP,lin,vehicle_12v_signal,medium,Car-side TJA1021 inhibit output test-only no-load net
+INH_B_TP,lin,vehicle_12v_signal,medium,Wheel-side TJA1021 inhibit output test-only no-load net
+BUCK_EN,power,vehicle_12v,medium,Buck enable network after protected input; final value depends on selected regulator
+BUCK_SW,power,switching,high,Buck switch node; keep compact and away from RF/USB/LIN logic
+BUCK_FB,power,analog_feedback,medium,Buck feedback divider midpoint
+BUCK_BST,power,switching,medium,Buck bootstrap capacitor node if required by selected regulator
+BUCK_RON,power,analog_timing,medium,LM5164 RON frequency-set node; final value must be validated before production
+BUCK_PGOOD,power,3.3v_logic,low,LM5164 open-drain power-good test net pulled to 3V3
+USB_D_PLUS,service,usb2,medium,ESP32 native USB D+ to USB-C
+USB_D_MINUS,service,usb2,medium,ESP32 native USB D- to USB-C
+USB_VBUS,service,5v_usb,medium,USB presence/power input; must not backfeed VBAT
+CC1,service,usb_c_config,medium,USB-C CC pulldown 5.1k to GND
+CC2,service,usb_c_config,medium,USB-C CC pulldown 5.1k to GND
+BOOT_GPIO0,service,3.3v_logic,medium,Bootloader entry pad/button
+EN,service,3.3v_logic,medium,Reset pad/button
+UART0_TX,service,3.3v_logic,medium,Recovery UART TX pad
+UART0_RX,service,3.3v_logic,medium,Recovery UART RX pad

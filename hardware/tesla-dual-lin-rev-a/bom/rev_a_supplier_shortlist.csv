@@ -1,0 +1,32 @@
+item,refdes,default_choice,example_mpn_or_class,footprint_target,cost_path,status,verification_needed
+MCU/BLE,U1,locked,ESP32-S3-WROOM-1U-N8R8,RF_Module:ESP32-S3-WROOM-1U,core,locked,Verify KiCad land pattern and paste mask against Espressif datasheet before fab
+LIN transceiver,U2 U3,locked,"TJA1021T/20/C,118",Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,core,locked,Verify final symbol pin numbers against NXP datasheet during schematic review
+Buck regulator,U4,default_robust_first_article,LM5164DDA or LM5164DDAR 100V 1A synchronous buck,Package_SO:HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.41x3.1mm_ThermalVias,robust,selected_verify_calculation,Verify TI calculator values and vendor availability before quote
+Buck regulator cost-down alternate,U4_ALT,alternate,MP2459DT-LF-Z or compatible 36V 1A buck,Package_TO_SOT_SMD:SOT-23-6,low_cost,blocked_pending_datasheet,Use only after exact datasheet pinout feedback reference and transient bench margin are verified
+Buck inductor,L1,default,10uH shielded Isat >=1.5A,Inductor_SMD:L_4.0x4.0mm or L_5.0x5.0mm,low_cost,selected_verify_supplier,Match final buck datasheet ripple/current recommendation
+Reverse polarity PFET,Q1,default,AO4407A-class P-channel MOSFET,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,low_cost,selected_verify_supplier,Verify Vds Rds(on) gate rating and source/drain orientation
+Input PPTC,F1,default,1812 PPTC 0.5A-0.75A hold,Fuse:Fuse_1812_4532Metric,low_cost,selected_verify_supplier,Check voltage rating and hot-environment derating
+VBAT TVS,D1,hybrid_default,SMBJ24A or SMBJ26A,Diode_SMD:D_SMB,low_cost,selected_verify_supplier,Check clamp against selected buck absolute maximum
+VBAT TVS robust alternate,D1_ALT,alternate,SM8S33A or SM8S36A,Diode_SMD:D_SMC or vendor footprint,robust,alternate,Use for vehicle pilot if package fits and supplier can assemble
+LIN ESD,D2 D3,default_robust,PESD1LIN/PESD1CAN-class single-line ESD,Diode_SMD:D_SOD-323 or Package_TO_SOT_SMD:SOT-23,robust,selected_verify_supplier,Verify working voltage leakage capacitance and AEC-Q if available
+USB ESD,D4,default,USBLC6-2SC6 or low-cap equivalent,Package_TO_SOT_SMD:SOT-23-6,low_cost,selected_verify_supplier,Verify capacitance and pinout against chosen footprint
+USB-C connector,J1,default,TYPE-C-31-M-12 class,Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12,low_cost,selected_verify_supplier,Verify exact connector drawing matches KiCad footprint
+Physical arm switch,SW1,default,CK JS202011JCQN-class DPDT slide switch,Button_Switch_SMD:SW_DPDT_CK_JS202011JCQN,low_cost,selected_verify_supplier,Verify DPDT contact map actuator direction and whether PCBA vendor will place it
+Mode switch,SW2,optional,SS-12D07-class SPDT/SPST slide switch,Button_Switch_SMD:SW_SPDT_PCM12,low_cost,candidate,May depopulate if firmware config replaces physical mode
+CC resistors,R_CC1 R_CC2,default,5.1k 1% 0603,Resistor_SMD:R_0603_1608Metric,basic,locked,Choose JLC basic passive line
+EN/BOOT resistors,R_EN1 R_BOOT1,default,10k 1% 0603,Resistor_SMD:R_0603_1608Metric,basic,locked,Choose JLC basic passive line
+LIN_EN pulldown,R_LINEN_PD1,default,100k 1% 0603,Resistor_SMD:R_0603_1608Metric,basic,locked,Choose JLC basic passive line
+LIN TXD pullups,R_LINA_TXD_PU1 R_LINB_TXD_PU1,default,100k 1% 0603,Resistor_SMD:R_0603_1608Metric,basic,locked,Choose JLC basic passive line; safety default recessive TXD for active-operation board
+Optional LIN master termination,R_LINA_MASTER1 R_LINB_MASTER1 D_LINA_MASTER1 D_LINB_MASTER1,dnp,1k 0603 plus SOD-323 switching diode,Resistor_SMD:R_0603_1608Metric + Diode_SMD:D_SOD-323,basic,dnp_topology_option,Populate only on the segment where this board is intentionally the LIN master/commander; leave DNP on existing vehicle-master side
+WAKE pullups,R_WAKE_A1 R_WAKE_B1,default,100k 1% 0603 to VBAT_PROTECTED,Resistor_SMD:R_0603_1608Metric,basic,selected,Verify TJA1021 WAKE_N unused recommendation in final datasheet review
+LIN series resistors,R_LINA_SER1 R_LINB_SER1,default,10R 1% 0603,Resistor_SMD:R_0603_1608Metric,basic,selected,Place as DFM/SI review determines
+Feedback resistors,R_FB_TOP1 R_FB_BOT1,default,174k/100k 1% 0603 for LM5164 1.2V FB,Resistor_SMD:R_0603_1608Metric,basic,selected_verify_calculation,Only final after TI calculator review
+Input ferrite,FB1,default,1206 600R@100MHz 2A ferrite,Ferrite_SMD:L_1206_3216Metric,low_cost,selected_verify_supplier,Check DCR and current rating
+Input bulk capacitor,C_BULK_IN,default,47uF 35V-50V,CAP_VENDOR_SPECIFIC,low_cost,selected_verify_supplier,Prefer X7R/polymer with voltage derating margin
+3V3 bulk capacitor,C_3V3_BULK,default,22uF 10V X7R 0805/1206,Capacitor_SMD:C_0805_2012Metric,low_cost,selected_verify_supplier,Check DC bias derating
+Small decoupling,C_DECOUPLE,default,100nF 50V X7R 0603,Capacitor_SMD:C_0603_1608Metric,basic,locked,Use near each IC supply
+Placed local decoupling,C_U1_DEC1 C_U2_DEC1 C_U3_DEC1 C_U4_DEC1,default,100nF 50V X7R 0603,Capacitor_SMD:C_0603_1608Metric,basic,locked,Implemented on Rev A; keep as JLC basic passive
+Pogo pads,TP_ARRAY,default,1.5mm ENIG exposed pads,TestPoint:TestPoint_Pad_D1.5mm,pcb_feature,locked,Confirm fixture pitch and bottom keepout
+Fiducials,FID1 FID2 FID3,default,1mm copper 2mm mask opening,Fiducial:Fiducial_1mm_Mask2mm,pcb_feature,locked,Required for PCBA
+Harness Micro-Fit service connectors,J2 J3,default,Molex Micro-Fit 3.0 43650-0415 board headers plus 43025-0400 cable housings,Connector_Molex:Molex_Micro-Fit_3.0_43650-0415_1x04_P3.00mm_Vertical,serviceable,selected_first_article,Populate both car-side and wheel-side keyed/latching 4-circuit board connectors; use adapter pigtails to the final Tesla X178/X184 mates after physical inspection
+External antenna,ANT1,default,2.4GHz U.FL whip/PCB antenna,manual_accessory,rf,candidate,Validate RF placement in wheel cavity

@@ -1,0 +1,75 @@
+project: tesla-dual-lin-rev-a
+revision: A
+purpose: end-to-end gates before ordering pilot boards and before scaling to 100 units
+
+gate_0_research_and_requirements:
+  status: in_progress
+  required:
+    - completed manufacturing research artifact
+    - completed schematic/design-rules research artifact
+    - completed cost/BOM research artifact
+    - component-decisions.yaml exists and is validator-enforced
+    - single-LIN architecture forbidden
+
+gate_1_component_level_schematic_release:
+  status: blocked
+  required:
+    - TJA1021 SOIC-8 pin numbers verified against NXP datasheet in schematic review
+    - ESP32-S3-WROOM-1U footprint compared to Espressif land pattern and paste guidance
+    - exact buck MPN selected with datasheet-verified FB/inductor/cap/bootstrap/EN values
+    - no TBD nets for TJA1021 WAKE_N or INH behavior
+    - LIN_EN physical gate verified in ERC/netlist review
+    - no LIN master pullup populated unless bench segmentation proof requires it
+
+gate_2_layout_release:
+  status: blocked
+  required:
+    - four-layer board stack with continuous GND reference under USB/ESP32/LIN logic
+    - buck hot loop compact and away from ESP32 RF path
+    - TVS/ESD parts placed at harness and USB entry points
+    - U.FL/antenna access and keepout reviewed mechanically
+    - bottom pogo pads unobstructed and matched to fixture pitch
+    - silkscreen marks safe/arm, car-side, wheel-side, serial, and revision
+    - KiCad ERC and DRC pass with no ignored safety-relevant violations
+
+gate_3_quote_and_dfm:
+  status: blocked
+  required:
+    - BOM supplier IDs verified in chosen vendor library
+    - CPL generated and spot-checked against board orientation
+    - PCBA vendor confirms ESP32 module placement and USB-C connector footprint
+    - harness connectors either identified for assembly or explicitly moved to secondary manual operation
+    - quote package includes fab notes, assembly policy, BOM, CPL, Gerbers, drill, schematic PDF, and test plan
+
+gate_4_first_article_bench:
+  status: blocked
+  sample_size: 3
+  required:
+    - visual inspection and continuity on VBAT/GND/3V3/LIN_A/LIN_B/USB
+    - current-limited 12V bring-up with SW1 safe/off
+    - 3V3 startup overshoot and BLE/WiFi burst sag measured
+    - USB enumeration and recovery boot via GPIO0/EN pads proven
+    - safe:off keeps LIN_EN low
+    - safe:arm is blocked when physical arm switch is safe/off
+    - no LIN dominant pulse during reset bootloader brownout firmware crash or safe/off
+    - dual-transceiver loopback/passthrough bench test passes
+    - first_article_record_schema.json record stored per unit
+
+gate_5_vehicle_pilot:
+  status: blocked
+  sample_size: 1_to_3
+  required:
+    - passive capture confirms native wheel controls still work with board installed safe/off
+    - armed healthy passthrough preserves native controls for a controlled drive-free bench/parked test
+    - active volume injection only after owner-controlled test conditions are met
+    - no SRS/airbag harness probing or wiring changes outside known steering-wheel control connector
+    - rollback/bypass plan physically available before install
+
+gate_6_100_unit_release:
+  status: blocked
+  required:
+    - pilot boards pass gates 4 and 5 without design changes
+    - all blocked supplier IDs and harness connector decisions resolved
+    - firmware production provisioning flow documented and tested
+    - pogo fixture tested on at least 10 consecutive boards without manual rework
+    - final per-board cost remains inside approved target band or owner approves exception

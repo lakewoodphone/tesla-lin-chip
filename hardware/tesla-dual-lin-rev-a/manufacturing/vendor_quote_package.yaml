@@ -1,0 +1,58 @@
+project: tesla-dual-lin-rev-a
+revision: A
+quote_strategy:
+  preferred_vendors:
+    - JLCPCB Standard PCBA when BOM is LCSC-friendly
+    - PCBWay standard PCBA when connector/mechanical handling is easier
+  first_quote_quantity: 5
+  desired_usable_test_units: 3
+  quantity_note: JLCPCB quote flow showed a 5-PCB minimum and PCBA quantity options of 5 or 2; quote 5 assembled boards and treat 2 as spares unless a better option appears.
+  production_quote_quantity: 100
+  board_assumptions:
+    layers: 4
+    size_mm: [100, 56]
+    finish: HASL with lead for first bench batch; ENIG only when the price penalty is justified
+    soldermask: green
+    copper_outer_oz: 1
+    copper_inner_oz: 0.5
+required_uploads:
+  - build/quote/jlcpcb-mini-order-2026-06-01/tesla-dual-lin-rev-a-gerbers.zip
+  - build/quote/jlcpcb-mini-order-2026-06-01/jlcpcb-smt-first-bom.csv
+  - build/quote/jlcpcb-mini-order-2026-06-01/jlcpcb-smt-first-cpl.csv
+  - build/quote/jlcpcb-mini-order-2026-06-01/quote-notes.yaml
+  - fab notes YAML/PDF equivalent
+  - assembly policy with DNI/manual items marked
+paid_order_2026_06_01:
+  vendor: JLCPCB
+  process: Standard PCBA, top side only, parts by customer/JLC matched library
+  quantity: 5
+  board_finish: HASL with lead
+  product_description: Programmable Controller - HS Code 853890
+  merchandise_total_usd: 128.58
+  shipping_method: DHL Express CPT
+  shipping_usd: 29.86
+  coupon_usd: -15.00
+  sales_tax_usd: 9.55
+  payment_fee_usd: 0.72
+  paid_total_usd: 153.71
+  status_at_checkout: paid; PCB and PCBA files reviewing
+  detailed_record: manufacturing/orders/2026-06-01-jlcpcb-paid-order.yaml
+quote_questions:
+  - Can you assemble ESP32-S3-WROOM-1U-N8R8 from LCSC C2980300 or customer consignment?
+  - Can you assemble TJA1021T/20/C,118 from LCSC C271675 or customer consignment?
+  - Which USB-C connector footprint/library part is lowest-risk for SMT assembly?
+  - SW1 is intentionally excluded from SMT-first JLC assembly and should be manually installed after PCBA.
+  - Can you assemble LM5164DDA/LM5164DDAR in the KiCad HSOP-8 PowerPAD footprint with thermal vias, and what soldermask/paste adjustments do you recommend?
+  - Are J2/J3 Molex Micro-Fit 3.0 43650-0415 through-hole headers supported, or should they be installed manually after SMT assembly?
+  - What attrition quantity is required for ESP32 modules and TJA1021 transceivers at 5 boards, 10 boards, and 100 boards?
+do_not_quote_until:
+  - exact ESP32 footprint verified against Espressif land pattern
+  - exact TJA1021 SO-8 pinout reviewed against NXP datasheet in schematic review
+  - LM5164 RON/frequency, ripple network, inductor, and capacitor values verified with TI calculator/WEBENCH
+  - board has real component placement and DRC-clean layout
+  - LIN_EN_DRIVE/LIN_EN gate represented in schematic with physical safe position
+paid_order_resolution:
+  - JLCPCB Economic was rejected for this assembled prototype because U1 ESP32-S3-WROOM-1U-N8R8 showed Standard-only in JLC part matching.
+  - Final order used JLCPCB Standard PCBA with all 23 SMT BOM rows confirmed.
+  - F1 matched to SMD1812P050TF/30 / C12559, 1812 resettable fuse, 500mA hold, 30V.
+  - L1 matched to IHLP2020CZER100M5A / C511407, 10uH power inductor.

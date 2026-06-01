@@ -1,0 +1,22 @@
+refdes,function,selected_footprint,status,notes
+U1,ESP32-S3-WROOM-1U-N8R8,RF_Module:ESP32-S3-WROOM-1U,selected_verify_land_pattern,KiCad installed footprint exists; verify against Espressif module land pattern before fab
+U2,Car-side TJA1021 SO-8,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,selected_verify_pin1,NXP TJA1021T SO-8 body footprint class; verify pin 1 and package drawing
+U3,Wheel-side TJA1021 SO-8,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,selected_verify_pin1,NXP TJA1021T SO-8 body footprint class; verify pin 1 and package drawing
+U4,Rev A buck regulator,Package_SO:HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.41x3.1mm_ThermalVias,selected_verify_calculation,LM5164DDA robust first-article default; exact footprint exists in KiCad 10; verify thermal pad and TI layout before fab
+Q1,Reverse polarity MOSFET,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,selected_verify_supplier,AO4407A-class P-channel MOSFET target
+F1,Input PPTC,Fuse:Fuse_1812_4532Metric,selected_verify_supplier,1812 0.5A-0.75A hold target with voltage/temp derating check
+D1,VBAT TVS,Diode_SMD:D_SMB,selected_verify_supplier,SMBJ24A/SMBJ26A low-cost default; robust SM8S package remains alternate
+D2 D3,LIN ESD,Diode_SMD:D_SOD-323,selected_verify_supplier,PESD1LIN/PESD1CAN-class default; SOT-23 alternate allowed after supplier check
+D4,USB ESD,Package_TO_SOT_SMD:SOT-23-6,selected_verify_supplier,USBLC6-2SC6-class low-cap USB2 ESD array
+J1,USB-C service,Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12,selected_vendor_verify,Common KiCad footprint for affordable HRO Type-C connector
+J2,Car-side harness service connector,Connector_Molex:Molex_Micro-Fit_3.0_43650-0415_1x04_P3.00mm_Vertical,selected_first_article,Molex Micro-Fit 3.0 keyed/latching 4-circuit service connector; pinout 1 VBAT_IN 2 GND 3 NC 4 LIN_A; Tesla X178 mate remains adapter-pigtail/mechanical-inspection item
+J3,Wheel-side harness service connector,Connector_Molex:Molex_Micro-Fit_3.0_43650-0415_1x04_P3.00mm_Vertical,selected_first_article,Molex Micro-Fit 3.0 keyed/latching 4-circuit service connector; pinout 1 VBAT_PROTECTED 2 GND 3 NC 4 LIN_B; Tesla wheel-side mate remains adapter-pigtail/mechanical-inspection item
+SW1,Physical arm switch,Button_Switch_SMD:SW_DPDT_CK_JS202011JCQN,selected_verify_supplier,DPDT slide switch target so one pole gates LIN_EN and the second pole drives ARM_SENSE; verify actuator direction and contact mapping
+SW2,Mode switch,Button_Switch_SMD:SW_SPDT_PCM12,candidate,Optional firmware input; may move after fit test
+TP_ARRAY,Programming/test pads,TestPoint:TestPoint_Pad_D1.5mm,selected,Use bottom-side ENIG pads where possible
+FID1 FID2 FID3,Global fiducials,Fiducial:Fiducial_1mm_Mask2mm,selected,Three global fiducials for PCBA alignment
+R*,0603 resistors,Resistor_SMD:R_0603_1608Metric,selected,Standardize on 0603 JLC/LCSC basic passives
+C_SMALL*,0603 capacitors,Capacitor_SMD:C_0603_1608Metric,selected,Standardize on 0603 for decoupling and small caps
+C_BULK*,0805/1206 capacitors,Capacitor_SMD:C_1206_3216Metric,selected_verify_supplier,Use voltage derating and vendor stock to choose exact 0805/1206 footprint per value
+L1,Buck inductor,Inductor_SMD:L_Bourns_SRU5016_5.2x5.2mm,selected_verify_datasheet,10uH shielded Isat >=1.5A target; installed KiCad 5.2x5.2mm shielded-inductor footprint used as first layout placeholder; final footprint follows selected inductor datasheet
+FB1,Input ferrite,Inductor_SMD:L_1206_3216Metric,selected_verify_supplier,1206 600R@100MHz 2A class target represented with installed 1206 inductor/ferrite land pattern

@@ -1,0 +1,105 @@
+project: tesla-dual-lin-rev-a
+revision: A
+board_target:
+  size_mm: [100, 56]
+  cost_down_target_mm: [60, 35]
+  layers: 4
+  purpose: debug-friendly orderable PCBA pilot; compact cost-down remains a separate layout release
+  primary_cad: KiCad
+  output_files:
+    - gerbers
+    - drill_files
+    - bom_csv
+    - component_placement_cpl
+    - schematic_pdf
+    - fab_notes
+functional_blocks:
+  power:
+    input: protected automotive VBAT from harness
+    required_features:
+      - resettable input protection or external harness fuse
+      - reverse polarity MOSFET or ideal-diode protection
+      - automotive TVS near input connector
+      - high-voltage buck regulator to 3V3, at least 500mA usable output
+      - no USB backfeed into vehicle VBAT
+  mcu:
+    primary: ESP32-S3-WROOM-1U-N8R8
+    rail: 3V3
+    required_features:
+      - EN pullup and reset access
+      - GPIO0 boot access
+      - native USB D+/D- to USB-C
+      - UART recovery pads
+      - external antenna clearance and retention
+  lin:
+    transceiver_primary: TJA1021T/20/C,118
+    count: 2
+    required_features:
+      - one car-side physical LIN channel
+      - one wheel-side physical LIN channel
+      - LIN ESD/TVS near each connector
+      - protected VBAT supply to each transceiver
+      - SLP_N default low / sleep
+      - TXD default safe before firmware init
+      - optional DNP master pullup plus diode footprint per channel for isolated active-bridge topology
+  safety_gates:
+    hardware:
+      - physical arm switch gates both TJA1021 SLP_N lines
+      - SLP_N external pulldown keeps transceivers asleep by default
+      - mode switch is firmware input, not sole safety gate
+    firmware:
+      - signed firmware required for active modes
+      - signed profile required for active modes
+      - activation and binding required
+      - session timer and rate limiter required
+  service:
+    harness_connectors:
+      board_side: Molex Micro-Fit 3.0 43650-0415 4-circuit vertical headers on J2 and J3
+      pinout: pin 1 VBAT, pin 2 GND, pin 3 NC/reserved, pin 4 LIN
+      tesla_source: public Tesla Model Y SOP6 steering-wheel switch inline reference shows X178 as 4-cavity with VBAT on cavity 1, GND on cavity 2, and LIN on cavity 4
+      vehicle_mate_policy: use short adapter pigtails from verified Tesla X178/X184-style mates to the board-side Micro-Fit connectors; do not assume a Tesla-direct board footprint until a physical harness is measured
+    usb_c:
+      role: USB2 device only
+      cc: two 5.1k pulldowns to ground
+      data: GPIO19/GPIO20 via low-capacitance ESD array
+    pogo_pads:
+      minimum_nets:
+        - GND
+        - 3V3
+        - VBAT_PROTECTED
+        - USB_D_MINUS
+        - USB_D_PLUS
+        - UART0_TX
+        - UART0_RX
+        - EN
+        - BOOT_GPIO0
+        - LIN_A
+        - LIN_B
+        - LIN_EN
+        - LIN_EN_DRIVE
+manufacturing:
+  smt_by_vendor:
+    - ESP32-S3 module
+    - both LIN transceivers
+    - buck regulator and power passives
+    - TVS/ESD devices
+    - USB-C connector if selected for SMT assembly
+    - test pads
+  possible_manual_or_secondary_ops:
+    - vehicle adapter pigtails from verified Tesla X178/X184-style mates to Molex Micro-Fit 3.0 board plugs
+    - final Tesla OEM connector family/pitch/keying identification after physical harness inspection
+    - external U.FL antenna/cable routing
+    - serial-number label
+  dfm_required:
+    - global fiducials
+    - local fiducial near ESP32 module if assembler requests it
+    - panelization-ready board outline
+    - bottom-side test pads unobstructed
+    - silkscreen pin labels on connectors and pads
+open_risks:
+  - exact Tesla OEM connector family/pitch/keying remains a physical-inspection item; board-side connector is now a keyed/latching 4-circuit Micro-Fit service interface
+  - whether downstream wheel-side segment needs master pullup behavior in proxy topology
+  - compact 60x35 or intermediate cost-down layout not yet DRC-clean
+  - load-dump/transient level at tapped steering-wheel VBAT line
+  - BLE performance with antenna placement inside steering-wheel cavity
+  - production secure-boot/eFuse provisioning sequence

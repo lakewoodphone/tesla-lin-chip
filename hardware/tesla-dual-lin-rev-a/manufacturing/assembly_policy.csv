@@ -1,0 +1,10 @@
+category,examples,pcba_policy,manual_policy,reason
+Fine-pitch/module ICs,ESP32-S3 module buck regulator LIN transceivers,Always vendor assembled,Never routine manual soldering,Alignment and reflow quality matter too much for 10-100 boards
+Protection semiconductors,TVS ESD MOSFET diodes,Vendor assembled,Manual only for rework,These define electrical robustness and should be repeatable
+Small passives,0603 resistors capacitors feedback dividers,Vendor assembled,Never routine manual placement,Placement count is high and manual placement creates errors
+Power magnetics/fuse,Inductor PPTC ferrite bulk caps,Vendor assembled if library supports,Manual only if selected part is not supported,Power path reliability depends on solder joints and placement
+USB-C,J1 service connector,Vendor assembled if footprint/library supported,Manual reinforcement allowed after PCBA,Fine-pitch pins should be reflowed
+Harness connectors,J2 J3 Molex Micro-Fit 3.0 43650-0415,Manual or secondary operation until quote proves vendor support,Manual install allowed,Board-side connector is locked for Rev A but exact Tesla adapter pigtail remains mechanical-risk item
+Physical switches,SW1 SW2,Vendor assembled if exact part locked and in library,Manual install acceptable for Rev A,Mechanical position may change after fit testing
+Pogo pads and fiducials,TP_ARRAY FID1-FID3,PCB copper only,No purchased part,Needed for programming and PCBA alignment
+External antenna,ANT1,Not PCBA vendor assembled,Manual install and retention check,U.FL cable routing depends on steering-wheel cavity

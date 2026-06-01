@@ -1,0 +1,32 @@
+{
+    "schema_version": 2,
+    "required_fields": [
+        "board_serial",
+        "esp32_mac",
+        "firmware_version",
+        "operator",
+        "date_time_utc",
+        "idle_current_ma",
+        "armed_current_ma",
+        "vbat_input_v",
+        "three_v3_idle_v",
+        "three_v3_radio_burst_min_v",
+        "safe_off_lin_en_low",
+        "physical_arm_blocks_safe_arm",
+        "wake_n_pullups_verified",
+        "inh_no_load_verified",
+        "usb_backfeed_absent",
+        "no_lin_dominant_reset_boot_safe_off",
+        "no_lin_dominant_brownout",
+        "lin_a_result",
+        "lin_b_result",
+        "usb_result",
+        "ble_result",
+        "final_status"
+    ],
+    "final_status_values": [
+        "pass",
+        "fail",
+        "blocked"
+    ]
+}

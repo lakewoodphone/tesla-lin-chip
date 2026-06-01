@@ -1,0 +1,49 @@
+project: tesla-dual-lin-rev-a
+pilot_quantity: 10
+bench_acceptance:
+  - id: power_12v_nominal
+    description: Board powers from 12V bench supply through protection and buck without overheating.
+    required: true
+  - id: usb_service
+    description: USB-C enumerates ESP32-S3 native USB and supports flashing/recovery.
+    required: true
+  - id: uart_recovery
+    description: Pogo pads expose UART0 TX/RX, EN, BOOT, 3V3, and GND for recovery flashing.
+    required: true
+  - id: lin_a_receive
+    description: Car-side LIN transceiver receives valid 19200 baud frames.
+    required: true
+  - id: lin_b_receive
+    description: Wheel-side LIN transceiver receives valid 19200 baud frames.
+    required: true
+  - id: lin_tx_gate_safe
+    description: With physical arm safe/off, both TJA1021 SLP_N pins remain low and no LIN TX occurs.
+    required: true
+  - id: lin_tx_gate_armed
+    description: With physical arm on and firmware enable set, both TJA1021s enter Normal mode only after explicit command.
+    required: true
+  - id: loopback_proxy
+    description: Bench simulator confirms cached proxy can answer left-wheel ID 0x2A with valid enhanced checksum.
+    required: true
+  - id: ble_basic
+    description: BLE advertising and connection work with external antenna in intended mechanical position.
+    required: true
+  - id: secure_profile_engineering
+    description: Engineering unit supports flash/test flow before production eFuse lock.
+    required: true
+vehicle_gated_tests:
+  - id: passive_vehicle_capture
+    description: Passive receive-only capture verifies no native wheel button regression.
+    required_before_active_vehicle_test: true
+  - id: passthrough_lab_vehicle
+    description: Healthy proxy preserves native button behavior while installed; only lab-controlled active behavior tested.
+    required_before_100_unit_order: true
+production_readiness:
+  - id: bom_availability
+    description: All SMT parts are available through selected PCBA vendor or consigned supply with spares.
+  - id: dfm_review
+    description: PCBA vendor DFM/DFA review passes for ESP32 module, USB-C, connectors, and test pads.
+  - id: programming_jig
+    description: Pogo jig and script can flash/test at least 10 boards repeatably.
+  - id: serial_traceability
+    description: Each board gets a serial/MAC/test-result record.

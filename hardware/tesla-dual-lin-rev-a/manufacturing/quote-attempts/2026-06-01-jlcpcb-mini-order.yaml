@@ -1,0 +1,74 @@
+project: tesla-dual-lin-rev-a
+revision: A
+attempted_at: 2026-06-01
+vendor: JLCPCB
+intent: Order first assembled bench-test boards.
+final_result: paid_order_created
+quote_package:
+  source_zip: build/quote/jlcpcb-mini-order-2026-06-01.zip
+  gerbers: build/quote/jlcpcb-mini-order-2026-06-01/tesla-dual-lin-rev-a-gerbers.zip
+  bom: build/quote/jlcpcb-mini-order-2026-06-01/jlcpcb-smt-first-bom.csv
+  cpl: build/quote/jlcpcb-mini-order-2026-06-01/jlcpcb-smt-first-cpl.csv
+live_quote_findings:
+  gerber_detected: true
+  detected_layers: 4
+  detected_board_size_mm: [100, 56]
+  detected_panelized_size_after_jlc_edge_rails_mm: [100, 70]
+  bare_pcb_quantity_minimum_seen: 5
+  pcba_quantity_options_seen: [5, 2]
+  pcba_type_selected: Standard
+  pcba_type_reason: U1 ESP32-S3-WROOM-1U-N8R8 showed Standard-only in JLC part matching; Economic would not assemble the module.
+  pcba_side_selected: Top Side
+  pcba_quantity_selected: 5
+  parts_selection: By Customer
+  product_description_selected: Programmable Controller - HS Code 853890
+  soldermask_selected: green
+  surface_finish_selected: HASL with lead
+  bare_pcb_price_seen_usd: 7.00
+  standard_pcba_price_seen_usd: 121.58
+  merchandise_total_usd: 128.58
+  dhl_ddp_total_seen_usd: 219.24
+  dhl_cpt_shipping_selected_usd: 29.86
+  coupon_applied_usd: -15.00
+  payment_fee_usd: 0.72
+  sales_tax_usd: 9.55
+  final_paid_total_usd: 153.71
+  pcb_build_time_seen: 3-4 days
+  pcb_cart_build_time_selected: 3 days
+  pcba_build_time_selected: 3-4 days
+  shipping_time_seen: 2-4 business days
+  final_order_status_seen: paid; PCB and PCBA file review pending
+  pcb_order_number_seen: Y3-12760394A
+  pcba_order_number_seen: SMT026060163168-1276...
+  combined_order_number_seen: W20260601024169336
+  customer_number_seen: 12760394A
+part_matching:
+  bom_rows_detected: 23
+  parts_confirmed: 23
+  unmatched_after_regenerated_bom: 0
+  manually_selected_during_live_flow:
+    F1: C12559
+  notable_matches:
+    F1: SMD1812P050TF/30 / C12559, 1812 resettable fuse, 500mA hold, 30V
+    L1: IHLP2020CZER100M5A / C511407, 10uH, 1.6A, 2.8A saturation, AEC-Q200
+    U1: ESP32-S3-WROOM-1U-N8R8 / C2980300, Standard PCBA required
+    U2_U3: TJA1021T/20/C,118 / C271675
+    U4: LM5164DDAR / C477928
+account_auth_findings:
+  account_created_or_verified: true
+  account_email: lakewoodphoneandtech@gmail.com
+  main_site_google_login_success: true
+  main_site_customer_code_seen: 12760394A
+  password_login_result: rejected_by_jlc_as_incorrect
+  cart_auth_endpoint_tested: /api/overseas-pcb-order/v1/auth/login
+  cart_auth_endpoint_prefix: /overseas-pcb-order
+  cart_session_after_google_login: unauthenticated
+blockers:
+  - Automated/browser-assisted JLC cart auth remained unreliable; final order was completed manually by the owner in their own browser.
+  - J2/J3 Micro-Fit headers and SW1 DPDT switch are intentionally excluded from the SMT-first BOM and should be hand-installed or quoted as secondary operations.
+next_actions:
+  - Monitor JLC file review for PCB and PCBA approval; respond to any engineering questions before production begins.
+  - Preserve the exact regenerated quote package because it now has 23/23 matched JLC SMT rows.
+  - After shipment arrives, run incoming inspection and first-article tests before any vehicle install.
+  - Keep DNP master termination parts unpopulated.
+  - Buy or prepare J2/J3/SW1 manual-install parts separately if JLC cannot assemble them cheaply.

@@ -1,0 +1,3 @@
+Designator,Comment,Footprint,Qty,Reason
+"D_LINA_MASTER1,D_LINB_MASTER1",DNP LIN master diode,Diode_SMD:D_SOD-323,2,DNP by topology default
+"R_LINA_MASTER1,R_LINB_MASTER1",DNP 1k,Resistor_SMD:R_0603_1608Metric,2,DNP by topology default

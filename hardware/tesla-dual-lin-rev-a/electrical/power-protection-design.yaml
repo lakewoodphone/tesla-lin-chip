@@ -1,0 +1,85 @@
+project: tesla-dual-lin-rev-a
+revision: A
+design_goal: affordable protected 12V-to-3V3 front-end suitable for bench and controlled vehicle pilot
+power_tree:
+  - net: VBAT_IN
+    source: car-side harness connector
+    expected_range_v: [9, 16]
+    transient_assumption: steering-wheel branch may still see automotive transients; design conservatively
+  - stage: reverse_polarity
+    selected_topology: P-channel MOSFET ideal-diode style
+    selected_part_class: AO4407A-class P-channel MOSFET
+    robust_upgrade: AEC-Q101 P-channel MOSFET 40V or higher
+    output_net: VBAT_RP
+  - stage: overcurrent
+    selected_topology: resettable PPTC
+    selected_part_class: 1812 PPTC 0.5-0.75A hold
+    robust_upgrade: derated automotive PPTC or external fused harness
+    output_net: VBAT_FUSED
+  - stage: transient_clamp
+    selected_topology: TVS from VBAT_FUSED to GND
+    low_cost_part_class: SMBJ24A or SMBJ26A
+    robust_part_class: SM8S33A or SM8S36A automotive load-dump TVS
+    output_net: VBAT_PROTECTED
+  - stage: input_filter
+    selected_topology: ferrite bead plus bulk capacitance
+    part_class: 1206 ferrite 600R at 100MHz 2A class plus 47uF 35-50V bulk capacitor
+    output_net: VBAT_FILTERED
+  - stage: buck_3v3
+    selected_first_article_class: LM5164DDA 100V 1A synchronous buck regulator
+    rev_a_default: LM5164DDA in 8-pin SOIC PowerPAD package for robust first-article margin
+    later_cost_down_class: MP2459 or MP1584 36V-class buck regulator after datasheet and bench validation
+    output_net: 3V3
+    output_current_requirement_ma: 500
+    first_article_values_pending_ti_calculator:
+      feedback_reference_v: 1.2
+      feedback_top: 174k 1% 0603
+      feedback_bottom: 100k 1% 0603
+      expected_output_v: 3.29
+      ron_resistor: 200k 1% preliminary; finalize with TI WEBENCH or LM5164 switching-frequency equation
+      inductor: 10uH shielded Isat >=1.5A
+      input_capacitors: 10uF 50V X7R plus 100nF 50V at VIN/GND
+      output_capacitors: 22uF 10V X7R plus 100nF at VOUT/GND
+      bootstrap_capacitor: 100nF from BST to SW
+      pgood: open-drain test net pulled to 3V3 through 100k
+    layout_constraints:
+      - keep hot loop compact
+      - input capacitor immediately at regulator VIN/GND
+      - inductor and switch node away from ESP32 antenna and USB data pair
+      - uninterrupted ground plane beneath ESP32 module
+      - wide 3V3 feed to ESP32 with local 22uF plus 100nF decoupling
+lin_transceiver_decisions:
+  selected_part: TJA1021T/20/C,118
+  package_pinout_soic8:
+    1: RXD
+    2: SLP_N
+    3: WAKE_N
+    4: TXD
+    5: GND
+    6: LIN
+    7: VBAT
+    8: INH
+  rev_a_wake_n: pull each WAKE_N high to VBAT_PROTECTED through 100k and expose only optional test access
+  rev_a_inh: no-load/test-only; do not use INH to enable the buck regulator in Rev A
+  rev_a_lin_bus: no external master pullup/diode populated unless bench proof shows segmented wheel-side bus needs it
+safety_decisions:
+  lin_enable_gate:
+    mcu_net: LIN_EN_DRIVE
+    post_switch_net: LIN_EN
+    safe_position: physical switch ties LIN_EN to GND
+    armed_position: physical switch connects LIN_EN_DRIVE to LIN_EN
+    switch_type: DPDT slide switch
+    sense_pole: second pole ties ARM_SENSE to GND in safe/off and to 3V3 in armed position
+    sense_default: ARM_SENSE has 100k pulldown for switch travel or missing-switch default-off behavior
+    required_default: post-switch LIN_EN low with MCU reset blank or unarmed
+  usb_power:
+    rev_a_policy: USB-C is service/data first; no vehicle VBAT backfeed is allowed
+    unresolved: decide whether USB-only bench power is required before component-level schematic release
+validation_gates:
+  - current-limited 12V power-up with arm safe/off
+  - verify no LIN_EN assertion before firmware safe:arm and physical arm on
+  - measure 3V3 startup overshoot and idle/radio-burst sag
+  - run reverse-polarity bench test on sacrificial first article or protected fixture
+  - run 9V to 16V input sweep before vehicle install
+  - run LM5164 RON/frequency and ripple-network review before production quote
+  - decide robust TVS before any unattended vehicle use

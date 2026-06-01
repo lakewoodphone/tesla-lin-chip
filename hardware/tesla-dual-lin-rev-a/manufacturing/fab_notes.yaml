@@ -1,0 +1,36 @@
+project: tesla-dual-lin-rev-a
+revision: A
+board:
+  material: FR-4
+  layers: 4
+  thickness_mm: 1.6
+  copper_outer_oz: 1
+  copper_inner_oz: 0.5
+  finish: ENIG preferred for pogo reliability; HASL acceptable only after assembler review
+  soldermask: any color, matte preferred for optical inspection
+  silkscreen: white
+layout_rules:
+  - Keep VBAT protection, fuse/PTC, reverse protection, and TVS close to car-side input.
+  - Keep LIN TVS/ESD devices close to harness connectors before long board traces.
+  - Keep ESP32-S3 antenna keepout clear per Espressif module guidance.
+  - Route USB D+/D- as short, paired traces through low-cap ESD near USB-C.
+  - Use a solid ground plane and local decoupling at each IC supply pin.
+  - Isolate high-current/transient input path from ESP32 antenna and USB area.
+assembly_notes:
+  - Assemble all SMT components at PCBA vendor where available.
+  - Do not substitute single-channel LIN parts with MCP2003-class 5V-centric parts.
+  - TJA1021 SLP_N must have external pulldown behavior preserved by assembly substitutions.
+  - USB-C receptacle must be device-only USB2 compatible with CC1/CC2 pulldowns.
+  - If harness connectors are not standard SMT assembly parts, quote them as secondary operation or leave pads/holes ready for manual installation.
+test_notes:
+  - Leave bottom-side pogo pads unobstructed and gold-finished if possible.
+  - Mark pin 1 and functional labels for all harness connectors and programming pads.
+  - Vendor electrical test is not a replacement for firmware/proxy bench test.
+deliverables_required:
+  - gerbers_zip
+  - drill_zip_or_folder
+  - bom_csv
+  - cpl_csv
+  - schematic_pdf
+  - assembly_drawing_or_silkscreen_preview
+  - test_fixture_sequence

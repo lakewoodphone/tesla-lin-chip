@@ -1,0 +1,40 @@
+project: tesla-dual-lin-rev-a
+revision: A
+pilot_build:
+  quantity: 10
+  goals:
+    - validate protected power and USB service path
+    - validate two independent LIN physical channels
+    - validate safe default with physical arm off
+    - validate cached proxy firmware on bench before any vehicle install
+  ordered_outputs:
+    - bare board DFM check
+    - assembled PCBA quote
+    - two spare bare PCBs if vendor allows
+    - 15 percent spare passives/protection parts or vendor attrition allowance
+incoming_inspection:
+  - visual inspection for connector orientation, ESP32 module alignment, USB-C solder joints, and TVS placement
+  - resistance check for VBAT_PROTECTED to GND before powering
+  - current-limited 12V power-up with physical arm safe/off
+  - verify 3V3 rail voltage and idle current
+programming_sequence:
+  - connect pogo jig or USB-C
+  - flash engineering firmware
+  - read ESP32 MAC/serial and write unit record
+  - run USB enumeration check
+  - run BLE advertising check
+  - run LIN A receive/transmit bench check only with arm on
+  - run LIN B receive/transmit bench check only with arm on
+  - run safe-state regression with reset, blank-firmware simulation where practical, and arm-off state
+reject_criteria:
+  - any LIN TX activity with physical arm safe/off
+  - 3V3 rail outside tolerance or thermal runaway on 12V input
+  - USB recovery unavailable
+  - either LIN transceiver unavailable or shorted
+  - ESP32 antenna connector damaged or missing
+pre_100_unit_gate:
+  - 10-unit pilot passes bench acceptance
+  - at least one vehicle passive capture passes without native control regression
+  - DFM notes resolved and BOM substitutions locked
+  - programming/test jig repeats without manual wire soldering
+  - secure firmware provisioning path decided before production lock

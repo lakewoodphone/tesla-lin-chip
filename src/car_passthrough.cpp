@@ -13,10 +13,27 @@
 #endif
 
 #define LIN_BAUD 19200
+#ifndef CAR_RX_PIN
 #define CAR_RX_PIN 5
+#endif
+#ifndef CAR_TX_PIN
 #define CAR_TX_PIN 4
+#endif
+#ifndef WHEEL_RX_PIN
 #define WHEEL_RX_PIN 20
+#endif
+#ifndef WHEEL_TX_PIN
 #define WHEEL_TX_PIN 21
+#endif
+#ifndef LIN_EN_PIN
+#define LIN_EN_PIN -1
+#endif
+#ifndef ARM_SENSE_PIN
+#define ARM_SENSE_PIN -1
+#endif
+#ifndef ARM_SENSE_ACTIVE_LEVEL
+#define ARM_SENSE_ACTIVE_LEVEL HIGH
+#endif
 #define BREAK_GAP_MS 2
 #define RESPONSE_IDLE_TIMEOUT_MS 8
 #define POLL_GAP_MS 8
@@ -75,6 +92,16 @@ static uint8_t wheelBytes[10] = {0};
 static uint8_t wheelCount = 0;
 static uint8_t wheelIgnoreEcho = 0;
 static uint32_t wheelLastByteMs = 0;
+
+static void setLinEnable(bool enable) {
+  if (LIN_EN_PIN < 0) return;
+  digitalWrite(LIN_EN_PIN, enable ? HIGH : LOW);
+}
+
+static bool physicalArmIsOn() {
+  if (ARM_SENSE_PIN < 0) return true;
+  return digitalRead(ARM_SENSE_PIN) == ARM_SENSE_ACTIVE_LEVEL;
+}
 
 static const uint8_t MODEL3Y_LEFT_COUNTER_B6[16] = {
   0x7F, 0x62, 0x45, 0x58, 0x0B, 0x16, 0x31, 0x2C,
@@ -183,12 +210,19 @@ static void seedCache() {
 }
 
 static bool txAllowed() {
+  if (!physicalArmIsOn()) {
+    armed = false;
+    setLinEnable(false);
+    inhibitedFrames++;
+    return false;
+  }
   if (!armed || !bridgeEnabled) {
     inhibitedFrames++;
     return false;
   }
   if (activeSessionStartMs && millis() - activeSessionStartMs > ACTIVE_SESSION_MAX_MS) {
     armed = false;
+    setLinEnable(false);
     inhibitedFrames++;
     return false;
   }
@@ -364,8 +398,15 @@ static void processCommand() {
     return;
   }
   if (strcmp(cmdBuf, "safe:arm") == 0) {
+    if (!physicalArmIsOn()) {
+      armed = false;
+      setLinEnable(false);
+      Serial.println("cmd: safe=blocked physical_arm=off");
+      return;
+    }
     armed = true;
     activeSessionStartMs = millis();
+    setLinEnable(true);
     Serial.println("cmd: safe=armed passthrough responses enabled");
     return;
   }
@@ -373,6 +414,7 @@ static void processCommand() {
     armed = false;
     leftInjectRemaining = 0;
     activeSessionStartMs = 0;
+    setLinEnable(false);
     Serial.println("cmd: safe=off armed=no pending=0");
     return;
   }
@@ -433,10 +475,17 @@ static void serviceSerial() {
 }
 
 void setup() {
+  if (LIN_EN_PIN >= 0) {
+    pinMode(LIN_EN_PIN, OUTPUT);
+    setLinEnable(false);
+  }
+  if (ARM_SENSE_PIN >= 0) {
+    pinMode(ARM_SENSE_PIN, INPUT_PULLDOWN);
+  }
   Serial.begin(115200);
   delay(1200);
   Serial.printf("LIN passthrough %s build=%s reset=%s\n", FIRMWARE_VERSION, BUILD_PROFILE, resetReasonLabel());
-  Serial.printf("car RX=%d TX=%d wheel RX=%d TX=%d baud=%d\n", CAR_RX_PIN, CAR_TX_PIN, WHEEL_RX_PIN, WHEEL_TX_PIN, LIN_BAUD);
+  Serial.printf("car RX=%d TX=%d wheel RX=%d TX=%d lin_en=%d arm_sense=%d baud=%d\n", CAR_RX_PIN, CAR_TX_PIN, WHEEL_RX_PIN, WHEEL_TX_PIN, LIN_EN_PIN, ARM_SENSE_PIN, LIN_BAUD);
   Serial.println("Commands: version config stats safe:arm safe:off bridge:on/off cache vol:up[:count] vol:down[:count] inject:clear");
   seedCache();
   LIN_CAR.begin(LIN_BAUD, SERIAL_8N1, CAR_RX_PIN, CAR_TX_PIN);

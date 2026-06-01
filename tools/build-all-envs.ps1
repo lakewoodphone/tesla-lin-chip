@@ -9,7 +9,7 @@
 #>
 
 param(
-    [string[]] $Environments = @("field_passive", "field_passive_nowifi", "bench_active_ble", "chip_lab_active", "car_passthrough"),
+    [string[]] $Environments = @("field_passive", "field_passive_nowifi", "bench_active_ble", "chip_lab_active", "car_passthrough", "rev_a_passthrough"),
     [string] $PlatformIo = ""
 )
 

@@ -1,0 +1,26 @@
+{
+    "feature_flags": {
+        "logging": true,
+        "statistics": false,
+        "snapshots": false
+    },
+    "usage_and_diagnostic_data": false,
+    "disabled_features": {
+        "macros": false,
+        "other_menus": false,
+        "snapshots": false,
+        "file_load_dialog_at_startup": false,
+        "select_mode": false
+    },
+    "router": {
+        "max_passes": 12,
+        "max_threads": 1,
+        "improvement_threshold": 0.01,
+        "trace_pull_tight_accuracy": 500,
+        "allowed_via_types": true,
+        "via_costs": 50,
+        "plane_via_costs": 5,
+        "start_ripup_costs": 100,
+        "automatic_neckdown": true
+    }
+}

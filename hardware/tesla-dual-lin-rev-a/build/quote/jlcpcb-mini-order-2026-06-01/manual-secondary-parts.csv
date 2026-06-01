@@ -1,0 +1,4 @@
+Designator,Comment,Footprint,Qty,InstallPlan
+J2,car harness Micro-Fit 1x04,Connector_Molex:Molex_Micro-Fit_3.0_43650-0415_1x04_P3.00mm_Vertical,1,Manual or JLC/PCBWay secondary operation after quote review
+J3,wheel harness Micro-Fit 1x04,Connector_Molex:Molex_Micro-Fit_3.0_43650-0415_1x04_P3.00mm_Vertical,1,Manual or JLC/PCBWay secondary operation after quote review
+SW1,DPDT physical arm,Button_Switch_SMD:SW_DPDT_CK_JS202011JCQN,1,Manual or JLC/PCBWay secondary operation after quote review

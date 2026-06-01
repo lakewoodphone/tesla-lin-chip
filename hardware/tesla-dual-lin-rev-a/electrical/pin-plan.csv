@@ -1,0 +1,17 @@
+net,function,esp32_s3_pin,default_state,notes
+USB_D_MINUS,Native USB D-,GPIO19,USB peripheral,Route to USB-C D- through ESD protection
+USB_D_PLUS,Native USB D+,GPIO20,USB peripheral,Route to USB-C D+ through ESD protection
+BOOT_GPIO0,Boot strap / ROM loader,GPIO0,pulled high 10k; button/pad to GND,Must be held low during reset for serial bootloader
+EN,Reset / chip enable,EN,pulled high 10k; 1uF to GND; button/pad to GND,Expose on pogo pad
+UART0_TX,Recovery UART TX,GPIO43,input until firmware config,Expose on pogo pad; confirm no module conflict
+UART0_RX,Recovery UART RX,GPIO44,input until firmware config,Expose on pogo pad; confirm no module conflict
+LIN_A_RXD,Car-side LIN RXD from TJA1021 A,GPIO4,input,Route to UART-capable GPIO through matrix
+LIN_A_TXD,Car-side LIN TXD to TJA1021 A,GPIO5,low/input before arm,Do not use boot strap pins
+LIN_B_RXD,Wheel-side LIN RXD from TJA1021 B,GPIO6,input,Route to UART-capable GPIO through matrix
+LIN_B_TXD,Wheel-side LIN TXD to TJA1021 B,GPIO7,low/input before arm,Do not use boot strap pins
+LIN_EN_DRIVE,Firmware LIN enable drive into physical arm switch,GPIO8,low/input before arm,MCU-side enable; physical switch gates this before TJA1021 SLP_N
+LIN_EN,Shared gated SLP_N line for both TJA1021s,NO_MCU_PIN,external pulldown low,Post-switch gated net; must stay low unless physical arm and firmware enable are both active
+ARM_SENSE,Physical arm sense input,GPIO9,pulled defined,Separate sense of hardware arm position
+MODE_0,Mode switch input,TBD_NON_STRAP_6,pulled defined,Software mode only; not safety-critical by itself
+LED_STATUS,Status LED,TBD_NON_STRAP_8,off,Optional Rev A indicator
+LED_FAULT,Fault LED,TBD_NON_STRAP_9,off,Optional Rev A indicator
