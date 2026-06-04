@@ -31,6 +31,7 @@
         "support-part LCSC/JLCPCB supplier IDs verified before quote; first paid JLC order used 23/23 matched SMT rows",
         "automotive protection BOM checked against assembler availability",
         "LM5164 RON/frequency, ripple network, inductor, capacitor, and EN/UVLO values verified with TI calculator/WEBENCH before production release",
+        "MASS ORDER BLOCKER: mass ordering is blocked until the D4/L1 post-order package mismatch is closed for production: D4 package-supplier lock rechecked and L1 SRU5016-100Y/C5760316 either proves thermal/current margin in bench data or is replaced with a higher-current production inductor/footprint",
         "ESP32-S3 module footprint manually compared against Espressif land pattern",
         "bench dual-LIN passthrough wiring validated with two transceivers"
     ],

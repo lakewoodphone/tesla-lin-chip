@@ -45,8 +45,8 @@ quote_review_checks:
   - Confirm ESP32-S3-WROOM-1U-N8R8 and TJA1021T part matches.
   - If LM5164DDA is unavailable, stop and review substitution before ordering.
   - Confirm selected F1 PPTC, D4 USB ESD, and L1 inductor package/orientation in JLC preview before payment.
-  - D4 must stay USBLC6-2SC6 / C7519 in SOT-23-6L; do not use USON-10 USB ESD parts on this footprint.
-  - L1 first-article JLC match is SRU5016-100Y / C5760316 for the Bourns SRU5016 5.2x5.2mm footprint; current-limit bring-up because it has less current margin than the preferred production target.
+  - D4 must stay USBLC6-2SC6 / C7519 in SOT-23-6L; do not use USON-10 USB ESD parts on this footprint; mass-order check requires package/supplier revalidation.
+  - MASS ORDER BLOCKER: L1 first-article JLC match is SRU5016-100Y / C5760316 for the Bourns SRU5016 5.2x5.2mm footprint; current-limit bring-up because it has less current margin than the preferred production target; do not mass order until bench current/thermal margin is proven or a higher-current production inductor/footprint is selected.
   - Do not populate DNP LIN master pullup/diode parts for vehicle-side testing.
   - Order Molex 43025-0400 housings and 43030-series terminals separately for bench pigtails.
   - If the quote UI forces a 5-board minimum, order 5 assembled boards and reserve 2 as spares/rework units.

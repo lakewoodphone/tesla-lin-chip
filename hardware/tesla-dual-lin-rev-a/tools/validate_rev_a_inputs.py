@@ -41,6 +41,13 @@ def check_project() -> None:
     require(data.get("cad_target", "").startswith("KiCad"), "project must target KiCad")
     non_negotiables = set(data.get("non_negotiables", []))
     require("two independent LIN physical channels" in non_negotiables, "two-LIN requirement missing")
+    blocked_until = "\n".join(data.get("blocked_until", []))
+    require(
+        "MASS ORDER BLOCKER" in blocked_until
+        and "SRU5016-100Y" in blocked_until
+        and "higher-current" in blocked_until,
+        "project mass-order D4/L1 blocker missing",
+    )
 
     board_def = ROOT.parents[1] / "boards" / "tesla_dual_lin_esp32s3_n8r8.json"
     require(board_def.exists(), "local PlatformIO Rev A ESP32-S3 N8R8 board definition is missing")
@@ -361,6 +368,20 @@ def check_manufacturing_inputs() -> None:
     power_text = (ROOT / "electrical" / "power-protection-design.yaml").read_text(encoding="utf-8")
     for required_text in ("P-channel MOSFET", "resettable PPTC", "SMBJ24A", "LIN_EN_DRIVE", "LIN_EN", "LM5164DDA", "WAKE_N"):
         require(required_text in power_text, f"power protection design missing {required_text}")
+
+    for relative_path in (
+        "manufacturing/release_gates.yaml",
+        "manufacturing/production_flow.yaml",
+        "manufacturing/vendor_quote_package.yaml",
+        "kicad/footprint-map.csv",
+    ):
+        text = (ROOT / relative_path).read_text(encoding="utf-8")
+        require(
+            "MASS ORDER BLOCKER" in text
+            and "SRU5016-100Y" in text
+            and "higher-current" in text,
+            f"missing D4/L1 mass-order blocker in {relative_path}",
+        )
 
 
 def check_kicad_seed() -> None:

@@ -168,7 +168,7 @@ def schematic_components() -> list[SchematicComponent]:
                   extra_properties={
                       "MPN": "USBLC6-2SC6",
                       "LCSC Part #": "C7519",
-                      "JLC Replacement Note": "2026-06-04 package-correct SOT-23-6L replacement; do not use C138714/USON-10 on this footprint",
+                      "JLC Replacement Note": "2026-06-04 package-correct SOT-23-6L replacement; do not use C138714/USON-10 on this footprint; mass-order check requires package/supplier revalidation",
                   }),
         component("R_CC1","5.1k","Resistor_SMD:R_0603_1608Metric", 2, {1:"CC1",2:"GND"}, 198, 94),
         component("R_CC2","5.1k","Resistor_SMD:R_0603_1608Metric", 2, {1:"CC2",2:"GND"}, 198, 106),
@@ -196,7 +196,7 @@ def schematic_components() -> list[SchematicComponent]:
                   extra_properties={
                       "MPN": "SRU5016-100Y",
                       "LCSC Part #": "C5760316",
-                      "JLC Replacement Note": "2026-06-04 package-correct Bourns SRU5016 first article; current-limit bring-up and revisit higher-current inductor before production",
+                      "JLC Replacement Note": "MASS ORDER BLOCKER: 2026-06-04 package-correct Bourns SRU5016 first article only; current-limit bring-up and prove current/thermal margin or select higher-current inductor/footprint before mass ordering",
                   }),
         component("C_IN1","10uF 50V","Capacitor_SMD:C_1206_3216Metric", 2, {1:"VBAT_FILTERED",2:"GND"}, 244, 134),
         component("C_3V3","22uF 10V","Capacitor_SMD:C_1206_3216Metric", 2, {1:"3V3",2:"GND"}, 244, 146),

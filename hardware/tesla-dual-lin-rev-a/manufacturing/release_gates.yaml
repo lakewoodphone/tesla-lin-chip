@@ -69,6 +69,7 @@ gate_6_100_unit_release:
   status: blocked
   required:
     - pilot boards pass gates 4 and 5 without design changes
+    - MASS ORDER BLOCKER: D4/L1 post-order package mismatch closed for production; D4 package-supplier lock revalidated and L1 first-article SRU5016-100Y/C5760316 either proven with thermal/current-margin data or replaced with a higher-current production inductor/footprint before any 100-unit order
     - all blocked supplier IDs and harness connector decisions resolved
     - firmware production provisioning flow documented and tested
     - pogo fixture tested on at least 10 consecutive boards without manual rework

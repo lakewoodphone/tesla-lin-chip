@@ -57,6 +57,7 @@ do_not_quote_until:
   - exact ESP32 footprint verified against Espressif land pattern
   - exact TJA1021 SO-8 pinout reviewed against NXP datasheet in schematic review
   - LM5164 RON/frequency, ripple network, inductor, and capacitor values verified with TI calculator/WEBENCH
+  - MASS ORDER BLOCKER: D4/L1 post-order package mismatch production-closed; D4 package-supplier lock revalidated and L1 first-article SRU5016-100Y/C5760316 either proves thermal/current margin or is replaced with a higher-current production inductor/footprint before mass ordering
   - board has real component placement and DRC-clean layout
   - LIN_EN_DRIVE/LIN_EN gate represented in schematic with physical safe position
 paid_order_resolution:
@@ -66,3 +67,4 @@ paid_order_resolution:
   - JLCPCB later flagged D4 and L1 as package mismatches; replacement supplement was submitted and paid on 2026-06-04.
   - D4 final replacement is USBLC6-2SC6 / C7519 in SOT-23-6L for the SOT-23-6 USB ESD footprint.
   - L1 final replacement is SRU5016-100Y / C5760316 for the Bourns SRU5016 5.2x5.2mm footprint; this is a first-article package-correct choice with lower current margin than the preferred production target.
+  - MASS ORDER BLOCKER: do not place a production or 100-unit order until D4/L1 choices are production-closed; L1 must either pass measured thermal/current-margin review or move to a higher-current production inductor/footprint.

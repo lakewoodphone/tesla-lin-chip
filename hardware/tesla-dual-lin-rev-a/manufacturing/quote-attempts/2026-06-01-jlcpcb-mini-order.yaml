@@ -78,6 +78,7 @@ post_order_resolution:
   status_after_payment: PCB in production; PCBA pending confirmation email/review clearing.
 next_actions:
   - Monitor JLC file review for PCB and PCBA approval; respond to any engineering questions before production begins.
+  - MASS ORDER BLOCKER: record D4/L1 as production-blocking before any larger order; D4 package lock must be revalidated and L1 SRU5016-100Y/C5760316 must either pass measured thermal/current-margin review or move to a higher-current production inductor/footprint.
   - Preserve the exact regenerated quote package because it now has 23/23 matched JLC SMT rows.
   - After shipment arrives, run incoming inspection and first-article tests before any vehicle install.
   - Keep DNP master termination parts unpopulated.

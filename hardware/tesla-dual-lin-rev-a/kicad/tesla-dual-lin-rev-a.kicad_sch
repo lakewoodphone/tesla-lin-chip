@@ -6036,7 +6036,7 @@
       (hide yes)
       (effects (font (size 1.27 1.27)))
     )
-    (property "JLC Replacement Note" "2026-06-04 package-correct SOT-23-6L replacement; do not use C138714/USON-10 on this footprint"
+    (property "JLC Replacement Note" "2026-06-04 package-correct SOT-23-6L replacement; do not use C138714/USON-10 on this footprint; mass-order check requires package/supplier revalidation"
       (at 198.12 72.39 0)
       (hide yes)
       (effects (font (size 1.27 1.27)))
@@ -6983,7 +6983,7 @@
       (hide yes)
       (effects (font (size 1.27 1.27)))
     )
-    (property "JLC Replacement Note" "2026-06-04 package-correct Bourns SRU5016 first article; current-limit bring-up and revisit higher-current inductor before production"
+    (property "JLC Replacement Note" "MASS ORDER BLOCKER: 2026-06-04 package-correct Bourns SRU5016 first article only; current-limit bring-up and prove current/thermal margin or select higher-current inductor/footprint before mass ordering"
       (at 243.84 118.11 0)
       (hide yes)
       (effects (font (size 1.27 1.27)))

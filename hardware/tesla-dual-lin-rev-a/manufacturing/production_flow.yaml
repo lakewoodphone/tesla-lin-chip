@@ -35,6 +35,7 @@ reject_criteria:
 pre_100_unit_gate:
   - 10-unit pilot passes bench acceptance
   - at least one vehicle passive capture passes without native control regression
+  - MASS ORDER BLOCKER: D4/L1 post-order package mismatch is production-closed; D4 package-supplier lock revalidated and L1 first-article SRU5016-100Y/C5760316 either proves thermal/current margin or is replaced with a higher-current production inductor/footprint
   - DFM notes resolved and BOM substitutions locked
   - programming/test jig repeats without manual wire soldering
   - secure firmware provisioning path decided before production lock
