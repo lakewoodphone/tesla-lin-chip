@@ -3,13 +3,13 @@ MCU/BLE,U1,locked,ESP32-S3-WROOM-1U-N8R8,RF_Module:ESP32-S3-WROOM-1U,core,locked
 LIN transceiver,U2 U3,locked,"TJA1021T/20/C,118",Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,core,locked,Verify final symbol pin numbers against NXP datasheet during schematic review
 Buck regulator,U4,default_robust_first_article,LM5164DDA or LM5164DDAR 100V 1A synchronous buck,Package_SO:HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.41x3.1mm_ThermalVias,robust,selected_verify_calculation,Verify TI calculator values and vendor availability before quote
 Buck regulator cost-down alternate,U4_ALT,alternate,MP2459DT-LF-Z or compatible 36V 1A buck,Package_TO_SOT_SMD:SOT-23-6,low_cost,blocked_pending_datasheet,Use only after exact datasheet pinout feedback reference and transient bench margin are verified
-Buck inductor,L1,default,10uH shielded Isat >=1.5A,Inductor_SMD:L_4.0x4.0mm or L_5.0x5.0mm,low_cost,selected_verify_supplier,Match final buck datasheet ripple/current recommendation
+Buck inductor,L1,first_article,SRU5016-100Y / C5760316 10uH 1A 900mA,Inductor_SMD:L_Bourns_SRU5016_5.2x5.2mm,low_cost,selected_first_article,Package-correct for Rev A JLC build; current-limit bench bring-up and revisit higher-current production inductor
 Reverse polarity PFET,Q1,default,AO4407A-class P-channel MOSFET,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,low_cost,selected_verify_supplier,Verify Vds Rds(on) gate rating and source/drain orientation
 Input PPTC,F1,default,1812 PPTC 0.5A-0.75A hold,Fuse:Fuse_1812_4532Metric,low_cost,selected_verify_supplier,Check voltage rating and hot-environment derating
 VBAT TVS,D1,hybrid_default,SMBJ24A or SMBJ26A,Diode_SMD:D_SMB,low_cost,selected_verify_supplier,Check clamp against selected buck absolute maximum
 VBAT TVS robust alternate,D1_ALT,alternate,SM8S33A or SM8S36A,Diode_SMD:D_SMC or vendor footprint,robust,alternate,Use for vehicle pilot if package fits and supplier can assemble
 LIN ESD,D2 D3,default_robust,PESD1LIN/PESD1CAN-class single-line ESD,Diode_SMD:D_SOD-323 or Package_TO_SOT_SMD:SOT-23,robust,selected_verify_supplier,Verify working voltage leakage capacitance and AEC-Q if available
-USB ESD,D4,default,USBLC6-2SC6 or low-cap equivalent,Package_TO_SOT_SMD:SOT-23-6,low_cost,selected_verify_supplier,Verify capacitance and pinout against chosen footprint
+USB ESD,D4,first_article,USBLC6-2SC6 / C7519,Package_TO_SOT_SMD:SOT-23-6,low_cost,selected_first_article,Package-correct SOT-23-6L JLC replacement; do not use USON-10 auto-match parts
 USB-C connector,J1,default,TYPE-C-31-M-12 class,Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12,low_cost,selected_verify_supplier,Verify exact connector drawing matches KiCad footprint
 Physical arm switch,SW1,default,CK JS202011JCQN-class DPDT slide switch,Button_Switch_SMD:SW_DPDT_CK_JS202011JCQN,low_cost,selected_verify_supplier,Verify DPDT contact map actuator direction and whether PCBA vendor will place it
 Mode switch,SW2,optional,SS-12D07-class SPDT/SPST slide switch,Button_Switch_SMD:SW_SPDT_PCM12,low_cost,candidate,May depopulate if firmware config replaces physical mode

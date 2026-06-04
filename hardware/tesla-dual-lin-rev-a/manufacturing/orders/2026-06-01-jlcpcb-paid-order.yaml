@@ -2,7 +2,7 @@ project: tesla-dual-lin-rev-a
 revision: A
 vendor: JLCPCB
 ordered_at: 2026-06-01
-order_status_at_record_time: paid; PCB and PCBA file review pending
+order_status_at_record_time: paid; 2026-06-04 replacement supplement paid after JLC D4/L1 package review
 account:
   email: lakewoodphoneandtech@gmail.com
   customer_number_seen: 12760394A
@@ -39,6 +39,23 @@ checkout:
   payment_fee_usd: 0.72
   sales_tax_usd: 9.55
   paid_total_usd: 153.71
+post_order_replacements:
+  jlc_issue_reported_at: 2026-06-03
+  resolved_and_supplement_paid_at: 2026-06-04
+  issue: JLCPCB reported that D4 and L1 selected parts did not match the uploaded PCB footprints.
+  rejected_original_matches:
+    D4: C138714 was a package-wrong USB ESD match for the SOT-23-6 footprint.
+    L1: IHLP2020CZER100M5A / C511407 was electrically stronger but package-wrong for the Bourns SRU5016 5.2x5.2mm footprint.
+  accepted_replacements:
+    D4: USBLC6-2SC6 / C7519, SOT-23-6L USB ESD, PCBA qty shown 7 including attrition.
+    L1: SRU5016-100Y / C5760316, 10uH Bourns SRU5016 footprint inductor, PCBA qty shown 5.
+  price_update_seen:
+    original_pcba_price_usd: 121.09
+    new_pcba_price_usd: 124.33
+    shipping_usd: 29.86
+    supplement_difference_usd: 3.24
+    supplement_status: paid by owner in JLCPCB order center
+  status_after_payment: PCB in production; PCBA pending confirmation email/review clearing.
 uploaded_files:
   source_package_zip: build/quote/jlcpcb-mini-order-2026-06-01.zip
   gerbers: build/quote/jlcpcb-mini-order-2026-06-01/tesla-dual-lin-rev-a-gerbers.zip
@@ -49,8 +66,9 @@ jlc_part_matching:
   parts_confirmed: 23
   unmatched_rows_after_final_package: 0
   selected_special_parts:
+    D4: USBLC6-2SC6 / C7519, SOT-23-6L USB ESD
     F1: SMD1812P050TF/30 / C12559, 1812 resettable fuse, 500mA hold, 30V
-    L1: IHLP2020CZER100M5A / C511407, 10uH power inductor
+    L1: SRU5016-100Y / C5760316, 10uH Bourns SRU5016 footprint inductor, first-article current-margin compromise
     U1: ESP32-S3-WROOM-1U-N8R8 / C2980300
     U2: TJA1021T/20/C,118 / C271675
     U3: TJA1021T/20/C,118 / C271675
@@ -67,6 +85,7 @@ excluded_from_smt_order:
     - R_LINB_MASTER1
 watch_items:
   - Watch JLC file review; order cannot be canceled once production begins.
+  - If JLC sends another D4/L1 confirmation request, confirm D4 USBLC6-2SC6 / C7519 and L1 SRU5016-100Y / C5760316 are the intended replacements.
   - If JLC asks substitution questions, do not approve substitutions for U1, U2, U3, U4, J1, D1-D4, Q1, F1, FB1, or L1 without engineering review.
   - Confirm placement/orientation in JLC preview or review output if JLC sends a correction.
   - Source and install J2/J3/SW1 separately before bench harness tests.

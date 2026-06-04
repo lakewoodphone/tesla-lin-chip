@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import os
 import shutil
 from datetime import date
 from pathlib import Path
@@ -15,9 +16,10 @@ SOURCE_BOM = FAB / "tesla-dual-lin-rev-a-bom.csv"
 SOURCE_CPL = FAB / "tesla-dual-lin-rev-a-cpl.csv"
 DRC_REPORT = BUILD / "_drc-routed.rpt"
 
+PACKAGE_DATE = date.fromisoformat(os.environ.get("QUOTE_PACKAGE_DATE", date.today().isoformat()))
 PACKAGE_ROOT = BUILD / "quote"
-PACKAGE_DIR = PACKAGE_ROOT / f"jlcpcb-mini-order-{date.today():%Y-%m-%d}"
-PACKAGE_ZIP_BASE = PACKAGE_ROOT / f"jlcpcb-mini-order-{date.today():%Y-%m-%d}"
+PACKAGE_DIR = PACKAGE_ROOT / f"jlcpcb-mini-order-{PACKAGE_DATE:%Y-%m-%d}"
+PACKAGE_ZIP_BASE = PACKAGE_ROOT / f"jlcpcb-mini-order-{PACKAGE_DATE:%Y-%m-%d}"
 
 MANUAL_DESIGNATORS = {"J2", "J3", "SW1"}
 BOARD_ONLY_PREFIXES = ("TP", "FID", "MH")
@@ -34,11 +36,11 @@ KNOWN_LCSC_PARTS = {
     "D1": "C224017",
     "D2": "C20345390",
     "D3": "C20345390",
-    "D4": "C138714",
+    "D4": "C7519",
     "F1": "C12559",
     "FB1": "C845119",
     "J1": "C165948",
-    "L1": "C511407",
+    "L1": "C5760316",
     "Q1": "C16072",
     "R_ARMSENSE_PD1": "C25803",
     "R_BUCK_EN1": "C25803",
@@ -151,7 +153,7 @@ def write_notes(assembly_rows: list[dict[str, str]], manual_rows: list[dict[str,
     match_needed = [row for row in assembly_rows if not row["LCSC Part #"]]
     notes = f"""project: tesla-dual-lin-rev-a
 revision: A
-prepared_at: {date.today():%Y-%m-%d}
+prepared_at: {PACKAGE_DATE:%Y-%m-%d}
 order_intent: 3 usable assembled bench-test boards
 practical_jlc_order_quantity: 5
 quantity_note: JLCPCB quote flow showed 5 PCB minimum and PCBA quantity options of 5 or 2 during the first live quote attempt.
@@ -189,7 +191,9 @@ manual_or_secondary_parts:
     notes += "  - Confirm JLC placement preview orientation before paying.\n"
     notes += "  - Confirm ESP32-S3-WROOM-1U-N8R8 and TJA1021T part matches.\n"
     notes += "  - If LM5164DDA is unavailable, stop and review substitution before ordering.\n"
-    notes += "  - Confirm selected F1 PPTC and L1 inductor package/orientation in JLC preview before payment.\n"
+    notes += "  - Confirm selected F1 PPTC, D4 USB ESD, and L1 inductor package/orientation in JLC preview before payment.\n"
+    notes += "  - D4 must stay USBLC6-2SC6 / C7519 in SOT-23-6L; do not use USON-10 USB ESD parts on this footprint.\n"
+    notes += "  - L1 first-article JLC match is SRU5016-100Y / C5760316 for the Bourns SRU5016 5.2x5.2mm footprint; current-limit bring-up because it has less current margin than the preferred production target.\n"
     notes += "  - Do not populate DNP LIN master pullup/diode parts for vehicle-side testing.\n"
     notes += "  - Order Molex 43025-0400 housings and 43030-series terminals separately for bench pigtails.\n"
     notes += "  - If the quote UI forces a 5-board minimum, order 5 assembled boards and reserve 2 as spares/rework units.\n"

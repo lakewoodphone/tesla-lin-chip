@@ -97,6 +97,7 @@ class SchematicComponent:
     at: tuple[float, float]
     description: str = ""
     dnp: bool = False
+    extra_properties: tuple[tuple[str, str], ...] = ()
 
     @property
     def pin_count(self) -> int:
@@ -124,11 +125,13 @@ def snap_grid(value: float, grid: float = 1.27) -> float:
 
 def component(
     ref: str, value: str, footprint: str, pin_count: int,
-    nets: dict[int, str], x: float, y: float, dnp: bool = False
+    nets: dict[int, str], x: float, y: float, dnp: bool = False,
+    extra_properties: dict[str, str] | None = None,
 ) -> SchematicComponent:
     pins = {pin: nets.get(pin, f"NC_{ref}_{pin}") for pin in range(1, pin_count + 1)}
     return SchematicComponent(ref=ref, value=value, footprint=footprint,
-                              pins=pins, at=(snap_grid(x), snap_grid(y)), dnp=dnp)
+                              pins=pins, at=(snap_grid(x), snap_grid(y)), dnp=dnp,
+                              extra_properties=tuple((extra_properties or {}).items()))
 
 
 # Schematic generation
@@ -160,7 +163,13 @@ def schematic_components() -> list[SchematicComponent]:
         component("FB1","1206 input ferrite","Inductor_SMD:L_1206_3216Metric", 2, {1:"VBAT_PROTECTED",2:"VBAT_FILTERED"}, 148, 170),
         component("D2","LIN_A ESD","Diode_SMD:D_SOD-323", 2, {1:"LIN_A",2:"GND"}, 198, 42),
         component("D3","LIN_B ESD","Diode_SMD:D_SOD-323", 2, {1:"LIN_B",2:"GND"}, 198, 54),
-        component("D4","USB ESD","Package_TO_SOT_SMD:SOT-23-6", 6, {1:"USB_D_MINUS",2:"GND",3:"USB_D_PLUS",4:"USB_D_PLUS",5:"USB_VBUS",6:"USB_D_MINUS"}, 198, 72),
+        component("D4","USB ESD","Package_TO_SOT_SMD:SOT-23-6", 6,
+                  {1:"USB_D_MINUS",2:"GND",3:"USB_D_PLUS",4:"USB_D_PLUS",5:"USB_VBUS",6:"USB_D_MINUS"}, 198, 72,
+                  extra_properties={
+                      "MPN": "USBLC6-2SC6",
+                      "LCSC Part #": "C7519",
+                      "JLC Replacement Note": "2026-06-04 package-correct SOT-23-6L replacement; do not use C138714/USON-10 on this footprint",
+                  }),
         component("R_CC1","5.1k","Resistor_SMD:R_0603_1608Metric", 2, {1:"CC1",2:"GND"}, 198, 94),
         component("R_CC2","5.1k","Resistor_SMD:R_0603_1608Metric", 2, {1:"CC2",2:"GND"}, 198, 106),
         component("R_EN1","10k","Resistor_SMD:R_0603_1608Metric", 2, {1:"EN",2:"3V3"}, 198, 118),
@@ -183,7 +192,12 @@ def schematic_components() -> list[SchematicComponent]:
         component("R_BUCK_RON1","200k prelim","Resistor_SMD:R_0603_1608Metric", 2, {1:"VBAT_FILTERED",2:"BUCK_RON"}, 244, 78),
         component("R_PGOOD_PU1","100k","Resistor_SMD:R_0603_1608Metric", 2, {1:"BUCK_PGOOD",2:"3V3"}, 244, 90),
         component("C_BST1","100nF 50V","Capacitor_SMD:C_0603_1608Metric", 2, {1:"BUCK_BST",2:"BUCK_SW"}, 244, 106),
-        component("L1","10uH shielded","Inductor_SMD:L_Bourns_SRU5016_5.2x5.2mm", 2, {1:"BUCK_SW",2:"3V3"}, 244, 118),
+        component("L1","10uH shielded","Inductor_SMD:L_Bourns_SRU5016_5.2x5.2mm", 2, {1:"BUCK_SW",2:"3V3"}, 244, 118,
+                  extra_properties={
+                      "MPN": "SRU5016-100Y",
+                      "LCSC Part #": "C5760316",
+                      "JLC Replacement Note": "2026-06-04 package-correct Bourns SRU5016 first article; current-limit bring-up and revisit higher-current inductor before production",
+                  }),
         component("C_IN1","10uF 50V","Capacitor_SMD:C_1206_3216Metric", 2, {1:"VBAT_FILTERED",2:"GND"}, 244, 134),
         component("C_3V3","22uF 10V","Capacitor_SMD:C_1206_3216Metric", 2, {1:"3V3",2:"GND"}, 244, 146),
         component("C_EN1","1uF 10V","Capacitor_SMD:C_0603_1608Metric", 2, {1:"EN",2:"GND"}, 320, 42),
@@ -249,6 +263,10 @@ def schematic_symbol(component: SchematicComponent) -> str:
         f'    (pin "{pin}"\n      (uuid "{stable_uuid("sym-pin", component.ref, pin)}")\n    )'
         for pin in sorted(component.pins)
     )
+    extra_properties = "\n".join(
+        schematic_property(name, value, x, y, hidden=True)
+        for name, value in component.extra_properties
+    )
     return f'''  (symbol
     (lib_id "{component.lib_id}")
     (at {fmt(x)} {fmt(y)} 0)
@@ -259,6 +277,7 @@ def schematic_symbol(component: SchematicComponent) -> str:
 {schematic_property('Footprint', component.footprint, x, y, hidden=True)}
 {schematic_property('Datasheet', '~', x, y, hidden=True)}
 {schematic_property('Description', component.description, x, y, hidden=True)}
+{extra_properties}
 {pins}
     (instances
       (project "tesla-dual-lin-rev-a"

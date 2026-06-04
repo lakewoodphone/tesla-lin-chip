@@ -3,7 +3,7 @@ revision: A
 attempted_at: 2026-06-01
 vendor: JLCPCB
 intent: Order first assembled bench-test boards.
-final_result: paid_order_created
+final_result: paid_order_created; post_order_d4_l1_replacements_submitted_and_supplement_paid
 quote_package:
   source_zip: build/quote/jlcpcb-mini-order-2026-06-01.zip
   gerbers: build/quote/jlcpcb-mini-order-2026-06-01/tesla-dual-lin-rev-a-gerbers.zip
@@ -49,8 +49,9 @@ part_matching:
   manually_selected_during_live_flow:
     F1: C12559
   notable_matches:
+    D4: USBLC6-2SC6 / C7519, SOT-23-6L USB ESD, selected after JLC package review
     F1: SMD1812P050TF/30 / C12559, 1812 resettable fuse, 500mA hold, 30V
-    L1: IHLP2020CZER100M5A / C511407, 10uH, 1.6A, 2.8A saturation, AEC-Q200
+    L1: SRU5016-100Y / C5760316, 10uH, Bourns SRU5016 5.2x5.2mm footprint, selected after JLC package review
     U1: ESP32-S3-WROOM-1U-N8R8 / C2980300, Standard PCBA required
     U2_U3: TJA1021T/20/C,118 / C271675
     U4: LM5164DDAR / C477928
@@ -66,6 +67,15 @@ account_auth_findings:
 blockers:
   - Automated/browser-assisted JLC cart auth remained unreliable; final order was completed manually by the owner in their own browser.
   - J2/J3 Micro-Fit headers and SW1 DPDT switch are intentionally excluded from the SMT-first BOM and should be hand-installed or quoted as secondary operations.
+post_order_resolution:
+  issue_reported_at: 2026-06-03
+  resolved_and_supplement_paid_at: 2026-06-04
+  reason: JLCPCB flagged D4 and L1 as package mismatches against the uploaded PCB footprints.
+  replacement_parts:
+    D4: USBLC6-2SC6 / C7519 replaced the package-wrong USB ESD match.
+    L1: SRU5016-100Y / C5760316 replaced IHLP2020CZER100M5A / C511407 because the board footprint is Bourns SRU5016 5.2x5.2mm.
+  cost_delta_seen_usd: 3.24
+  status_after_payment: PCB in production; PCBA pending confirmation email/review clearing.
 next_actions:
   - Monitor JLC file review for PCB and PCBA approval; respond to any engineering questions before production begins.
   - Preserve the exact regenerated quote package because it now has 23/23 matched JLC SMT rows.

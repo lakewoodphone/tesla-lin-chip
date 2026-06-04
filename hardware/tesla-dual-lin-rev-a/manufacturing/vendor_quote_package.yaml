@@ -36,6 +36,14 @@ paid_order_2026_06_01:
   payment_fee_usd: 0.72
   paid_total_usd: 153.71
   status_at_checkout: paid; PCB and PCBA files reviewing
+  post_order_supplement_2026_06_04:
+    status: paid
+    reason: JLCPCB D4/L1 package mismatch replacement after file review
+    supplement_difference_usd: 3.24
+    new_pcba_price_seen_usd: 124.33
+    replacements:
+      D4: USBLC6-2SC6 / C7519, SOT-23-6L USB ESD
+      L1: SRU5016-100Y / C5760316, Bourns SRU5016 10uH inductor
   detailed_record: manufacturing/orders/2026-06-01-jlcpcb-paid-order.yaml
 quote_questions:
   - Can you assemble ESP32-S3-WROOM-1U-N8R8 from LCSC C2980300 or customer consignment?
@@ -55,4 +63,6 @@ paid_order_resolution:
   - JLCPCB Economic was rejected for this assembled prototype because U1 ESP32-S3-WROOM-1U-N8R8 showed Standard-only in JLC part matching.
   - Final order used JLCPCB Standard PCBA with all 23 SMT BOM rows confirmed.
   - F1 matched to SMD1812P050TF/30 / C12559, 1812 resettable fuse, 500mA hold, 30V.
-  - L1 matched to IHLP2020CZER100M5A / C511407, 10uH power inductor.
+  - JLCPCB later flagged D4 and L1 as package mismatches; replacement supplement was submitted and paid on 2026-06-04.
+  - D4 final replacement is USBLC6-2SC6 / C7519 in SOT-23-6L for the SOT-23-6 USB ESD footprint.
+  - L1 final replacement is SRU5016-100Y / C5760316 for the Bourns SRU5016 5.2x5.2mm footprint; this is a first-article package-correct choice with lower current margin than the preferred production target.

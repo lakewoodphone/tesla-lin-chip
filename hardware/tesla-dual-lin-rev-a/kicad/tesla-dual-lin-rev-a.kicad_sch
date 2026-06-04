@@ -6026,6 +6026,21 @@
       (hide yes)
       (effects (font (size 1.27 1.27)))
     )
+    (property "MPN" "USBLC6-2SC6"
+      (at 198.12 72.39 0)
+      (hide yes)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "LCSC Part #" "C7519"
+      (at 198.12 72.39 0)
+      (hide yes)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "JLC Replacement Note" "2026-06-04 package-correct SOT-23-6L replacement; do not use C138714/USON-10 on this footprint"
+      (at 198.12 72.39 0)
+      (hide yes)
+      (effects (font (size 1.27 1.27)))
+    )
     (pin "1"
       (uuid "125a00e6-a5e7-5e64-9174-5445ad333f85")
     )
@@ -6954,6 +6969,21 @@
       (effects (font (size 1.27 1.27)))
     )
     (property "Description" ""
+      (at 243.84 118.11 0)
+      (hide yes)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "MPN" "SRU5016-100Y"
+      (at 243.84 118.11 0)
+      (hide yes)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "LCSC Part #" "C5760316"
+      (at 243.84 118.11 0)
+      (hide yes)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "JLC Replacement Note" "2026-06-04 package-correct Bourns SRU5016 first article; current-limit bring-up and revisit higher-current inductor before production"
       (at 243.84 118.11 0)
       (hide yes)
       (effects (font (size 1.27 1.27)))

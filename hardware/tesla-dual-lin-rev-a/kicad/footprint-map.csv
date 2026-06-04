@@ -7,7 +7,7 @@ Q1,Reverse polarity MOSFET,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,selected_verify_s
 F1,Input PPTC,Fuse:Fuse_1812_4532Metric,selected_verify_supplier,1812 0.5A-0.75A hold target with voltage/temp derating check
 D1,VBAT TVS,Diode_SMD:D_SMB,selected_verify_supplier,SMBJ24A/SMBJ26A low-cost default; robust SM8S package remains alternate
 D2 D3,LIN ESD,Diode_SMD:D_SOD-323,selected_verify_supplier,PESD1LIN/PESD1CAN-class default; SOT-23 alternate allowed after supplier check
-D4,USB ESD,Package_TO_SOT_SMD:SOT-23-6,selected_verify_supplier,USBLC6-2SC6-class low-cap USB2 ESD array
+D4,USB ESD,Package_TO_SOT_SMD:SOT-23-6,selected_verify_supplier,JLC first article selected USBLC6-2SC6 / C7519 in SOT-23-6L; do not substitute USON-10 USB ESD parts on this footprint
 J1,USB-C service,Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12,selected_vendor_verify,Common KiCad footprint for affordable HRO Type-C connector
 J2,Car-side harness service connector,Connector_Molex:Molex_Micro-Fit_3.0_43650-0415_1x04_P3.00mm_Vertical,selected_first_article,Molex Micro-Fit 3.0 keyed/latching 4-circuit service connector; pinout 1 VBAT_IN 2 GND 3 NC 4 LIN_A; Tesla X178 mate remains adapter-pigtail/mechanical-inspection item
 J3,Wheel-side harness service connector,Connector_Molex:Molex_Micro-Fit_3.0_43650-0415_1x04_P3.00mm_Vertical,selected_first_article,Molex Micro-Fit 3.0 keyed/latching 4-circuit service connector; pinout 1 VBAT_PROTECTED 2 GND 3 NC 4 LIN_B; Tesla wheel-side mate remains adapter-pigtail/mechanical-inspection item
@@ -18,5 +18,5 @@ FID1 FID2 FID3,Global fiducials,Fiducial:Fiducial_1mm_Mask2mm,selected,Three glo
 R*,0603 resistors,Resistor_SMD:R_0603_1608Metric,selected,Standardize on 0603 JLC/LCSC basic passives
 C_SMALL*,0603 capacitors,Capacitor_SMD:C_0603_1608Metric,selected,Standardize on 0603 for decoupling and small caps
 C_BULK*,0805/1206 capacitors,Capacitor_SMD:C_1206_3216Metric,selected_verify_supplier,Use voltage derating and vendor stock to choose exact 0805/1206 footprint per value
-L1,Buck inductor,Inductor_SMD:L_Bourns_SRU5016_5.2x5.2mm,selected_verify_datasheet,10uH shielded Isat >=1.5A target; installed KiCad 5.2x5.2mm shielded-inductor footprint used as first layout placeholder; final footprint follows selected inductor datasheet
+L1,Buck inductor,Inductor_SMD:L_Bourns_SRU5016_5.2x5.2mm,selected_first_article,JLC first article selected Bourns SRU5016-100Y / C5760316 exact SRU5016 footprint; 10uH 1A/900mA has less margin than production target; current-limit bench bring-up and revisit higher-current footprint before production
 FB1,Input ferrite,Inductor_SMD:L_1206_3216Metric,selected_verify_supplier,1206 600R@100MHz 2A class target represented with installed 1206 inductor/ferrite land pattern
