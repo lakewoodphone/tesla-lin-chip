@@ -1,0 +1,95 @@
+(pcb "C:\Users\ezabz\code\xiao-lin-bench\hardware\tesla-dual-lin-rev-a\build\sub-one53.dsn"
+  (parser
+    (string_quote ")
+    (space_in_quoted_tokens on)
+    (host_cad "KiCad's Pcbnew")
+    (host_version "10.0.3")
+  )
+  (resolution um 10)
+  (unit um)
+  (structure
+    (layer F.Cu
+      (type signal)
+      (property
+        (index 0)
+      )
+    )
+    (layer In1.Cu
+      (type power)
+      (property
+        (index 1)
+      )
+    )
+    (layer In2.Cu
+      (type power)
+      (property
+        (index 2)
+      )
+    )
+    (layer B.Cu
+      (type signal)
+      (property
+        (index 3)
+      )
+    )
+    (boundary
+      (path pcb 0  86458.3 -56598.2  80541.7 -56598.2  80541.7 -51501.8
+            86458.3 -51501.8  86458.3 -56598.2)
+    )
+    (via "Via[0-3]_600:300_um")
+    (rule
+      (width 200)
+      (clearance 200)
+      (clearance 50 (type smd_smd))
+    )
+  )
+  (placement
+    (component TestPoint:TestPoint_Pad_D1.5mm
+      (place TP18 83500 -54000 front 0 (PN WAKE_B))
+    )
+  )
+  (library
+    (image TestPoint:TestPoint_Pad_D1.5mm
+      (outline (path signal 120  950 0  931.746 -185.336  877.686 -363.549  789.896 -527.792
+            671.751 -671.751  527.792 -789.896  363.549 -877.686  185.336 -931.746
+            0 -950  -185.336 -931.746  -363.549 -877.686  -527.792 -789.896
+            -671.751 -671.751  -789.896 -527.792  -877.686 -363.549  -931.746 -185.336
+            -950 0  -931.746 185.336  -877.686 363.549  -789.896 527.792
+            -671.751 671.751  -527.792 789.896  -363.549 877.686  -185.336 931.746
+            0 950  185.336 931.746  363.549 877.686  527.792 789.896  671.751 671.751
+            789.896 527.792  877.686 363.549  931.746 185.336  950 0))
+      (pin Round[T]Pad_1500.000000_um 1 0 0)
+    )
+    (padstack Round[T]Pad_1500.000000_um
+      (shape (circle F.Cu 1500))
+      (attach off)
+    )
+    (padstack "Via[0-3]_600:300_um"
+      (shape (circle F.Cu 600))
+      (shape (circle In1.Cu 600))
+      (shape (circle In2.Cu 600))
+      (shape (circle B.Cu 600))
+      (attach off)
+    )
+  )
+  (network
+    (net WAKE_B_N
+      (pins TP18-1)
+    )
+    (class kicad_default 3V3 ARM_SENSE BOOT_GPIO0 BUCK_BST BUCK_EN BUCK_FB
+      BUCK_PGOOD BUCK_RON BUCK_SW CC1 CC2 EN GND INH_A_TP INH_B_TP LIN_A LIN_A_RXD
+      LIN_A_TJA LIN_A_TXD LIN_B LIN_B_RXD LIN_B_TJA LIN_B_TXD LIN_EN LIN_EN_DRIVE
+      UART0_RX UART0_TX USB_D_MINUS USB_D_PLUS USB_VBUS VBAT_FILTERED VBAT_IN
+      VBAT_PROTECTED WAKE_A_N WAKE_B_N
+      (circuit
+        (use_via "Via[0-3]_600:300_um")
+      )
+      (rule
+        (width 200)
+        (clearance 200)
+      )
+    )
+  )
+  (wiring
+  )
+)

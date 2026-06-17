@@ -1,0 +1,64 @@
+{
+  "schema": "xiao-lin-profile-candidate-v1",
+  "source_csv": "C:\\Users\\ezabz\\Code\\xiao-lin-bench\\logs\\lin-capture-20260527_140343.csv",
+  "generated_at": "2026-05-28T00:39:51.095399+00:00",
+  "detected_model": "X",
+  "review_only": true,
+  "active_profile_update_allowed": false,
+  "minimum_review_gate": "Require at least two passive captures with matching ranked IDs before editing firmware profiles.",
+  "candidates": [
+    {
+      "id_hex": "0x0C",
+      "id_dec": 12,
+      "label": "Scroll/control",
+      "reference_priority": "HIGH",
+      "reference_model": "X",
+      "frame_count": 11,
+      "unique_payloads": 11,
+      "score": 61,
+      "top_payloads": [
+        {
+          "data_hex": "0F 04 00 00 00 00 C0 04",
+          "count": 1
+        },
+        {
+          "data_hex": "10 00 00 00 00 00 C0 06",
+          "count": 1
+        },
+        {
+          "data_hex": "0F 04 00 00 00 00 C0 07",
+          "count": 1
+        },
+        {
+          "data_hex": "10 00 00 00 00 00 C0 0B",
+          "count": 1
+        },
+        {
+          "data_hex": "10 00 00 00 00 00 C0 0F",
+          "count": 1
+        },
+        {
+          "data_hex": "0F 04 00 00 00 00 C0 01",
+          "count": 1
+        },
+        {
+          "data_hex": "10 00 00 00 00 00 C0 03",
+          "count": 1
+        },
+        {
+          "data_hex": "0F 04 00 00 00 00 C0 06",
+          "count": 1
+        },
+        {
+          "data_hex": "10 00 00 00 00 00 C0 08",
+          "count": 1
+        },
+        {
+          "data_hex": "11 04 00 00 00 00 C0 0A",
+          "count": 1
+        }
+      ],
+      "action_windows": []
+    }
+  ]
+}

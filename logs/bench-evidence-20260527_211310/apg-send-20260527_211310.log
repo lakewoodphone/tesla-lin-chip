@@ -1,0 +1,400 @@
+﻿[21:13:15.794] SEND frame='0C 10 00 00 00 00 00 C0 00' checksum=Enhanced baud=19200
+[21:13:17.096] APG Hardware baud rate set to: 19200
+[21:13:17.096] APG MasterBaudRate field: 19200
+[21:13:17.097] APG Headless NetworkAnalyser sending: 0C 10 00 00 00 00 00 C0 00 checksum=Enhanced
+[21:13:17.097] APG Status: Transmission successful
+[21:13:19.537] SEND frame='0C 11 04 00 00 00 00 C0 01' checksum=Enhanced baud=19200
+[21:13:20.571] APG Hardware baud rate set to: 19200
+[21:13:20.572] APG MasterBaudRate field: 19200
+[21:13:20.572] APG Headless NetworkAnalyser sending: 0C 11 04 00 00 00 00 C0 01 checksum=Enhanced
+[21:13:20.576] APG Status: Transmission successful
+[21:13:23.050] SEND frame='0C 0F 04 00 00 00 00 C0 02' checksum=Enhanced baud=19200
+[21:13:24.083] APG Hardware baud rate set to: 19200
+[21:13:24.083] APG MasterBaudRate field: 19200
+[21:13:24.084] APG Headless NetworkAnalyser sending: 0C 0F 04 00 00 00 00 C0 02 checksum=Enhanced
+[21:13:24.084] APG Status: Transmission successful
+[21:13:26.551] SEND frame='1A 10 00 00 00 00 00 C0 00' checksum=Enhanced baud=19200
+[21:13:27.570] APG Hardware baud rate set to: 19200
+[21:13:27.570] APG MasterBaudRate field: 19200
+[21:13:27.571] APG Headless NetworkAnalyser sending: 1A 10 00 00 00 00 00 C0 00 checksum=Enhanced
+[21:13:27.571] APG Status: Transmission successful
+[21:13:30.045] SEND frame='1B 10 00 00 00 00 00 C0 01' checksum=Enhanced baud=19200
+[21:13:31.066] APG Hardware baud rate set to: 19200
+[21:13:31.067] APG MasterBaudRate field: 19200
+[21:13:31.067] APG Headless NetworkAnalyser sending: 1B 10 00 00 00 00 00 C0 01 checksum=Enhanced
+[21:13:31.067] APG Status: Transmission successful
+[21:13:33.474] SEND frame='3C 00 00 00 00 00 00 00 00' checksum=Enhanced baud=19200
+[21:13:34.496] APG Hardware baud rate set to: 19200
+[21:13:34.497] APG MasterBaudRate field: 19200
+[21:13:34.497] APG Headless NetworkAnalyser sending: 3C 00 00 00 00 00 00 00 00 checksum=Enhanced
+[21:13:34.498] APG Status: Transmission successful
+[21:13:36.879] SEND frame='3C 00 00 00 00 00 00 00 00' checksum=Classic baud=19200
+[21:13:37.885] APG Hardware baud rate set to: 19200
+[21:13:37.885] APG MasterBaudRate field: 19200
+[21:13:37.885] APG Headless NetworkAnalyser sending: 3C 00 00 00 00 00 00 00 00 checksum=Classic
+[21:13:37.886] APG Status: Transmission successful
+[21:13:40.270] SEND frame='00 A0 00' checksum=Enhanced baud=19200
+[21:13:41.275] APG Hardware baud rate set to: 19200
+[21:13:41.276] APG MasterBaudRate field: 19200
+[21:13:41.276] APG Headless NetworkAnalyser sending: 00 A0 00 checksum=Enhanced
+[21:13:41.276] APG Status: Transmission successful
+[21:13:43.706] SEND frame='01 A1 01' checksum=Enhanced baud=19200
+[21:13:46.925] APG Hardware baud rate set to: 19200
+[21:13:46.926] APG MasterBaudRate field: 19200
+[21:13:46.926] APG Headless NetworkAnalyser sending: 01 A1 01 checksum=Enhanced
+[21:13:46.927] APG Status: Transmission successful
+[21:13:49.380] SEND frame='02 A2 02' checksum=Enhanced baud=19200
+[21:13:52.659] APG Hardware baud rate set to: 19200
+[21:13:52.660] APG MasterBaudRate field: 19200
+[21:13:52.660] APG Headless NetworkAnalyser sending: 02 A2 02 checksum=Enhanced
+[21:13:52.660] APG Status: Transmission successful
+[21:13:55.052] SEND frame='03 A3 03' checksum=Enhanced baud=19200
+[21:13:56.092] APG Hardware baud rate set to: 19200
+[21:13:56.093] APG MasterBaudRate field: 19200
+[21:13:56.093] APG Headless NetworkAnalyser sending: 03 A3 03 checksum=Enhanced
+[21:13:56.094] APG Status: Transmission successful
+[21:13:58.491] SEND frame='04 A4 04' checksum=Enhanced baud=19200
+[21:14:01.768] APG Hardware baud rate set to: 19200
+[21:14:01.769] APG MasterBaudRate field: 19200
+[21:14:01.770] APG Headless NetworkAnalyser sending: 04 A4 04 checksum=Enhanced
+[21:14:01.770] APG Status: Transmission successful
+[21:14:04.178] SEND frame='05 A5 05' checksum=Enhanced baud=19200
+[21:14:05.206] APG Hardware baud rate set to: 19200
+[21:14:05.207] APG MasterBaudRate field: 19200
+[21:14:05.208] APG Headless NetworkAnalyser sending: 05 A5 05 checksum=Enhanced
+[21:14:05.208] APG Status: Transmission successful
+[21:14:07.614] SEND frame='06 A6 06' checksum=Enhanced baud=19200
+[21:14:10.897] APG Hardware baud rate set to: 19200
+[21:14:10.897] APG MasterBaudRate field: 19200
+[21:14:10.898] APG Headless NetworkAnalyser sending: 06 A6 06 checksum=Enhanced
+[21:14:10.898] APG Status: Transmission successful
+[21:14:13.279] SEND frame='07 A7 07' checksum=Enhanced baud=19200
+[21:14:14.267] APG Hardware baud rate set to: 19200
+[21:14:14.268] APG MasterBaudRate field: 19200
+[21:14:14.268] APG Headless NetworkAnalyser sending: 07 A7 07 checksum=Enhanced
+[21:14:14.269] APG Status: Transmission successful
+[21:14:16.673] SEND frame='08 A8 08' checksum=Enhanced baud=19200
+[21:14:19.935] APG Hardware baud rate set to: 19200
+[21:14:19.936] APG MasterBaudRate field: 19200
+[21:14:19.936] APG Headless NetworkAnalyser sending: 08 A8 08 checksum=Enhanced
+[21:14:19.936] APG Status: Transmission successful
+[21:14:22.391] SEND frame='09 A9 09' checksum=Enhanced baud=19200
+[21:14:25.653] APG Hardware baud rate set to: 19200
+[21:14:25.654] APG MasterBaudRate field: 19200
+[21:14:25.654] APG Headless NetworkAnalyser sending: 09 A9 09 checksum=Enhanced
+[21:14:25.655] APG Status: Transmission successful
+[21:14:28.071] SEND frame='0A AA 0A' checksum=Enhanced baud=19200
+[21:14:29.046] APG Hardware baud rate set to: 19200
+[21:14:29.047] APG MasterBaudRate field: 19200
+[21:14:29.047] APG Headless NetworkAnalyser sending: 0A AA 0A checksum=Enhanced
+[21:14:29.048] APG Status: Transmission successful
+[21:14:31.504] SEND frame='0B AB 0B' checksum=Enhanced baud=19200
+[21:14:34.796] APG Hardware baud rate set to: 19200
+[21:14:34.798] APG MasterBaudRate field: 19200
+[21:14:34.798] APG Headless NetworkAnalyser sending: 0B AB 0B checksum=Enhanced
+[21:14:34.798] APG Status: Transmission successful
+[21:14:37.183] SEND frame='0C AC 0C' checksum=Enhanced baud=19200
+[21:14:38.243] APG Hardware baud rate set to: 19200
+[21:14:38.244] APG MasterBaudRate field: 19200
+[21:14:38.244] APG Headless NetworkAnalyser sending: 0C AC 0C checksum=Enhanced
+[21:14:38.245] APG Status: Transmission successful
+[21:14:40.623] SEND frame='0D AD 0D' checksum=Enhanced baud=19200
+[21:14:43.939] APG Hardware baud rate set to: 19200
+[21:14:43.940] APG MasterBaudRate field: 19200
+[21:14:43.940] APG Headless NetworkAnalyser sending: 0D AD 0D checksum=Enhanced
+[21:14:43.941] APG Status: Transmission successful
+[21:14:46.333] SEND frame='0E AE 0E' checksum=Enhanced baud=19200
+[21:14:49.677] APG Hardware baud rate set to: 19200
+[21:14:49.678] APG MasterBaudRate field: 19200
+[21:14:49.679] APG Headless NetworkAnalyser sending: 0E AE 0E checksum=Enhanced
+[21:14:49.679] APG Status: Transmission successful
+[21:14:52.075] SEND frame='0F AF 0F' checksum=Enhanced baud=19200
+[21:14:53.155] APG Hardware baud rate set to: 19200
+[21:14:53.156] APG MasterBaudRate field: 19200
+[21:14:53.156] APG Headless NetworkAnalyser sending: 0F AF 0F checksum=Enhanced
+[21:14:53.157] APG Status: Transmission successful
+[21:14:55.622] SEND frame='10 A0 10' checksum=Enhanced baud=19200
+[21:14:56.676] APG Hardware baud rate set to: 19200
+[21:14:56.677] APG MasterBaudRate field: 19200
+[21:14:56.678] APG Headless NetworkAnalyser sending: 10 A0 10 checksum=Enhanced
+[21:14:56.678] APG Status: Transmission successful
+[21:14:59.080] SEND frame='11 A1 11' checksum=Enhanced baud=19200
+[21:15:02.428] APG Hardware baud rate set to: 19200
+[21:15:02.428] APG MasterBaudRate field: 19200
+[21:15:02.429] APG Headless NetworkAnalyser sending: 11 A1 11 checksum=Enhanced
+[21:15:02.429] APG Status: Transmission successful
+[21:15:04.847] SEND frame='12 A2 12' checksum=Enhanced baud=19200
+[21:15:08.075] APG Hardware baud rate set to: 19200
+[21:15:08.075] APG MasterBaudRate field: 19200
+[21:15:08.076] APG Headless NetworkAnalyser sending: 12 A2 12 checksum=Enhanced
+[21:15:08.076] APG Status: Transmission successful
+[21:15:10.530] SEND frame='13 A3 13' checksum=Enhanced baud=19200
+[21:15:13.766] APG Hardware baud rate set to: 19200
+[21:15:13.766] APG MasterBaudRate field: 19200
+[21:15:13.767] APG Headless NetworkAnalyser sending: 13 A3 13 checksum=Enhanced
+[21:15:13.767] APG Status: Transmission successful
+[21:15:16.218] SEND frame='14 A4 14' checksum=Enhanced baud=19200
+[21:15:19.415] APG Hardware baud rate set to: 19200
+[21:15:19.419] APG MasterBaudRate field: 19200
+[21:15:19.420] APG Headless NetworkAnalyser sending: 14 A4 14 checksum=Enhanced
+[21:15:19.420] APG Status: Transmission successful
+[21:15:21.821] SEND frame='15 A5 15' checksum=Enhanced baud=19200
+[21:15:22.793] APG Hardware baud rate set to: 19200
+[21:15:22.794] APG MasterBaudRate field: 19200
+[21:15:22.795] APG Headless NetworkAnalyser sending: 15 A5 15 checksum=Enhanced
+[21:15:22.795] APG Status: Transmission successful
+[21:15:25.229] SEND frame='16 A6 16' checksum=Enhanced baud=19200
+[21:15:26.237] APG Hardware baud rate set to: 19200
+[21:15:26.237] APG MasterBaudRate field: 19200
+[21:15:26.238] APG Headless NetworkAnalyser sending: 16 A6 16 checksum=Enhanced
+[21:15:26.238] APG Status: Transmission successful
+[21:15:28.648] SEND frame='17 A7 17' checksum=Enhanced baud=19200
+[21:15:31.905] APG Hardware baud rate set to: 19200
+[21:15:31.906] APG MasterBaudRate field: 19200
+[21:15:31.907] APG Headless NetworkAnalyser sending: 17 A7 17 checksum=Enhanced
+[21:15:31.907] APG Status: Transmission successful
+[21:15:34.314] SEND frame='18 A8 18' checksum=Enhanced baud=19200
+[21:15:37.540] APG Hardware baud rate set to: 19200
+[21:15:37.541] APG MasterBaudRate field: 19200
+[21:15:37.541] APG Headless NetworkAnalyser sending: 18 A8 18 checksum=Enhanced
+[21:15:37.542] APG Status: Transmission successful
+[21:15:39.984] SEND frame='19 A9 19' checksum=Enhanced baud=19200
+[21:15:43.222] APG Hardware baud rate set to: 19200
+[21:15:43.223] APG MasterBaudRate field: 19200
+[21:15:43.223] APG Headless NetworkAnalyser sending: 19 A9 19 checksum=Enhanced
+[21:15:43.224] APG Status: Transmission successful
+[21:15:45.654] SEND frame='1A AA 1A' checksum=Enhanced baud=19200
+[21:15:48.888] APG Hardware baud rate set to: 19200
+[21:15:48.888] APG MasterBaudRate field: 19200
+[21:15:48.889] APG Headless NetworkAnalyser sending: 1A AA 1A checksum=Enhanced
+[21:15:48.889] APG Status: Transmission successful
+[21:15:51.283] SEND frame='1B AB 1B' checksum=Enhanced baud=19200
+[21:15:54.568] APG Hardware baud rate set to: 19200
+[21:15:54.568] APG MasterBaudRate field: 19200
+[21:15:54.569] APG Headless NetworkAnalyser sending: 1B AB 1B checksum=Enhanced
+[21:15:54.569] APG Status: Transmission successful
+[21:15:57.010] SEND frame='1C AC 1C' checksum=Enhanced baud=19200
+[21:16:00.260] APG Hardware baud rate set to: 19200
+[21:16:00.261] APG MasterBaudRate field: 19200
+[21:16:00.261] APG Headless NetworkAnalyser sending: 1C AC 1C checksum=Enhanced
+[21:16:00.262] APG Status: Transmission successful
+[21:16:02.630] SEND frame='1D AD 1D' checksum=Enhanced baud=19200
+[21:16:05.854] APG Hardware baud rate set to: 19200
+[21:16:05.854] APG MasterBaudRate field: 19200
+[21:16:05.855] APG Headless NetworkAnalyser sending: 1D AD 1D checksum=Enhanced
+[21:16:05.855] APG Status: Transmission successful
+[21:16:08.245] SEND frame='1E AE 1E' checksum=Enhanced baud=19200
+[21:16:11.490] APG Hardware baud rate set to: 19200
+[21:16:11.490] APG MasterBaudRate field: 19200
+[21:16:11.491] APG Headless NetworkAnalyser sending: 1E AE 1E checksum=Enhanced
+[21:16:11.491] APG Status: Transmission successful
+[21:16:13.929] SEND frame='1F AF 1F' checksum=Enhanced baud=19200
+[21:16:17.149] APG Hardware baud rate set to: 19200
+[21:16:17.150] APG MasterBaudRate field: 19200
+[21:16:17.150] APG Headless NetworkAnalyser sending: 1F AF 1F checksum=Enhanced
+[21:16:17.151] APG Status: Transmission successful
+[21:16:19.554] SEND frame='20 01 02 20 55' checksum=Enhanced baud=19200
+[21:16:20.542] APG Hardware baud rate set to: 19200
+[21:16:20.542] APG MasterBaudRate field: 19200
+[21:16:20.543] APG Headless NetworkAnalyser sending: 20 01 02 20 55 checksum=Enhanced
+[21:16:20.543] APG Status: Transmission successful
+[21:16:23.001] SEND frame='21 01 02 21 55' checksum=Enhanced baud=19200
+[21:16:26.812] APG Hardware baud rate set to: 19200
+[21:16:26.813] APG MasterBaudRate field: 19200
+[21:16:26.813] APG Headless NetworkAnalyser sending: 21 01 02 21 55 checksum=Enhanced
+[21:16:26.814] APG Status: Transmission successful
+[21:16:29.243] SEND frame='22 01 02 22 55' checksum=Enhanced baud=19200
+[21:16:32.460] APG Hardware baud rate set to: 19200
+[21:16:32.460] APG MasterBaudRate field: 19200
+[21:16:32.461] APG Headless NetworkAnalyser sending: 22 01 02 22 55 checksum=Enhanced
+[21:16:32.461] APG Status: Transmission successful
+[21:16:34.908] SEND frame='23 01 02 23 55' checksum=Enhanced baud=19200
+[21:16:35.887] APG Hardware baud rate set to: 19200
+[21:16:35.888] APG MasterBaudRate field: 19200
+[21:16:35.888] APG Headless NetworkAnalyser sending: 23 01 02 23 55 checksum=Enhanced
+[21:16:35.888] APG Status: Transmission successful
+[21:16:38.344] SEND frame='24 01 02 24 55' checksum=Enhanced baud=19200
+[21:16:41.571] APG Hardware baud rate set to: 19200
+[21:16:41.571] APG MasterBaudRate field: 19200
+[21:16:41.572] APG Headless NetworkAnalyser sending: 24 01 02 24 55 checksum=Enhanced
+[21:16:41.572] APG Status: Transmission successful
+[21:16:44.026] SEND frame='25 01 02 25 55' checksum=Enhanced baud=19200
+[21:16:47.261] APG Hardware baud rate set to: 19200
+[21:16:47.262] APG MasterBaudRate field: 19200
+[21:16:47.262] APG Headless NetworkAnalyser sending: 25 01 02 25 55 checksum=Enhanced
+[21:16:47.262] APG Status: Transmission successful
+[21:16:49.636] SEND frame='26 01 02 26 55' checksum=Enhanced baud=19200
+[21:16:50.680] APG Hardware baud rate set to: 19200
+[21:16:50.681] APG MasterBaudRate field: 19200
+[21:16:50.682] APG Headless NetworkAnalyser sending: 26 01 02 26 55 checksum=Enhanced
+[21:16:50.682] APG Status: Transmission successful
+[21:16:53.133] SEND frame='27 01 02 27 55' checksum=Enhanced baud=19200
+[21:16:54.163] APG Hardware baud rate set to: 19200
+[21:16:54.163] APG MasterBaudRate field: 19200
+[21:16:54.164] APG Headless NetworkAnalyser sending: 27 01 02 27 55 checksum=Enhanced
+[21:16:54.164] APG Status: Transmission successful
+[21:16:56.556] SEND frame='28 01 02 28 55' checksum=Enhanced baud=19200
+[21:16:59.829] APG Hardware baud rate set to: 19200
+[21:16:59.831] APG MasterBaudRate field: 19200
+[21:16:59.831] APG Headless NetworkAnalyser sending: 28 01 02 28 55 checksum=Enhanced
+[21:16:59.832] APG Status: Transmission successful
+[21:17:02.254] SEND frame='29 01 02 29 55' checksum=Enhanced baud=19200
+[21:17:03.230] APG Hardware baud rate set to: 19200
+[21:17:03.231] APG MasterBaudRate field: 19200
+[21:17:03.231] APG Headless NetworkAnalyser sending: 29 01 02 29 55 checksum=Enhanced
+[21:17:03.232] APG Status: Transmission successful
+[21:17:05.701] SEND frame='2A 01 02 2A 55' checksum=Enhanced baud=19200
+[21:17:06.680] APG Hardware baud rate set to: 19200
+[21:17:06.681] APG MasterBaudRate field: 19200
+[21:17:06.681] APG Headless NetworkAnalyser sending: 2A 01 02 2A 55 checksum=Enhanced
+[21:17:06.681] APG Status: Transmission successful
+[21:17:09.140] SEND frame='2B 01 02 2B 55' checksum=Enhanced baud=19200
+[21:17:10.093] APG Hardware baud rate set to: 19200
+[21:17:10.098] APG MasterBaudRate field: 19200
+[21:17:10.098] APG Headless NetworkAnalyser sending: 2B 01 02 2B 55 checksum=Enhanced
+[21:17:10.099] APG Status: Transmission successful
+[21:17:12.492] SEND frame='2C 01 02 2C 55' checksum=Enhanced baud=19200
+[21:17:15.704] APG Hardware baud rate set to: 19200
+[21:17:15.704] APG MasterBaudRate field: 19200
+[21:17:15.705] APG Headless NetworkAnalyser sending: 2C 01 02 2C 55 checksum=Enhanced
+[21:17:15.705] APG Status: Transmission successful
+[21:17:18.173] SEND frame='2D 01 02 2D 55' checksum=Enhanced baud=19200
+[21:17:21.412] APG Hardware baud rate set to: 19200
+[21:17:21.413] APG MasterBaudRate field: 19200
+[21:17:21.413] APG Headless NetworkAnalyser sending: 2D 01 02 2D 55 checksum=Enhanced
+[21:17:21.414] APG Status: Transmission successful
+[21:17:23.824] SEND frame='2E 01 02 2E 55' checksum=Enhanced baud=19200
+[21:17:27.069] APG Hardware baud rate set to: 19200
+[21:17:27.069] APG MasterBaudRate field: 19200
+[21:17:27.070] APG Headless NetworkAnalyser sending: 2E 01 02 2E 55 checksum=Enhanced
+[21:17:27.070] APG Status: Transmission successful
+[21:17:29.480] SEND frame='2F 01 02 2F 55' checksum=Enhanced baud=19200
+[21:17:30.467] APG Hardware baud rate set to: 19200
+[21:17:30.467] APG MasterBaudRate field: 19200
+[21:17:30.467] APG Headless NetworkAnalyser sending: 2F 01 02 2F 55 checksum=Enhanced
+[21:17:30.468] APG Status: Transmission successful
+[21:17:32.933] SEND frame='30 10 00 00 00 00 00 C0 00' checksum=Enhanced baud=19200
+[21:17:33.932] APG Hardware baud rate set to: 19200
+[21:17:33.933] APG MasterBaudRate field: 19200
+[21:17:33.933] APG Headless NetworkAnalyser sending: 30 10 00 00 00 00 00 C0 00 checksum=Enhanced
+[21:17:33.934] APG Status: Transmission successful
+[21:17:36.333] SEND frame='31 10 00 00 00 00 00 C0 01' checksum=Enhanced baud=19200
+[21:17:37.319] APG Hardware baud rate set to: 19200
+[21:17:37.320] APG MasterBaudRate field: 19200
+[21:17:37.320] APG Headless NetworkAnalyser sending: 31 10 00 00 00 00 00 C0 01 checksum=Enhanced
+[21:17:37.321] APG Status: Transmission successful
+[21:17:39.704] SEND frame='32 10 00 00 00 00 00 C0 02' checksum=Enhanced baud=19200
+[21:17:40.719] APG Hardware baud rate set to: 19200
+[21:17:40.720] APG MasterBaudRate field: 19200
+[21:17:40.721] APG Headless NetworkAnalyser sending: 32 10 00 00 00 00 00 C0 02 checksum=Enhanced
+[21:17:40.721] APG Status: Transmission successful
+[21:17:43.167] SEND frame='33 10 00 00 00 00 00 C0 03' checksum=Enhanced baud=19200
+[21:17:44.190] APG Hardware baud rate set to: 19200
+[21:17:44.191] APG MasterBaudRate field: 19200
+[21:17:44.191] APG Headless NetworkAnalyser sending: 33 10 00 00 00 00 00 C0 03 checksum=Enhanced
+[21:17:44.192] APG Status: Transmission successful
+[21:17:46.559] SEND frame='34 10 00 00 00 00 00 C0 04' checksum=Enhanced baud=19200
+[21:17:47.614] APG Hardware baud rate set to: 19200
+[21:17:47.615] APG MasterBaudRate field: 19200
+[21:17:47.615] APG Headless NetworkAnalyser sending: 34 10 00 00 00 00 00 C0 04 checksum=Enhanced
+[21:17:47.615] APG Status: Transmission successful
+[21:17:50.052] SEND frame='35 10 00 00 00 00 00 C0 05' checksum=Enhanced baud=19200
+[21:17:51.071] APG Hardware baud rate set to: 19200
+[21:17:51.071] APG MasterBaudRate field: 19200
+[21:17:51.072] APG Headless NetworkAnalyser sending: 35 10 00 00 00 00 00 C0 05 checksum=Enhanced
+[21:17:51.072] APG Status: Transmission successful
+[21:17:53.489] SEND frame='36 10 00 00 00 00 00 C0 06' checksum=Enhanced baud=19200
+[21:17:54.488] APG Hardware baud rate set to: 19200
+[21:17:54.489] APG MasterBaudRate field: 19200
+[21:17:54.489] APG Headless NetworkAnalyser sending: 36 10 00 00 00 00 00 C0 06 checksum=Enhanced
+[21:17:54.490] APG Status: Transmission successful
+[21:17:56.874] SEND frame='37 10 00 00 00 00 00 C0 07' checksum=Enhanced baud=19200
+[21:17:57.882] APG Hardware baud rate set to: 19200
+[21:17:57.882] APG MasterBaudRate field: 19200
+[21:17:57.883] APG Headless NetworkAnalyser sending: 37 10 00 00 00 00 00 C0 07 checksum=Enhanced
+[21:17:57.883] APG Status: Transmission successful
+[21:18:00.275] SEND frame='38 10 00 00 00 00 00 C0 08' checksum=Enhanced baud=19200
+[21:18:01.253] APG Hardware baud rate set to: 19200
+[21:18:01.254] APG MasterBaudRate field: 19200
+[21:18:01.254] APG Headless NetworkAnalyser sending: 38 10 00 00 00 00 00 C0 08 checksum=Enhanced
+[21:18:01.255] APG Status: Transmission successful
+[21:18:03.699] SEND frame='39 10 00 00 00 00 00 C0 09' checksum=Enhanced baud=19200
+[21:18:04.658] APG Hardware baud rate set to: 19200
+[21:18:04.658] APG MasterBaudRate field: 19200
+[21:18:04.660] APG Headless NetworkAnalyser sending: 39 10 00 00 00 00 00 C0 09 checksum=Enhanced
+[21:18:04.660] APG Status: Transmission successful
+[21:18:07.069] SEND frame='3A 10 00 00 00 00 00 C0 0A' checksum=Enhanced baud=19200
+[21:18:08.058] APG Hardware baud rate set to: 19200
+[21:18:08.058] APG MasterBaudRate field: 19200
+[21:18:08.059] APG Headless NetworkAnalyser sending: 3A 10 00 00 00 00 00 C0 0A checksum=Enhanced
+[21:18:08.059] APG Status: Transmission successful
+[21:18:10.516] SEND frame='3B 10 00 00 00 00 00 C0 0B' checksum=Enhanced baud=19200
+[21:18:11.491] APG Hardware baud rate set to: 19200
+[21:18:11.492] APG MasterBaudRate field: 19200
+[21:18:11.492] APG Headless NetworkAnalyser sending: 3B 10 00 00 00 00 00 C0 0B checksum=Enhanced
+[21:18:11.494] APG Status: Transmission successful
+[21:18:13.913] SEND frame='3C 10 00 00 00 00 00 C0 0C' checksum=Enhanced baud=19200
+[21:18:14.881] APG Hardware baud rate set to: 19200
+[21:18:14.882] APG MasterBaudRate field: 19200
+[21:18:14.883] APG Headless NetworkAnalyser sending: 3C 10 00 00 00 00 00 C0 0C checksum=Enhanced
+[21:18:14.883] APG Status: Transmission successful
+[21:18:17.281] SEND frame='3D 10 00 00 00 00 00 C0 0D' checksum=Enhanced baud=19200
+[21:18:18.268] APG Hardware baud rate set to: 19200
+[21:18:18.269] APG MasterBaudRate field: 19200
+[21:18:18.269] APG Headless NetworkAnalyser sending: 3D 10 00 00 00 00 00 C0 0D checksum=Enhanced
+[21:18:18.270] APG Status: Transmission successful
+[21:18:20.742] SEND frame='3E 10 00 00 00 00 00 C0 0E' checksum=Enhanced baud=19200
+[21:18:21.712] APG Hardware baud rate set to: 19200
+[21:18:21.712] APG MasterBaudRate field: 19200
+[21:18:21.713] APG Headless NetworkAnalyser sending: 3E 10 00 00 00 00 00 C0 0E checksum=Enhanced
+[21:18:21.713] APG Status: Transmission successful
+[21:18:24.083] SEND frame='3F 10 00 00 00 00 00 C0 0F' checksum=Enhanced baud=19200
+[21:18:25.070] APG Hardware baud rate set to: 19200
+[21:18:25.071] APG MasterBaudRate field: 19200
+[21:18:25.072] APG Headless NetworkAnalyser sending: 3F 10 00 00 00 00 00 C0 0F checksum=Enhanced
+[21:18:25.072] APG Status: Transmission successful
+[21:18:27.515] SEND frame='0C 11 04 00 00 00 00 C0 00' checksum=Enhanced baud=19200
+[21:18:28.494] APG Hardware baud rate set to: 19200
+[21:18:28.495] APG MasterBaudRate field: 19200
+[21:18:28.495] APG Headless NetworkAnalyser sending: 0C 11 04 00 00 00 00 C0 00 checksum=Enhanced
+[21:18:28.496] APG Status: Transmission successful
+[21:18:30.966] SEND frame='0C 0F 04 00 00 00 00 C0 01' checksum=Enhanced baud=19200
+[21:18:31.928] APG Hardware baud rate set to: 19200
+[21:18:31.929] APG MasterBaudRate field: 19200
+[21:18:31.929] APG Headless NetworkAnalyser sending: 0C 0F 04 00 00 00 00 C0 01 checksum=Enhanced
+[21:18:31.930] APG Status: Transmission successful
+[21:18:34.302] SEND frame='0C 11 04 00 00 00 00 C0 02' checksum=Enhanced baud=19200
+[21:18:35.318] APG Hardware baud rate set to: 19200
+[21:18:35.319] APG MasterBaudRate field: 19200
+[21:18:35.319] APG Headless NetworkAnalyser sending: 0C 11 04 00 00 00 00 C0 02 checksum=Enhanced
+[21:18:35.321] APG Status: Transmission successful
+[21:18:37.738] SEND frame='0C 0F 04 00 00 00 00 C0 03' checksum=Enhanced baud=19200
+[21:18:38.739] APG Hardware baud rate set to: 19200
+[21:18:38.740] APG MasterBaudRate field: 19200
+[21:18:38.740] APG Headless NetworkAnalyser sending: 0C 0F 04 00 00 00 00 C0 03 checksum=Enhanced
+[21:18:38.741] APG Status: Transmission successful
+[21:18:41.196] SEND frame='0C 11 04 00 00 00 00 C0 04' checksum=Enhanced baud=19200
+[21:18:42.284] APG Hardware baud rate set to: 19200
+[21:18:42.284] APG MasterBaudRate field: 19200
+[21:18:42.285] APG Headless NetworkAnalyser sending: 0C 11 04 00 00 00 00 C0 04 checksum=Enhanced
+[21:18:42.285] APG Status: Transmission successful
+[21:18:44.738] SEND frame='0C 0F 04 00 00 00 00 C0 05' checksum=Enhanced baud=19200
+[21:18:45.793] APG Hardware baud rate set to: 19200
+[21:18:45.794] APG MasterBaudRate field: 19200
+[21:18:45.795] APG Headless NetworkAnalyser sending: 0C 0F 04 00 00 00 00 C0 05 checksum=Enhanced
+[21:18:45.796] APG Status: Transmission successful
+[21:18:48.187] SEND frame='0C 11 04 00 00 00 00 C0 06' checksum=Enhanced baud=19200
+[21:18:49.251] APG Hardware baud rate set to: 19200
+[21:18:49.251] APG MasterBaudRate field: 19200
+[21:18:49.252] APG Headless NetworkAnalyser sending: 0C 11 04 00 00 00 00 C0 06 checksum=Enhanced
+[21:18:49.252] APG Status: Transmission successful
+[21:18:51.717] SEND frame='0C 0F 04 00 00 00 00 C0 07' checksum=Enhanced baud=19200
+[21:18:52.766] APG Hardware baud rate set to: 19200
+[21:18:52.767] APG MasterBaudRate field: 19200
+[21:18:52.767] APG Headless NetworkAnalyser sending: 0C 0F 04 00 00 00 00 C0 07 checksum=Enhanced
+[21:18:52.768] APG Status: Transmission successful
+[21:18:55.188] SEND frame='0C 10 00 00 00 00 00 C0 08' checksum=Enhanced baud=19200
+[21:18:56.205] APG Hardware baud rate set to: 19200
+[21:18:56.205] APG MasterBaudRate field: 19200
+[21:18:56.206] APG Headless NetworkAnalyser sending: 0C 10 00 00 00 00 00 C0 08 checksum=Enhanced
+[21:18:56.206] APG Status: Transmission successful

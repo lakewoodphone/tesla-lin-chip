@@ -1,0 +1,297 @@
+ERC report (2026-05-29T20:12:42, Encoding UTF8)
+Report includes: Errors, Warnings
+
+***** Sheet /
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(34.29 mm, 52.07 mm): Label 'INH_A_TP'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(34.29 mm, 87.63 mm): Label 'INH_B_TP'
+[footprint_link_issues]: The current configuration does not include the footprint library 'Package_SO'
+    ; warning
+    @(52.07 mm, 41.91 mm): Symbol U2 [Conn_01x08]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(52.07 mm, 41.91 mm): Symbol U2 [Conn_01x08]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Package_SO'
+    ; warning
+    @(52.07 mm, 77.47 mm): Symbol U3 [Conn_01x08]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(52.07 mm, 77.47 mm): Symbol U3 [Conn_01x08]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Package_SO'
+    ; warning
+    @(52.07 mm, 124.46 mm): Symbol U4 [Conn_01x09]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(52.07 mm, 124.46 mm): Symbol U4 [Conn_01x09]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Package_SO'
+    ; warning
+    @(52.07 mm, 156.21 mm): Symbol Q1 [Conn_01x08]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(52.07 mm, 156.21 mm): Symbol Q1 [Conn_01x08]
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 78.74 mm): Label 'NC_U1_8'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 81.28 mm): Label 'NC_U1_9'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 83.82 mm): Label 'NC_U1_10'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 86.36 mm): Label 'NC_U1_11'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 96.52 mm): Label 'NC_U1_15'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 99.06 mm): Label 'NC_U1_16'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 104.14 mm): Label 'NC_U1_18'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 106.68 mm): Label 'NC_U1_19'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 109.22 mm): Label 'NC_U1_20'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 111.76 mm): Label 'NC_U1_21'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 114.30 mm): Label 'NC_U1_22'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 116.84 mm): Label 'NC_U1_23'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 119.38 mm): Label 'NC_U1_24'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 121.92 mm): Label 'NC_U1_25'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 124.46 mm): Label 'NC_U1_26'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 129.54 mm): Label 'NC_U1_28'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 132.08 mm): Label 'NC_U1_29'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 134.62 mm): Label 'NC_U1_30'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 137.16 mm): Label 'NC_U1_31'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 139.70 mm): Label 'NC_U1_32'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 142.24 mm): Label 'NC_U1_33'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 144.78 mm): Label 'NC_U1_34'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 147.32 mm): Label 'NC_U1_35'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 149.86 mm): Label 'UART0_RX'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 152.40 mm): Label 'UART0_TX'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 154.94 mm): Label 'NC_U1_38'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 157.48 mm): Label 'NC_U1_39'
+[footprint_link_issues]: The current configuration does not include the footprint library 'RF_Module'
+    ; warning
+    @(91.44 mm, 111.76 mm): Symbol U1 [Conn_01x41]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(91.44 mm, 111.76 mm): Symbol U1 [Conn_01x41]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Connector_USB'
+    ; warning
+    @(148.59 mm, 44.45 mm): Symbol J1 [Conn_01x16]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(148.59 mm, 44.45 mm): Symbol J1 [Conn_01x16]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(148.59 mm, 77.47 mm): Symbol J2 [Conn_01x03]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(148.59 mm, 96.52 mm): Symbol J3 [Conn_01x03]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Button_Switch_SMD'
+    ; warning
+    @(148.59 mm, 124.46 mm): Symbol SW1 [Conn_01x06]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(148.59 mm, 124.46 mm): Symbol SW1 [Conn_01x06]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Fuse'
+    ; warning
+    @(148.59 mm, 146.05 mm): Symbol F1 [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(148.59 mm, 146.05 mm): Symbol F1 [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Diode_SMD'
+    ; warning
+    @(148.59 mm, 157.48 mm): Symbol D1 [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(148.59 mm, 157.48 mm): Symbol D1 [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Inductor_SMD'
+    ; warning
+    @(148.59 mm, 170.18 mm): Symbol FB1 [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(148.59 mm, 170.18 mm): Symbol FB1 [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Diode_SMD'
+    ; warning
+    @(198.12 mm, 41.91 mm): Symbol D2 [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 41.91 mm): Symbol D2 [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Diode_SMD'
+    ; warning
+    @(198.12 mm, 54.61 mm): Symbol D3 [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 54.61 mm): Symbol D3 [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Package_TO_SOT_SMD'
+    ; warning
+    @(198.12 mm, 72.39 mm): Symbol D4 [Conn_01x06]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 72.39 mm): Symbol D4 [Conn_01x06]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(198.12 mm, 93.98 mm): Symbol R_CC1 [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 93.98 mm): Symbol R_CC1 [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(198.12 mm, 105.41 mm): Symbol R_CC2 [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 105.41 mm): Symbol R_CC2 [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(198.12 mm, 118.11 mm): Symbol R_EN [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 118.11 mm): Symbol R_EN [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(198.12 mm, 129.54 mm): Symbol R_BOOT [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 129.54 mm): Symbol R_BOOT [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(198.12 mm, 142.24 mm): Symbol R_LINEN_PD [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 142.24 mm): Symbol R_LINEN_PD [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(198.12 mm, 153.67 mm): Symbol R_ARMSENSE_PD [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 153.67 mm): Symbol R_ARMSENSE_PD [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(198.12 mm, 166.37 mm): Symbol R_WAKE_A [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 166.37 mm): Symbol R_WAKE_A [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(198.12 mm, 177.80 mm): Symbol R_WAKE_B [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 177.80 mm): Symbol R_WAKE_B [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(198.12 mm, 190.50 mm): Symbol R_LINA_SER [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 190.50 mm): Symbol R_LINA_SER [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(198.12 mm, 201.93 mm): Symbol R_LINB_SER [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(198.12 mm, 201.93 mm): Symbol R_LINB_SER [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(243.84 mm, 41.91 mm): Symbol R_FB_TOP [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(243.84 mm, 41.91 mm): Symbol R_FB_TOP [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(243.84 mm, 54.61 mm): Symbol R_FB_BOT [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(243.84 mm, 54.61 mm): Symbol R_FB_BOT [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(243.84 mm, 66.04 mm): Symbol R_BUCK_EN [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(243.84 mm, 66.04 mm): Symbol R_BUCK_EN [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(243.84 mm, 77.47 mm): Symbol R_BUCK_RON [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(243.84 mm, 77.47 mm): Symbol R_BUCK_RON [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Resistor_SMD'
+    ; warning
+    @(243.84 mm, 90.17 mm): Symbol R_PGOOD_PU [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(243.84 mm, 90.17 mm): Symbol R_PGOOD_PU [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Capacitor_SMD'
+    ; warning
+    @(243.84 mm, 105.41 mm): Symbol C_BST [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(243.84 mm, 105.41 mm): Symbol C_BST [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Inductor_SMD'
+    ; warning
+    @(243.84 mm, 118.11 mm): Symbol L1 [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(243.84 mm, 118.11 mm): Symbol L1 [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Capacitor_SMD'
+    ; warning
+    @(243.84 mm, 134.62 mm): Symbol C_IN [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(243.84 mm, 134.62 mm): Symbol C_IN [Conn_01x02]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Capacitor_SMD'
+    ; warning
+    @(243.84 mm, 146.05 mm): Symbol C_3V3 [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(243.84 mm, 146.05 mm): Symbol C_3V3 [Conn_01x02]
+
+ ** ERC messages: 95  Errors 0  Warnings 95
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters

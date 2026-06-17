@@ -1,0 +1,30 @@
+﻿[21:30:02.280] SEND label=1-UP attempt=1 frame='0C 11 04 00 00 00 00 C0 00' baud=19200
+[21:30:03.288] APG Hardware baud rate set to: 19200
+[21:30:03.289] APG MasterBaudRate field: 19200
+[21:30:03.289] APG Headless NetworkAnalyser sending: 0C 11 04 00 00 00 00 C0 00 checksum=Enhanced
+[21:30:03.290] APG Status: Transmission successful
+[21:30:03.473] SEND label=1-DOWN attempt=1 frame='0C 0F 04 00 00 00 00 C0 01' baud=19200
+[21:30:04.466] APG Hardware baud rate set to: 19200
+[21:30:04.467] APG MasterBaudRate field: 19200
+[21:30:04.468] APG Headless NetworkAnalyser sending: 0C 0F 04 00 00 00 00 C0 01 checksum=Enhanced
+[21:30:04.469] APG Status: Transmission successful
+[21:30:04.627] SEND label=2-UP attempt=1 frame='0C 11 04 00 00 00 00 C0 02' baud=19200
+[21:30:05.675] APG Hardware baud rate set to: 19200
+[21:30:05.676] APG MasterBaudRate field: 19200
+[21:30:05.676] APG Headless NetworkAnalyser sending: 0C 11 04 00 00 00 00 C0 02 checksum=Enhanced
+[21:30:05.677] APG Status: Transmission successful
+[21:30:05.830] SEND label=2-DOWN attempt=1 frame='0C 0F 04 00 00 00 00 C0 03' baud=19200
+[21:30:06.815] APG Hardware baud rate set to: 19200
+[21:30:06.815] APG MasterBaudRate field: 19200
+[21:30:06.816] APG Headless NetworkAnalyser sending: 0C 0F 04 00 00 00 00 C0 03 checksum=Enhanced
+[21:30:06.816] APG Status: Transmission successful
+[21:30:06.984] SEND label=neutral-1 attempt=1 frame='0C 10 00 00 00 00 00 C0 04' baud=19200
+[21:30:07.971] APG Hardware baud rate set to: 19200
+[21:30:07.972] APG MasterBaudRate field: 19200
+[21:30:07.972] APG Headless NetworkAnalyser sending: 0C 10 00 00 00 00 00 C0 04 checksum=Enhanced
+[21:30:07.973] APG Status: Transmission successful
+[21:30:08.126] SEND label=neutral-2 attempt=1 frame='0C 10 00 00 00 00 00 C0 05' baud=19200
+[21:30:09.112] APG Hardware baud rate set to: 19200
+[21:30:09.112] APG MasterBaudRate field: 19200
+[21:30:09.113] APG Headless NetworkAnalyser sending: 0C 10 00 00 00 00 00 C0 05 checksum=Enhanced
+[21:30:09.113] APG Status: Transmission successful

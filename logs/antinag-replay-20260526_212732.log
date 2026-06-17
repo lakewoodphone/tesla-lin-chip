@@ -1,0 +1,2 @@
+﻿[21:27:32.436] SEND label=1-UP attempt=1 frame='0C 11 04 00 00 00 00 C0 00' baud=19200
+[21:27:33.316] SEND label=1-UP attempt=2 frame='0C 11 04 00 00 00 00 C0 00' baud=19200

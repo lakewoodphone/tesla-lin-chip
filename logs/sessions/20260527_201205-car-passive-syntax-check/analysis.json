@@ -1,0 +1,50 @@
+{
+  "csv": "logs\\lin-capture-20260527_140343.csv",
+  "analyzed_at": "2026-05-28T00:12:33.311969+00:00",
+  "model": "X",
+  "total_frames": 11,
+  "duration_s": 1,
+  "rate_hz": 11.0,
+  "unique_ids": 1,
+  "ids": {
+    "0x0C": {
+      "count": 11,
+      "rate_hz": 10.0,
+      "unique_payloads": 11,
+      "label": "Scroll/control",
+      "priority": "HIGH"
+    }
+  },
+  "action_windows": [
+    {
+      "name": "baseline-idle",
+      "start_ms": 0,
+      "end_ms": 120000,
+      "notes": "No controls touched",
+      "ranked_ids": [
+        {
+          "id_hex": "0x0C",
+          "label": "Scroll/control",
+          "priority": "HIGH",
+          "during_frames": 11,
+          "before_frames": 0,
+          "during_unique_payloads": 11,
+          "new_payloads": [
+            "0F 04 00 00 00 00 C0 01",
+            "0F 04 00 00 00 00 C0 04",
+            "0F 04 00 00 00 00 C0 06",
+            "0F 04 00 00 00 00 C0 07",
+            "10 00 00 00 00 00 C0 03",
+            "10 00 00 00 00 00 C0 06",
+            "10 00 00 00 00 00 C0 08",
+            "10 00 00 00 00 00 C0 0B",
+            "10 00 00 00 00 00 C0 0C",
+            "10 00 00 00 00 00 C0 0F"
+          ],
+          "rate_delta_hz": 0.09,
+          "score": 66.18
+        }
+      ]
+    }
+  ]
+}

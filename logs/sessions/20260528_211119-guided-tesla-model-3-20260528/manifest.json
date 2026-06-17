@@ -1,0 +1,127 @@
+﻿{
+    "schema":  "xiao-lin-guided-v1",
+    "created_at":  "2026-05-28T21:11:21.2085642-04:00",
+    "mode":  "guided-interactive",
+    "vehicle_id":  "tesla-model-3-20260528",
+    "xiao_port":  "COM7",
+    "serial_log":  "C:\\Users\\ezabz\\code\\xiao-lin-bench\\logs\\sessions\\20260528_211119-guided-tesla-model-3-20260528\\xiao-guided-serial.log",
+    "action_windows":  [
+                           {
+                               "name":  "baseline-idle",
+                               "type":  "auto",
+                               "wall_start":  "2026-05-28T21:16:25.9949077-04:00",
+                               "wall_end":  "2026-05-28T21:16:42.1105370-04:00",
+                               "duration_s":  16.12,
+                               "frames_at_end":  32685,
+                               "notes":  "Initial baseline - no actions, stay at laptop"
+                           },
+                           {
+                               "name":  "left-scroll-up",
+                               "type":  "action",
+                               "wall_start":  "2026-05-28T21:16:42.8796960-04:00",
+                               "wall_end":  "2026-05-28T21:17:09.0529314-04:00",
+                               "duration_s":  26.17,
+                               "frames_at_end":  35426,
+                               "notes":  "Scroll left scroll wheel upward"
+                           },
+                           {
+                               "name":  "idle-1",
+                               "type":  "auto",
+                               "wall_start":  "2026-05-28T21:17:09.7898503-04:00",
+                               "wall_end":  "2026-05-28T21:17:22.9881767-04:00",
+                               "duration_s":  13.2,
+                               "frames_at_end":  36823,
+                               "notes":  "Idle after left scroll up"
+                           },
+                           {
+                               "name":  "left-scroll-down",
+                               "type":  "action",
+                               "wall_start":  "2026-05-28T21:17:23.9729645-04:00",
+                               "wall_end":  "2026-05-28T21:17:41.3853652-04:00",
+                               "duration_s":  17.41,
+                               "frames_at_end":  38670,
+                               "notes":  "Scroll left scroll wheel downward"
+                           },
+                           {
+                               "name":  "idle-2",
+                               "type":  "auto",
+                               "wall_start":  "2026-05-28T21:17:42.0997974-04:00",
+                               "wall_end":  "2026-05-28T21:17:54.4824264-04:00",
+                               "duration_s":  12.38,
+                               "frames_at_end":  40011,
+                               "notes":  "Idle after left scroll down"
+                           },
+                           {
+                               "name":  "left-wheel-click",
+                               "type":  "action",
+                               "wall_start":  "2026-05-28T21:17:55.5675058-04:00",
+                               "wall_end":  "2026-05-28T21:18:11.9305494-04:00",
+                               "duration_s":  16.36,
+                               "frames_at_end":  41806,
+                               "notes":  "Press/click the left scroll wheel button"
+                           },
+                           {
+                               "name":  "idle-3",
+                               "type":  "auto",
+                               "wall_start":  "2026-05-28T21:18:13.1069222-04:00",
+                               "wall_end":  "2026-05-28T21:18:25.9435695-04:00",
+                               "duration_s":  12.84,
+                               "frames_at_end":  43202,
+                               "notes":  "Idle before right controls"
+                           },
+                           {
+                               "name":  "right-scroll-up",
+                               "type":  "action",
+                               "wall_start":  "2026-05-28T21:18:26.9986112-04:00",
+                               "wall_end":  "2026-05-28T21:18:42.1627101-04:00",
+                               "duration_s":  15.16,
+                               "frames_at_end":  44863,
+                               "notes":  "Scroll right scroll wheel upward"
+                           },
+                           {
+                               "name":  "idle-4",
+                               "type":  "auto",
+                               "wall_start":  "2026-05-28T21:18:43.0702209-04:00",
+                               "wall_end":  "2026-05-28T21:18:56.3335676-04:00",
+                               "duration_s":  13.26,
+                               "frames_at_end":  46298,
+                               "notes":  "Idle between right scroll actions"
+                           },
+                           {
+                               "name":  "right-scroll-down",
+                               "type":  "action",
+                               "wall_start":  "2026-05-28T21:18:57.3379880-04:00",
+                               "wall_end":  "2026-05-28T21:19:10.3580771-04:00",
+                               "duration_s":  13.02,
+                               "frames_at_end":  47748,
+                               "notes":  "Scroll right scroll wheel downward"
+                           },
+                           {
+                               "name":  "idle-5",
+                               "type":  "auto",
+                               "wall_start":  "2026-05-28T21:19:11.8754405-04:00",
+                               "wall_end":  "2026-05-28T21:19:25.1885902-04:00",
+                               "duration_s":  13.31,
+                               "frames_at_end":  49209,
+                               "notes":  "Idle after right scroll down"
+                           },
+                           {
+                               "name":  "right-wheel-click",
+                               "type":  "action",
+                               "wall_start":  "2026-05-28T21:19:26.3292820-04:00",
+                               "wall_end":  "2026-05-28T21:19:36.8654369-04:00",
+                               "duration_s":  10.54,
+                               "frames_at_end":  50414,
+                               "notes":  "Press/click the right scroll wheel button"
+                           },
+                           {
+                               "name":  "final-idle",
+                               "type":  "auto",
+                               "wall_start":  "2026-05-28T21:19:37.9082164-04:00",
+                               "wall_end":  "2026-05-28T21:19:54.0940542-04:00",
+                               "duration_s":  16.19,
+                               "frames_at_end":  52136,
+                               "notes":  "Final baseline - no actions, stay at laptop"
+                           }
+                       ]
+}

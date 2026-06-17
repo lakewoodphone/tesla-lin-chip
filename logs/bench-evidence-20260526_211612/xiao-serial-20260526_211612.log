@@ -1,0 +1,313 @@
+alive d3=1 edges=0 frames=9 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=9 drop=0 postFail=0 wifi=off
+[2641383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=9 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=9 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=9 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=9 drop=0 postFail=0 wifi=off
+XIAO< vehicle:tesla-bench-quick-20260526
+XIAO< baud:19200
+XIAO< raw:0
+cmd: vehicle=tesla-bench-quick-20260526
+alive d3=1 edges=0 frames=9 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=9 drop=0 postFail=0 wifi=off
+[2644132][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+cmd: baud=19200
+cmd: raw=off
+alive d3=1 edges=0 frames=9 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=9 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=9 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=9 drop=0 postFail=0 wifi=off
+#10 ID=0x0C PID=0x4C [8B pred=2] data: 10 00 00 00 00 00 C0 00 | chk=E2 enhanced parity=OK src=idle
+[2646549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=40 frames=10 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=10 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=10 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=10 drop=0 postFail=0 wifi=off
+[2648966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=10 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=10 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=10 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=10 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=10 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=10 drop=0 postFail=0 wifi=off
+[2651383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+#11 ID=0x0C PID=0x4C [8B pred=2] data: 11 04 00 00 00 00 C0 01 | chk=DC enhanced parity=OK src=idle
+WiFi: reconnect attempt
+alive d3=1 edges=46 frames=11 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=11 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=11 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=11 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=11 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=11 drop=0 postFail=0 wifi=off
+[2654133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=11 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=11 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=11 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=11 drop=0 postFail=0 wifi=off
+#12 ID=0x0C PID=0x4C [8B pred=2] data: 0F 04 00 00 00 00 C0 02 | chk=DD enhanced parity=OK src=idle
+[2656549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=46 frames=12 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=12 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=12 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=12 drop=0 postFail=0 wifi=off
+[2658966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=12 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=12 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=12 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=12 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=12 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=12 drop=0 postFail=0 wifi=off
+[2661383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+#13 ID=0x1A PID=0x1A [8B pred=2] data: 10 00 00 00 00 00 C0 00 | chk=15 enhanced parity=OK src=idle
+WiFi: reconnect attempt
+alive d3=1 edges=44 frames=13 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=13 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=13 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=13 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=13 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=13 drop=0 postFail=0 wifi=off
+[2664133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=13 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=13 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=13 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=13 drop=0 postFail=0 wifi=off
+[2666549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+#14 ID=0x1B PID=0x5B [8B pred=2] data: 10 00 00 00 00 00 C0 01 | chk=D2 enhanced parity=OK src=idle
+alive d3=1 edges=46 frames=14 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=14 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=14 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=14 drop=0 postFail=0 wifi=off
+[2668966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=14 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=14 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=14 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=14 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=14 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=14 drop=0 postFail=0 wifi=off
+[2671383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+#15 ID=0x3C PID=0x3C [8B pred=8] data: 00 00 00 00 00 00 00 00 | chk=C3 enhanced parity=OK src=idle
+alive d3=1 edges=36 frames=15 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=15 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=15 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=15 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=15 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=15 drop=0 postFail=0 wifi=off
+[2674133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=15 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=15 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=15 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=15 drop=0 postFail=0 wifi=off
+[2676549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+#16 ID=0x3C PID=0x3C [8B pred=8] data: 00 00 00 00 00 00 00 00 | chk=FF classic parity=OK src=idle
+alive d3=1 edges=34 frames=16 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=16 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=16 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=16 drop=0 postFail=0 wifi=off
+[2678966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=16 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=16 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=16 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=16 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=16 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=16 drop=0 postFail=0 wifi=off
+[2681383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+#17 ID=0x00 PID=0x80 [2B pred=2] data: A0 00 | chk=DE enhanced parity=OK src=idle
+alive d3=1 edges=24 frames=17 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=17 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=17 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=17 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=17 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=17 drop=0 postFail=0 wifi=off
+[2684133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=17 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=17 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=17 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=17 drop=0 postFail=0 wifi=off
+[2686549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=17 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=17 drop=0 postFail=0 wifi=off
+#18 ID=0x01 PID=0xC1 [2B pred=2] data: A1 01 | chk=9B enhanced parity=OK src=idle
+alive d3=1 edges=32 frames=18 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=18 drop=0 postFail=0 wifi=off
+[2688966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=18 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=18 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=18 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=18 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=18 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=18 drop=0 postFail=0 wifi=off
+[2691383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=18 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=18 drop=0 postFail=0 wifi=off
+#19 ID=0x0C PID=0x4C [2B pred=2] data: AC 0C | chk=FA enhanced parity=OK src=idle
+alive d3=1 edges=32 frames=19 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=19 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=19 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=19 drop=0 postFail=0 wifi=off
+[2694133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=19 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=19 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=19 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=19 drop=0 postFail=0 wifi=off
+[2696550][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=19 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=19 drop=0 postFail=0 wifi=off
+#20 ID=0x0D PID=0x0D [2B pred=2] data: AD 0D | chk=38 enhanced parity=OK src=idle
+alive d3=1 edges=36 frames=20 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=20 drop=0 postFail=0 wifi=off
+[2698966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=20 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=20 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=20 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=20 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=20 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=20 drop=0 postFail=0 wifi=off
+[2701383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=20 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=20 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=20 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=20 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=20 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=20 drop=0 postFail=0 wifi=off
+[2704133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+#21 ID=0x0E PID=0x8E [2B pred=2] data: AE 0E | chk=B4 enhanced parity=OK src=idle
+alive d3=1 edges=32 frames=21 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=21 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=21 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=21 drop=0 postFail=0 wifi=off
+[2706549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=21 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=21 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=21 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=21 drop=0 postFail=0 wifi=off
+[2708966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=21 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=21 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=21 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=21 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=21 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=21 drop=0 postFail=0 wifi=off
+[2711383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=21 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=21 drop=0 postFail=0 wifi=off
+#22 ID=0x0F PID=0xCF [2B pred=2] data: AF 0F | chk=71 enhanced parity=OK src=idle
+alive d3=1 edges=32 frames=22 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=22 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=22 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=22 drop=0 postFail=0 wifi=off
+[2714133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=22 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=22 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=22 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=22 drop=0 postFail=0 wifi=off
+[2716549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=22 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=22 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=22 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=22 drop=0 postFail=0 wifi=off
+[2718966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=22 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=22 drop=0 postFail=0 wifi=off
+#23 ID=0x10 PID=0x50 [2B pred=2] data: A0 10 | chk=FE enhanced parity=OK src=idle
+alive d3=1 edges=28 frames=23 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=23 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=23 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=23 drop=0 postFail=0 wifi=off
+[2721382][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=23 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=23 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=23 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=23 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=23 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=23 drop=0 postFail=0 wifi=off
+[2724133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+#24 ID=0x16 PID=0xD6 [2B pred=2] data: A6 16 | chk=6C enhanced parity=OK src=idle
+alive d3=1 edges=36 frames=24 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=24 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=24 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=24 drop=0 postFail=0 wifi=off
+[2726549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=24 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=24 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=24 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=24 drop=0 postFail=0 wifi=off
+[2728966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=24 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=24 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=24 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=24 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=24 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=24 drop=0 postFail=0 wifi=off
+[2731383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=24 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=24 drop=0 postFail=0 wifi=off
+#25 ID=0x17 PID=0x97 [2B pred=2] data: A7 17 | chk=A9 enhanced parity=OK src=idle
+alive d3=1 edges=38 frames=25 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=25 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=25 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=25 drop=0 postFail=0 wifi=off
+[2734133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=25 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=25 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=25 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=25 drop=0 postFail=0 wifi=off
+[2736549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=25 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=25 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=25 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=25 drop=0 postFail=0 wifi=off
+[2738966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=25 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=25 drop=0 postFail=0 wifi=off
+#26 ID=0x1A PID=0x1A [2B pred=2] data: AA 1A | chk=21 enhanced parity=OK src=idle
+alive d3=1 edges=38 frames=26 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=26 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=26 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=26 drop=0 postFail=0 wifi=off
+[2741383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=26 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=26 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=26 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=26 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=26 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=26 drop=0 postFail=0 wifi=off
+[2744132][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=26 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=26 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=26 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=26 drop=0 postFail=0 wifi=off
+[2746549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=26 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=26 drop=0 postFail=0 wifi=off
+#27 ID=0x1B PID=0x5B [2B pred=2] data: AB 1B | chk=DD enhanced parity=OK src=idle
+alive d3=1 edges=40 frames=27 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=27 drop=0 postFail=0 wifi=off
+[2748966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=27 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=27 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=27 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=27 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=27 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=27 drop=0 postFail=0 wifi=off
+[2751382][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=27 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=27 drop=0 postFail=0 wifi=off
+#28 ID=0x22 PID=0xE2 [4B pred=4] data: 01 02 22 55 | chk=A2 enhanced parity=OK src=idle
+[2754133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201alive d3=1 edges=46 frames=28 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=28 drop=0 postFail=0 wifi=off
+- NO_AP_FOUND
+alive d3=1 edges=0 frames=28 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=28 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=28 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=28 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=28 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=28 drop=0 postFail=0 wifi=off
+[2756549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=28 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=28 drop=0 postFail=0 wifi=off
+#29 ID=0x2A PID=0x6A [4B pred=4] data: 01 02 2A 55 | chk=13 enhanced parity=OK src=idle
+alive d3=1 edges=52 frames=29 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=29 drop=0 postFail=0 wifi=off
+[2758966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=29 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=29 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=29 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=29 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=29 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=29 drop=0 postFail=0 wifi=off
+[2761383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=29 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=29 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=29 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=29 drop=0 postFail=0 wifi=off
+[2764132][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=29 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=29 drop=0 postFail=0 wifi=off
+#30 ID=0x30 PID=0xF0 [8B pred=8] data: 10 00 00 00 00 00 C0 00 | chk=3E enhanced parity=OK src=idle
+alive d3=1 edges=36 frames=30 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=30 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=30 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=30 drop=0 postFail=0 wifi=off
+[2766549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=30 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=30 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=30 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=30 drop=0 postFail=0 wifi=off
+[2768966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=30 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=30 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=30 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=30 drop=0 postFail=0 wifi=off
+#31 ID=0x3C PID=0x3C [8B pred=8] data: 10 00 00 00 00 00 C0 0C | chk=E6 enhanced parity=OK src=idle
+alive d3=1 edges=40 frames=31 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=31 drop=0 postFail=0 wifi=off
+[2771383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=31 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=31 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=31 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=31 drop=0 postFail=0 wifi=off
+[2774133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=31 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=31 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=31 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=31 drop=0 postFail=0 wifi=off
+#32 ID=0x3D PID=0x7D [8B pred=8] data: 10 00 00 00 00 00 C0 0D | chk=A4 enhanced parity=OK src=idle
+alive d3=1 edges=46 frames=32 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=32 drop=0 postFail=0 wifi=off
+[2776549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=32 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=32 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=32 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=32 drop=0 postFail=0 wifi=off
+[2778966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=32 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=32 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=32 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=32 drop=0 postFail=0 wifi=off
+#33 ID=0x0C PID=0x4C [8B pred=2] data: 11 04 00 00 00 00 C0 00 | chk=DD enhanced parity=OK src=idle
+alive d3=1 edges=46 frames=33 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=33 drop=0 postFail=0 wifi=off
+[2781383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=33 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=33 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=33 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=33 drop=0 postFail=0 wifi=off
+[2784133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=33 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=33 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=33 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=33 drop=0 postFail=0 wifi=off
+#34 ID=0x0C PID=0x4C [8B pred=2] data: 0F 04 00 00 00 00 C0 01 | chk=DE enhanced parity=OK src=idle
+alive d3=1 edges=44 frames=34 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=34 drop=0 postFail=0 wifi=off
+[2786550][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=34 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=34 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=34 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=34 drop=0 postFail=0 wifi=off
+[2788966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=34 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=34 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=34 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=34 drop=0 postFail=0 wifi=off
+#35 ID=0x0C PID=0x4C [8B pred=2] data: 11 04 00 00 00 00 C0 02 | chk=DB enhanced parity=OK src=idle
+alive d3=1 edges=48 frames=35 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=35 drop=0 postFail=0 wifi=off
+[2791383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=35 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=35 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=35 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=35 drop=0 postFail=0 wifi=off
+[2794132][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=35 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=35 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=35 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=35 drop=0 postFail=0 wifi=off
+#36 ID=0x0C PID=0x4C [8B pred=2] data: 0F 04 00 00 00 00 C0 03 | chk=DC enhanced parity=OK src=idle
+alive d3=1 edges=44 frames=36 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=36 drop=0 postFail=0 wifi=off
+[2796549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=36 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=36 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=36 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=36 drop=0 postFail=0 wifi=off
+[2798966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=36 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=36 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=36 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=36 drop=0 postFail=0 wifi=off
+alive d3=1 edges=48 frames=36 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=36 drop=0 postFail=0 wifi=off
+#37 ID=0x0C PID=0x4C [8B pred=2] data: 11 04 00 00 00 00 C0 04 | chk=D9 enhanced parity=OK src=idle
+[2801383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+alive d3=1 edges=0 frames=37 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=37 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=37 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=37 drop=0 postFail=0 wifi=off
+[2804133][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=37 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=37 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=37 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=37 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=37 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=37 drop=0 postFail=0 wifi=off
+#38 ID=0x0C PID=0x4C [8B pred=2] data: 0F 04 00 00 00 00 C0 05 | chk=DA enhanced parity=OK src=idle
+[2806550][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=48 frames=38 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=38 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=38 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=38 drop=0 postFail=0 wifi=off
+[2808966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=38 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=38 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=38 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=38 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=38 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=38 drop=0 postFail=0 wifi=off
+[2811383][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+#39 ID=0x0C PID=0x4C [8B pred=2] data: 11 04 00 00 00 00 C0 06 | chk=D7 enhanced parity=OK src=idle
+WiFi: reconnect attempt
+alive d3=1 edges=48 frames=39 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=39 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=39 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=39 drop=0 postFail=0 wifi=off
+[2814132][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=39 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=39 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=39 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=39 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=39 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=39 drop=0 postFail=0 wifi=off
+#40 ID=0x0C PID=0x4C [8B pred=2] data: 0F 04 00 00 00 00 C0 07 | chk=D8 enhanced parity=OK src=idle
+[2816549][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=44 frames=40 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=40 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=40 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=40 drop=0 postFail=0 wifi=off
+[2818966][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+alive d3=1 edges=0 frames=40 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=40 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=40 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=40 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=40 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=40 drop=0 postFail=0 wifi=off
+[2821382][W][WiFiGeneric.cpp:1062] _eventCallback(): Reason: 201 - NO_AP_FOUND
+WiFi: reconnect attempt
+#41 ID=0x0C PID=0x4C [8B pred=2] data: 10 00 00 00 00 00 C0 08 | chk=DA enhanced parity=OK src=idle
+alive d3=1 edges=44 frames=41 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=41 drop=0 postFail=0 wifi=off
+alive d3=1 edges=0 frames=41 badChk=0 badPid=0 ovf=0 short=0 syncErr=0 baud=19200 q=41 drop=0 postFail=0 wifi=off

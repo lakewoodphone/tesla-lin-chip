@@ -1,9 +1,4 @@
-build/*
-!build/quote/
-build/quote/*
-!build/quote/jlcpcb-mini-order-2026-06-01/
-!build/quote/jlcpcb-mini-order-2026-06-01/**
-!build/quote/jlcpcb-mini-order-2026-06-01.zip
+# Ephemeral KiCad auto-saves and cache — regenerated automatically
 *.kicad_prl
 *.kicad_sch-bak
 *.kicad_pcb-bak

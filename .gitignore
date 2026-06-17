@@ -7,9 +7,6 @@ src/secrets.h
 # Probe/scratch scripts (not needed in clean repo)
 tools/_probe-*.ps1
 
-# Generated capture and validation logs
-logs/
-
 # Python bytecode
 __pycache__/
 tools/__pycache__/

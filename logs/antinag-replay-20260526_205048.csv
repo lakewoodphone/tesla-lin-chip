@@ -1,0 +1,5 @@
+﻿cycle,direction,frame_num,id_hex,pid_hex,data_hex,chk_hex,baud
+1,UP,0,0x0C,0x4C,11-04-00-00-00-00-C0-00,0xDD,19200
+1,DOWN,1,0x0C,0x4C,0F-04-00-00-00-00-C0-01,0xDE,19200
+2,UP,2,0x0C,0x4C,11-04-00-00-00-00-C0-02,0xDB,19200
+2,DOWN,3,0x0C,0x4C,0F-04-00-00-00-00-C0-03,0xDC,19200

@@ -1,0 +1,9 @@
+Exception calling "Open" with "0" argument(s): "The port 'COM99' does not 
+exist."
+At line:11 char:9
++         $sp.Open()
++         ~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : IOException
+ 
+

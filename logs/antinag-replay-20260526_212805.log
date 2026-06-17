@@ -1,0 +1,12 @@
+﻿[21:28:05.175] SEND label=1-UP attempt=1 frame='0C 11 04 00 00 00 00 C0 00' baud=19200
+[21:28:05.678] APG Status: Transmission successful
+[21:28:05.847] SEND label=1-DOWN attempt=1 frame='0C 0F 04 00 00 00 00 C0 01' baud=19200
+[21:28:16.151] APG Status: Transmission successful
+[21:28:16.307] SEND label=2-UP attempt=1 frame='0C 11 04 00 00 00 00 C0 02' baud=19200
+[21:28:26.594] APG Status: Transmission successful
+[21:28:26.750] SEND label=2-DOWN attempt=1 frame='0C 0F 04 00 00 00 00 C0 03' baud=19200
+[21:28:31.069] APG Status: Transmission successful
+[21:28:31.240] SEND label=neutral-1 attempt=1 frame='0C 10 00 00 00 00 00 C0 04' baud=19200
+[21:28:54.230] APG Status: Error: Error sending script.
+[21:28:54.588] SEND label=neutral-1 attempt=2 frame='0C 10 00 00 00 00 00 C0 04' baud=19200
+[21:29:17.546] APG Status: Error: Error sending script.

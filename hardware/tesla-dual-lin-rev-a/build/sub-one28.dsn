@@ -1,0 +1,217 @@
+(pcb "C:\Users\ezabz\code\xiao-lin-bench\hardware\tesla-dual-lin-rev-a\build\sub-one28.dsn"
+  (parser
+    (string_quote ")
+    (space_in_quoted_tokens on)
+    (host_cad "KiCad's Pcbnew")
+    (host_version "10.0.3")
+  )
+  (resolution um 10)
+  (unit um)
+  (structure
+    (layer F.Cu
+      (type signal)
+      (property
+        (index 0)
+      )
+    )
+    (layer In1.Cu
+      (type power)
+      (property
+        (index 1)
+      )
+    )
+    (layer In2.Cu
+      (type power)
+      (property
+        (index 2)
+      )
+    )
+    (layer B.Cu
+      (type signal)
+      (property
+        (index 3)
+      )
+    )
+    (boundary
+      (path pcb 0  99500 -44298.2  80240 -44298.2  80240 -22140  99500 -22140
+            99500 -44298.2)
+    )
+    (via "Via[0-3]_600:300_um")
+    (rule
+      (width 200)
+      (clearance 200)
+      (clearance 50 (type smd_smd))
+    )
+  )
+  (placement
+    (component "RF_Module:ESP32-S3-WROOM-1U"
+      (place U1 90000 -32000 front 0 (PN "ESP32-S3-WROOM-1U"))
+    )
+  )
+  (library
+    (image "RF_Module:ESP32-S3-WROOM-1U"
+      (outline (path signal 120  -9200 9800  9200 9800))
+      (outline (path signal 120  -9200 -8800  -9200 -9800))
+      (outline (path signal 120  -9200 -9800  -7700 -9800))
+      (outline (path signal 120  9200 9800  9200 9100))
+      (outline (path signal 120  9200 -9800  7700 -9800))
+      (outline (path signal 120  9200 -9800  9200 -8800))
+      (outline (path signal 100  -9000 9600  9000 9600))
+      (outline (path signal 100  -9000 -9600  -9000 9600))
+      (outline (path signal 100  -9000 -9600  9000 -9600))
+      (outline (path signal 150  4700 8440  7300 8440))
+      (outline (path signal 150  4700 5840  4700 8440))
+      (outline (path signal 150  7300 8440  7300 5840))
+      (outline (path signal 150  7300 5840  4700 5840))
+      (outline (path signal 100  9000 -9600  9000 9600))
+      (outline (path signal 100  6200 7140  6182.71 7058.65  6133.83 6991.37  6061.8 6949.79
+            5979.09 6941.1  5900 6966.8  5838.2 7022.44  5804.37 7098.42
+            5804.37 7181.58  5838.2 7257.56  5900 7313.2  5979.09 7338.9
+            6061.8 7330.21  6133.83 7288.63  6182.71 7221.35  6200 7140))
+      (outline (path signal 150  7000 7140  6980.78 6944.91  6923.88 6757.32  6831.47 6584.43
+            6707.11 6432.89  6555.57 6308.53  6382.68 6216.12  6195.09 6159.22
+            6000 6140  5804.91 6159.22  5617.32 6216.12  5444.43 6308.53
+            5292.89 6432.89  5168.53 6584.43  5076.12 6757.32  5019.22 6944.91
+            5000 7140  5019.22 7335.09  5076.12 7522.68  5168.53 7695.57
+            5292.89 7847.11  5444.43 7971.47  5617.32 8063.88  5804.91 8120.78
+            6000 8140  6195.09 8120.78  6382.68 8063.88  6555.57 7971.47
+            6707.11 7847.11  6831.47 7695.57  6923.88 7522.68  6980.78 7335.09
+            7000 7140))
+      (pin Rect[T]Pad_1500.000000x900.000000_um 1 -8750 8410)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 2 -8750 7140)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 3 -8750 5870)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 4 -8750 4600)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 5 -8750 3330)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 6 -8750 2060)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 7 -8750 790)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 8 -8750 -480)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 9 -8750 -1750)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 10 -8750 -3020)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 11 -8750 -4290)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 12 -8750 -5560)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 13 -8750 -6830)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 180) 14 -8750 -8100)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 15 -6985 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 16 -5715 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 17 -4445 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 18 -3175 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 19 -1905 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 20 -635 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 21 635 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 22 1905 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 23 3175 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 24 4445 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 25 5715 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um (rotate 270) 26 6985 -9350)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 27 8750 -8100)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 28 8750 -6830)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 29 8750 -5560)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 30 8750 -4290)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 31 8750 -3020)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 32 8750 -1750)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 33 8750 -480)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 34 8750 790)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 35 8750 2060)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 36 8750 3330)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 37 8750 4600)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 38 8750 5870)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 39 8750 7140)
+      (pin Rect[T]Pad_1500.000000x900.000000_um 40 8750 8410)
+      (pin Round[A]Pad_600.000000_um 41 -2900 1390)
+      (pin Round[A]Pad_600.000000_um 41@1 -2900 -10)
+      (pin Round[A]Pad_600.000000_um 41@2 -2200 2090)
+      (pin Round[A]Pad_600.000000_um 41@3 -2200 690)
+      (pin Round[A]Pad_600.000000_um 41@4 -2200 -710)
+      (pin Round[A]Pad_600.000000_um 41@5 -1500 1390)
+      (pin Rect[T]Pad_3900.000000x3900.000000_um 41@6 -1500 690)
+      (pin Round[A]Pad_600.000000_um 41@7 -1500 -10)
+      (pin Round[A]Pad_600.000000_um 41@8 -800 2090)
+      (pin Round[A]Pad_600.000000_um 41@9 -800 690)
+      (pin Round[A]Pad_600.000000_um 41@10 -800 -710)
+      (pin Round[A]Pad_600.000000_um 41@11 -100 1390)
+      (pin Round[A]Pad_600.000000_um 41@12 -100 -10)
+    )
+    (padstack Round[A]Pad_600.000000_um
+      (shape (circle F.Cu 600))
+      (shape (circle In1.Cu 600))
+      (shape (circle In2.Cu 600))
+      (shape (circle B.Cu 600))
+      (attach off)
+    )
+    (padstack Rect[T]Pad_3900.000000x3900.000000_um
+      (shape (rect F.Cu -1950 -1950 1950 1950))
+      (attach off)
+    )
+    (padstack Rect[T]Pad_1500.000000x900.000000_um
+      (shape (rect F.Cu -750 -450 750 450))
+      (attach off)
+    )
+    (padstack "Via[0-3]_600:300_um"
+      (shape (circle F.Cu 600))
+      (shape (circle In1.Cu 600))
+      (shape (circle In2.Cu 600))
+      (shape (circle B.Cu 600))
+      (attach off)
+    )
+  )
+  (network
+    (net GND
+      (pins U1-1 U1-40 U1-41 U1-41@1 U1-41@2 U1-41@3 U1-41@4 U1-41@5 U1-41@6 U1-41@7
+        U1-41@8 U1-41@9 U1-41@10 U1-41@11 U1-41@12)
+    )
+    (net 3V3
+      (pins U1-2)
+    )
+    (net LIN_A_TXD
+      (pins U1-5)
+    )
+    (net LIN_A_RXD
+      (pins U1-4)
+    )
+    (net LIN_B_TXD
+      (pins U1-7)
+    )
+    (net LIN_B_RXD
+      (pins U1-6)
+    )
+    (net LIN_EN_DRIVE
+      (pins U1-12)
+    )
+    (net ARM_SENSE
+      (pins U1-17)
+    )
+    (net USB_D_PLUS
+      (pins U1-14)
+    )
+    (net USB_D_MINUS
+      (pins U1-13)
+    )
+    (net BOOT_GPIO0
+      (pins U1-27)
+    )
+    (net EN
+      (pins U1-3)
+    )
+    (net UART0_TX
+      (pins U1-37)
+    )
+    (net UART0_RX
+      (pins U1-36)
+    )
+    (class kicad_default 3V3 ARM_SENSE BOOT_GPIO0 BUCK_BST BUCK_EN BUCK_FB
+      BUCK_PGOOD BUCK_RON BUCK_SW CC1 CC2 EN GND INH_A_TP INH_B_TP LIN_A LIN_A_RXD
+      LIN_A_TJA LIN_A_TXD LIN_B LIN_B_RXD LIN_B_TJA LIN_B_TXD LIN_EN LIN_EN_DRIVE
+      UART0_RX UART0_TX USB_D_MINUS USB_D_PLUS USB_VBUS VBAT_FILTERED VBAT_IN
+      VBAT_PROTECTED WAKE_A_N WAKE_B_N
+      (circuit
+        (use_via "Via[0-3]_600:300_um")
+      )
+      (rule
+        (width 200)
+        (clearance 200)
+      )
+    )
+  )
+  (wiring
+  )
+)

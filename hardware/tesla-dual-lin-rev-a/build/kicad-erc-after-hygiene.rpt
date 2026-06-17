@@ -1,0 +1,99 @@
+ERC report (2026-05-30T22:12:13, Encoding UTF8)
+Report includes: Errors, Warnings
+
+***** Sheet /
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(34.29 mm, 52.07 mm): Label 'INH_A_TP'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(34.29 mm, 87.63 mm): Label 'INH_B_TP'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 78.74 mm): Label 'NC_U1_8'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 81.28 mm): Label 'NC_U1_9'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 83.82 mm): Label 'NC_U1_10'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 86.36 mm): Label 'NC_U1_11'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 96.52 mm): Label 'NC_U1_15'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 99.06 mm): Label 'NC_U1_16'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 104.14 mm): Label 'NC_U1_18'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 106.68 mm): Label 'NC_U1_19'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 109.22 mm): Label 'NC_U1_20'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 111.76 mm): Label 'NC_U1_21'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 114.30 mm): Label 'NC_U1_22'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 116.84 mm): Label 'NC_U1_23'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 119.38 mm): Label 'NC_U1_24'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 121.92 mm): Label 'NC_U1_25'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 124.46 mm): Label 'NC_U1_26'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 129.54 mm): Label 'NC_U1_28'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 132.08 mm): Label 'NC_U1_29'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 134.62 mm): Label 'NC_U1_30'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 137.16 mm): Label 'NC_U1_31'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 139.70 mm): Label 'NC_U1_32'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 142.24 mm): Label 'NC_U1_33'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 144.78 mm): Label 'NC_U1_34'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 147.32 mm): Label 'NC_U1_35'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 149.86 mm): Label 'UART0_RX'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 152.40 mm): Label 'UART0_TX'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 154.94 mm): Label 'NC_U1_38'
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(73.66 mm, 157.48 mm): Label 'NC_U1_39'
+
+ ** ERC messages: 29  Errors 0  Warnings 29
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters

@@ -1,0 +1,217 @@
+2026-05-31 14:50:30.549 INFO   Freerouting v2.1.0 (build-date: 2025-04-12)
+2026-05-31 14:50:30.731 WARN   No default constructor found for field: currentLocale
+2026-05-31 14:50:30.733 INFO   Settings were loaded from freerouting.json
+java.util.concurrent.CompletionException: javax.net.ssl.SSLHandshakeException: (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at java.base/java.util.concurrent.CompletableFuture.encodeRelay(CompletableFuture.java:368)
+	at java.base/java.util.concurrent.CompletableFuture.completeRelay(CompletableFuture.java:377)
+	at java.base/java.util.concurrent.CompletableFuture$UniCompose.tryFire(CompletableFuture.java:1152)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:510)
+	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2194)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate.stopOnError(SSLFlowDelegate.java:1021)
+	at java.base/java.util.concurrent.CompletableFuture.uniExceptionally(CompletableFuture.java:990)
+	at java.base/java.util.concurrent.CompletableFuture$UniExceptionally.tryFire(CompletableFuture.java:974)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:510)
+	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2194)
+	at java.net.http/jdk.internal.net.http.common.SubscriberWrapper$DownstreamPusher.run1(SubscriberWrapper.java:295)
+	at java.net.http/jdk.internal.net.http.common.SubscriberWrapper$DownstreamPusher.run(SubscriberWrapper.java:259)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$LockingRestartableTask.run(SequentialScheduler.java:182)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$CompleteRestartableTask.run(SequentialScheduler.java:149)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$SchedulableTask.run(SequentialScheduler.java:207)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler.runOrSchedule(SequentialScheduler.java:280)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler.runOrSchedule(SequentialScheduler.java:233)
+	at java.net.http/jdk.internal.net.http.common.SubscriberWrapper.errorCommon(SubscriberWrapper.java:421)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate$Reader.errorCommon(SSLFlowDelegate.java:389)
+	at java.net.http/jdk.internal.net.http.common.SubscriberWrapper.onError(SubscriberWrapper.java:412)
+	at java.net.http/jdk.internal.net.http.SocketTube$InternalReadPublisher$ReadSubscription.signalCompletion(SocketTube.java:645)
+	at java.net.http/jdk.internal.net.http.SocketTube$InternalReadPublisher$InternalReadSubscription.read(SocketTube.java:829)
+	at java.net.http/jdk.internal.net.http.SocketTube$SocketFlowTask.run(SocketTube.java:181)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$SchedulableTask.run(SequentialScheduler.java:207)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler.runOrSchedule(SequentialScheduler.java:280)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler.runOrSchedule(SequentialScheduler.java:233)
+	at java.net.http/jdk.internal.net.http.SocketTube$InternalReadPublisher$InternalReadSubscription.handleError(SocketTube.java:765)
+	at java.net.http/jdk.internal.net.http.SocketTube$InternalReadPublisher.signalError(SocketTube.java:598)
+	at java.net.http/jdk.internal.net.http.SocketTube$InternalWriteSubscriber.signalError(SocketTube.java:441)
+	at java.net.http/jdk.internal.net.http.SocketTube$InternalWriteSubscriber.onError(SocketTube.java:409)
+	at java.net.http/jdk.internal.net.http.SocketTube.onError(SocketTube.java:140)
+	at java.net.http/jdk.internal.net.http.common.SubscriberWrapper$DownstreamPusher.run1(SubscriberWrapper.java:294)
+	at java.net.http/jdk.internal.net.http.common.SubscriberWrapper$DownstreamPusher.run(SubscriberWrapper.java:259)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$LockingRestartableTask.run(SequentialScheduler.java:182)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$CompleteRestartableTask.run(SequentialScheduler.java:149)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$SchedulableTask.run(SequentialScheduler.java:207)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler.runOrSchedule(SequentialScheduler.java:280)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler.runOrSchedule(SequentialScheduler.java:233)
+	at java.net.http/jdk.internal.net.http.common.SubscriberWrapper.errorCommon(SubscriberWrapper.java:421)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate$Writer.processData(SSLFlowDelegate.java:875)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate$Writer$WriterDownstreamPusher.run(SSLFlowDelegate.java:729)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$CompleteRestartableTask.run(SequentialScheduler.java:149)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$SchedulableTask.run(SequentialScheduler.java:207)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler.runOrSchedule(SequentialScheduler.java:280)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler.runOrSchedule(SequentialScheduler.java:233)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate$Writer.schedule(SSLFlowDelegate.java:766)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate.resumeActivity(SSLFlowDelegate.java:1076)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate.lambda$executeTasks$3(SSLFlowDelegate.java:1175)
+	at java.net.http/jdk.internal.net.http.HttpClientImpl$DelegatingExecutor.execute(HttpClientImpl.java:177)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate.executeTasks(SSLFlowDelegate.java:1151)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate.doHandshake(SSLFlowDelegate.java:1117)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate$Reader.processData(SSLFlowDelegate.java:513)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate$Reader$ReaderDownstreamPusher.run(SSLFlowDelegate.java:283)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$LockingRestartableTask.run(SequentialScheduler.java:182)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$CompleteRestartableTask.run(SequentialScheduler.java:149)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$TryEndDeferredCompleter.complete(SequentialScheduler.java:324)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$CompleteRestartableTask.run(SequentialScheduler.java:151)
+	at java.net.http/jdk.internal.net.http.common.SequentialScheduler$SchedulableTask.run(SequentialScheduler.java:207)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: javax.net.ssl.SSLHandshakeException: (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:130)
+	at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:383)
+	at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:326)
+	at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:321)
+	at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.checkServerCerts(CertificateMessage.java:1287)
+	at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.onConsumeCertificate(CertificateMessage.java:1164)
+	at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.consume(CertificateMessage.java:1107)
+	at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:393)
+	at java.base/sun.security.ssl.HandshakeContext.dispatch(HandshakeContext.java:477)
+	at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1274)
+	at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1261)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:714)
+	at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1206)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.net.http/jdk.internal.net.http.common.SSLFlowDelegate.lambda$executeTasks$3(SSLFlowDelegate.java:1156)
+	... 13 more
+Caused by: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at java.base/sun.security.validator.PKIXValidator.doBuild(PKIXValidator.java:388)
+	at java.base/sun.security.validator.PKIXValidator.engineValidate(PKIXValidator.java:271)
+	at java.base/sun.security.validator.Validator.validate(Validator.java:256)
+	at java.base/sun.security.ssl.X509TrustManagerImpl.checkTrusted(X509TrustManagerImpl.java:284)
+	at java.base/sun.security.ssl.X509TrustManagerImpl.checkServerTrusted(X509TrustManagerImpl.java:144)
+	at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.checkServerCerts(CertificateMessage.java:1265)
+	... 23 more
+Caused by: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at java.base/sun.security.provider.certpath.SunCertPathBuilder.build(SunCertPathBuilder.java:148)
+	at java.base/sun.security.provider.certpath.SunCertPathBuilder.engineBuild(SunCertPathBuilder.java:129)
+	at java.base/java.security.cert.CertPathBuilder.build(CertPathBuilder.java:297)
+	at java.base/sun.security.validator.PKIXValidator.doBuild(PKIXValidator.java:383)
+	... 28 more
+2026-05-31 14:50:32.397 INFO   Opening 'hardware\tesla-dual-lin-rev-a\build\tesla-dual-lin-rev-a.dsn'...
+2026-05-31 14:50:46.376 INFO   [4F6AC5\23FED6] Starting routing of 'tesla-dual-lin-rev-a' on 1 thread...
+2026-05-31 14:51:04.025 INFO   [4F6AC5\23FED6] Auto-router pass #1 on board '5b51c4a9a593fdf0080803a442a08aed' was completed in 17.09 seconds with the score of 923.07 (26 unrouted).
+2026-05-31 14:51:12.163 INFO   [4F6AC5\23FED6] Auto-router pass #2 on board 'a86291009f6a60f05f9684ae70ad29fd' was completed in 7.95 seconds with the score of 956.07 (13 unrouted).
+2026-05-31 14:51:18.422 INFO   [4F6AC5\23FED6] Auto-router pass #3 on board '69f6ecd54ea901ba4585aca7b42d6a06' was completed in 6.12 seconds with the score of 965.09 (9 unrouted).
+2026-05-31 14:51:18.703 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.711 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.716 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.719 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.723 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.737 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.744 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.886 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.888 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.931 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.968 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.970 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:18.973 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:19.032 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:19.450 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:19.579 WARN   ItemAutorouteInfo.get_expansion_room: p_index out of range
+2026-05-31 14:51:25.827 INFO   [4F6AC5\23FED6] Auto-router pass #4 on board '74726a2aa3df6be6212911bc973f20c5' was completed in 7.30 seconds with the score of 975.52 (4 unrouted).
+2026-05-31 14:51:26.167 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.170 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.171 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.174 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.176 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.177 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.178 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.601 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.604 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.605 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.607 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.613 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.832 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:26.907 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.005 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.113 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.117 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.119 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.120 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.122 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.125 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.127 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.140 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.141 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.144 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.146 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.148 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.150 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.151 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.154 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.155 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.156 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.160 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.162 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.346 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.348 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.350 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.354 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.355 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.358 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.375 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.380 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.381 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.412 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.414 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.416 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.417 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.419 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.420 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.446 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.453 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.457 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.458 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.460 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.463 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.466 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.469 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.473 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.477 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.480 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.483 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.486 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.489 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.492 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.495 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.497 WARN   ShapeSearchTree45Degree.complete_shape: cannot convert room shape Simplex to IntOctagon
+2026-05-31 14:51:27.566 INFO   [4F6AC5\23FED6] Auto-router pass #5 on board 'd726170c9196a05d70000ac0894cc9cd' was completed in 1.58 seconds with the score of 975.52 (4 unrouted).
+2026-05-31 14:51:28.083 INFO   [4F6AC5\23FED6] Auto-router pass #6 on board 'd726170c9196a05d70000ac0894cc9cd' was completed in 0.46 seconds with the score of 975.52 (4 unrouted).
+2026-05-31 14:51:28.623 INFO   [4F6AC5\23FED6] Auto-router pass #7 on board 'd726170c9196a05d70000ac0894cc9cd' was completed in 0.47 seconds with the score of 975.52 (4 unrouted).
+2026-05-31 14:51:32.831 INFO   [4F6AC5\23FED6] Auto-router pass #8 on board 'd726170c9196a05d70000ac0894cc9cd' was completed in 4.15 seconds with the score of 981.09 (1 unrouted).
+2026-05-31 14:51:33.130 INFO   [4F6AC5\23FED6] Auto-router pass #9 on board '26138ad5a79ccd4d448732056db4c5df' was completed in 0.18 seconds with the score of 981.09 (1 unrouted).
+2026-05-31 14:51:33.397 INFO   [4F6AC5\23FED6] Auto-router pass #10 on board '26138ad5a79ccd4d448732056db4c5df' was completed in 0.20 seconds with the score of 981.09 (1 unrouted).
+2026-05-31 14:51:33.638 INFO   [4F6AC5\23FED6] Auto-router pass #11 on board '26138ad5a79ccd4d448732056db4c5df' was completed in 0.18 seconds with the score of 981.09 (1 unrouted).
+2026-05-31 14:51:40.957 INFO   [4F6AC5\23FED6] Auto-router pass #12 on board '26138ad5a79ccd4d448732056db4c5df' was completed in 7.25 seconds with the score of 975.37 (4 unrouted).
+2026-05-31 14:51:41.497 INFO   [4F6AC5\23FED6] Auto-router pass #13 on board '1ef0b384f199e90c486b5875c20cc8e8' was completed in 0.43 seconds with the score of 975.37 (4 unrouted).
+2026-05-31 14:51:41.913 INFO   [4F6AC5\23FED6] Auto-router pass #14 on board '1ef0b384f199e90c486b5875c20cc8e8' was completed in 0.36 seconds with the score of 975.37 (4 unrouted).
+2026-05-31 14:51:42.349 INFO   [4F6AC5\23FED6] Auto-router pass #15 on board '1ef0b384f199e90c486b5875c20cc8e8' was completed in 0.36 seconds with the score of 975.37 (4 unrouted).
+2026-05-31 14:51:49.381 INFO   [4F6AC5\23FED6] Auto-router pass #16 on board '1ef0b384f199e90c486b5875c20cc8e8' was completed in 6.96 seconds with the score of 979.23 (2 unrouted).
+2026-05-31 14:51:49.764 INFO   [4F6AC5\23FED6] Auto-router pass #17 on board '37965e31a9525207f6f66a7bdd326b31' was completed in 0.27 seconds with the score of 979.23 (2 unrouted).
+2026-05-31 14:51:50.111 INFO   [4F6AC5\23FED6] Auto-router pass #18 on board '37965e31a9525207f6f66a7bdd326b31' was completed in 0.28 seconds with the score of 979.23 (2 unrouted).
+2026-05-31 14:51:50.430 INFO   [4F6AC5\23FED6] Auto-router pass #19 on board '37965e31a9525207f6f66a7bdd326b31' was completed in 0.26 seconds with the score of 979.23 (2 unrouted).
+2026-05-31 14:51:57.884 INFO   [4F6AC5\23FED6] Auto-router pass #20 on board '37965e31a9525207f6f66a7bdd326b31' was completed in 7.39 seconds with the score of 981.29 (1 unrouted).
+2026-05-31 14:51:58.184 INFO   [4F6AC5\23FED6] Auto-router pass #21 on board 'e0906f4feb60b243ec642eaf9b672142' was completed in 0.19 seconds with the score of 981.29 (1 unrouted).
+2026-05-31 14:51:58.437 INFO   [4F6AC5\23FED6] Auto-router pass #22 on board 'e0906f4feb60b243ec642eaf9b672142' was completed in 0.18 seconds with the score of 981.29 (1 unrouted).
+2026-05-31 14:51:58.671 INFO   [4F6AC5\23FED6] Auto-router pass #23 on board 'e0906f4feb60b243ec642eaf9b672142' was completed in 0.17 seconds with the score of 981.29 (1 unrouted).
+2026-05-31 14:51:58.981 INFO   [4F6AC5\23FED6] Restoring an earlier board that has the score of 981.29 (1 unrouted).
+2026-05-31 14:51:58.983 INFO   [4F6AC5\23FED6] Auto-router pass #24 on board 'e0906f4feb60b243ec642eaf9b672142' was completed in 0.23 seconds with the score of 981.29 (1 unrouted).
+2026-05-31 14:52:01.902 INFO   [4F6AC5\23FED6] Auto-router pass #25 on board 'e0906f4feb60b243ec642eaf9b672142' was completed in 2.86 seconds with the score of 981.29 (1 unrouted).
+2026-05-31 14:52:02.114 INFO   [4F6AC5\23FED6] Auto-router pass #26 on board 'e0906f4feb60b243ec642eaf9b672142' was completed in 0.15 seconds with the score of 981.29 (1 unrouted).
+2026-05-31 14:52:02.340 INFO   [4F6AC5\23FED6] Auto-router pass #27 on board 'e0906f4feb60b243ec642eaf9b672142' was completed in 0.15 seconds with the score of 981.29 (1 unrouted).
+2026-05-31 14:52:07.926 INFO   [4F6AC5\23FED6] Restoring an earlier board that has the score of 981.29 (1 unrouted).
+2026-05-31 14:52:07.928 INFO   [4F6AC5\23FED6] Auto-router pass #28 on board 'e0906f4feb60b243ec642eaf9b672142' was completed in 5.53 seconds with the score of 981.29 (1 unrouted).
+2026-05-31 14:52:10.675 INFO   [4F6AC5\23FED6] Auto-router pass #29 on board 'e0906f4feb60b243ec642eaf9b672142' was completed in 2.68 seconds with the score of 981.33 (1 unrouted).
+2026-05-31 14:52:10.937 INFO   [4F6AC5\23FED6] Auto-router pass #30 on board 'adac198b7b591ef87f91234903b2cba2' was completed in 0.14 seconds with the score of 983.22.
+2026-05-31 14:52:10.966 INFO   [4F6AC5\23FED6] Auto-routing was completed in 1 minute 24.58 seconds with the score of 983.22.
+2026-05-31 14:52:11.081 INFO   [4F6AC5\23FED6] Starting optimization on 21 threads...
+2026-05-31 14:52:11.084 WARN   [4F6AC5\23FED6] Multi-threaded route optimization is broken and it is known to generate clearance violations. It is highly recommended to use the single-threaded route optimization instead by setting the number of threads to 1 with the '-mt 1' command line argument.
+2026-05-31 14:52:11.107 INFO   [4F6AC5\23FED6] Optimization was completed in 0.02 seconds with the score of 983.22.
+2026-05-31 14:52:11.286 INFO   Saving 'hardware\tesla-dual-lin-rev-a\build\tesla-dual-lin-rev-a.ses'...

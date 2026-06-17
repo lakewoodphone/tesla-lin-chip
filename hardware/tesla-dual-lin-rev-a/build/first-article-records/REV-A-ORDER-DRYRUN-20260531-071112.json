@@ -1,0 +1,28 @@
+{
+  "armed_current_ma": "TBD",
+  "ble_result": "TBD",
+  "board_serial": "REV-A-ORDER-DRYRUN",
+  "date_time_utc": "2026-05-31T07:11:12.428827+00:00",
+  "esp32_mac": "TBD_READ_FROM_DEVICE",
+  "final_status": "blocked",
+  "firmware_version": "v5.3-rev-a-passthrough",
+  "idle_current_ma": "TBD",
+  "inh_no_load_verified": "TBD",
+  "lin_a_result": "TBD",
+  "lin_b_result": "TBD",
+  "no_lin_dominant_brownout": "TBD",
+  "no_lin_dominant_reset_boot_safe_off": "TBD",
+  "operator": "copilot",
+  "physical_arm_blocks_safe_arm": "TBD",
+  "safe_off_lin_en_low": "TBD",
+  "schema_version": 2,
+  "serial_live_results": {
+    "dry_run": "serial checks skipped"
+  },
+  "three_v3_idle_v": "TBD",
+  "three_v3_radio_burst_min_v": "TBD",
+  "usb_backfeed_absent": "TBD",
+  "usb_result": "TBD",
+  "vbat_input_v": "TBD",
+  "wake_n_pullups_verified": "TBD"
+}

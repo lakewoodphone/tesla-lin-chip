@@ -1,0 +1,88 @@
+﻿{
+    "schema":  "xiao-lin-capture-session-v1",
+    "created_at":  "2026-05-28T20:40:47.5413041-04:00",
+    "mode":  "car-passive",
+    "vehicle_id":  "tesla-model-3-20260528",
+    "baud":  19200,
+    "capture_point":  "Model 3/Y steering LIN",
+    "firmware_expected":  "field_passive",
+    "active_tx_allowed":  false,
+    "notes":  "Passive Model 3/Y discovery capture. Active TX is not allowed.\nStandard 180s Model 3/Y steering action plan applied.",
+    "artifacts":  {
+                      "apg_csv":  "",
+                      "xiao_serial":  "",
+                      "apg_txt":  "",
+                      "photos":  [
+
+                                 ],
+                      "analyzer_json":  ""
+                  },
+    "action_windows":  [
+                           {
+                               "name":  "baseline-idle",
+                               "start_ms":  0,
+                               "end_ms":  30000,
+                               "notes":  "No controls touched"
+                           },
+                           {
+                               "name":  "left-scroll-up",
+                               "start_ms":  30000,
+                               "end_ms":  45000,
+                               "notes":  "Repeat left scroll wheel up"
+                           },
+                           {
+                               "name":  "idle-after-left-up",
+                               "start_ms":  45000,
+                               "end_ms":  60000,
+                               "notes":  "No controls touched"
+                           },
+                           {
+                               "name":  "left-scroll-down",
+                               "start_ms":  60000,
+                               "end_ms":  75000,
+                               "notes":  "Repeat left scroll wheel down"
+                           },
+                           {
+                               "name":  "idle-after-left-down",
+                               "start_ms":  75000,
+                               "end_ms":  90000,
+                               "notes":  "No controls touched"
+                           },
+                           {
+                               "name":  "left-wheel-click",
+                               "start_ms":  90000,
+                               "end_ms":  105000,
+                               "notes":  "Repeat left wheel click/press"
+                           },
+                           {
+                               "name":  "idle-before-right",
+                               "start_ms":  105000,
+                               "end_ms":  120000,
+                               "notes":  "No controls touched"
+                           },
+                           {
+                               "name":  "right-scroll-up",
+                               "start_ms":  120000,
+                               "end_ms":  135000,
+                               "notes":  "Repeat right scroll wheel up"
+                           },
+                           {
+                               "name":  "right-scroll-down",
+                               "start_ms":  135000,
+                               "end_ms":  150000,
+                               "notes":  "Repeat right scroll wheel down"
+                           },
+                           {
+                               "name":  "right-wheel-click",
+                               "start_ms":  150000,
+                               "end_ms":  165000,
+                               "notes":  "Repeat right wheel click/press"
+                           },
+                           {
+                               "name":  "final-idle",
+                               "start_ms":  165000,
+                               "end_ms":  180000,
+                               "notes":  "No controls touched"
+                           }
+                       ]
+}

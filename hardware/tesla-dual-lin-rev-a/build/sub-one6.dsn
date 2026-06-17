@@ -1,0 +1,114 @@
+(pcb "C:\Users\ezabz\code\xiao-lin-bench\hardware\tesla-dual-lin-rev-a\build\sub-one6.dsn"
+  (parser
+    (string_quote ")
+    (space_in_quoted_tokens on)
+    (host_cad "KiCad's Pcbnew")
+    (host_version "10.0.3")
+  )
+  (resolution um 10)
+  (unit um)
+  (structure
+    (layer F.Cu
+      (type signal)
+      (property
+        (index 0)
+      )
+    )
+    (layer In1.Cu
+      (type power)
+      (property
+        (index 1)
+      )
+    )
+    (layer In2.Cu
+      (type power)
+      (property
+        (index 2)
+      )
+    )
+    (layer B.Cu
+      (type signal)
+      (property
+        (index 3)
+      )
+    )
+    (boundary
+      (path pcb 0  18950 -28848.2  12980 -28848.2  12980 -21050  18950 -21050
+            18950 -28848.2)
+    )
+    (via "Via[0-3]_600:300_um")
+    (rule
+      (width 200)
+      (clearance 200)
+      (clearance 50 (type smd_smd))
+    )
+  )
+  (placement
+    (component Inductor_SMD:L_Bourns_SRU5016_5.2x5.2mm
+      (place L1 16000 -24000 front 0 (PN 10uH))
+    )
+  )
+  (library
+    (image Inductor_SMD:L_Bourns_SRU5016_5.2x5.2mm
+      (outline (path signal 120  -2600 1300  -2960 1300))
+      (outline (path signal 120  -2600 1300  -1300 2600))
+      (outline (path signal 120  -2600 -1300  -2950 -1300))
+      (outline (path signal 120  -1300 -2600  -2600 -1300))
+      (outline (path signal 120  1300 2600  2600 1300))
+      (outline (path signal 120  1300 -2600  2600 -1300))
+      (outline (path signal 100  -2600 1100  -1100 2600))
+      (outline (path signal 100  -2600 900  -1600 0))
+      (outline (path signal 100  -2600 -1100  -2600 1100))
+      (outline (path signal 100  -1600 0  -2600 -900))
+      (outline (path signal 100  -1100 2600  1100 2600))
+      (outline (path signal 100  -1100 -2600  -2600 -1100))
+      (outline (path signal 100  1100 2600  2600 1100))
+      (outline (path signal 100  1100 -2600  -1100 -2600))
+      (outline (path signal 100  2600 1100  2600 -1100))
+      (outline (path signal 100  2600 -1100  1100 -2600))
+      (pin RoundRect[T]Pad_1100.000000x2000.000000_276.046000_um_0.000000_0 1 -2400 0)
+      (pin RoundRect[T]Pad_1100.000000x2000.000000_276.046000_um_0.000000_0 2 2400 0)
+      (pin RoundRect[T]Pad_1100.000000x2000.000000_276.046000_um_0.000000_0 (rotate 270) MP 0 2400)
+      (pin RoundRect[T]Pad_1100.000000x2000.000000_276.046000_um_0.000000_0 (rotate 90) MP@1 0 -2400)
+    )
+    (padstack RoundRect[T]Pad_1100.000000x2000.000000_276.046000_um_0.000000_0
+      (shape (polygon F.Cu 0  -551.046 725  -530.033 830.638  -470.194 920.194  -380.638 980.033
+            -275 1001.05  275 1001.05  380.638 980.033  470.194 920.194
+            530.033 830.638  551.046 725  551.046 -725  530.033 -830.638
+            470.194 -920.194  380.638 -980.033  275 -1001.05  -275 -1001.05
+            -380.638 -980.033  -470.194 -920.194  -530.033 -830.638  -551.046 -725
+            -551.046 725))
+      (attach off)
+    )
+    (padstack "Via[0-3]_600:300_um"
+      (shape (circle F.Cu 600))
+      (shape (circle In1.Cu 600))
+      (shape (circle In2.Cu 600))
+      (shape (circle B.Cu 600))
+      (attach off)
+    )
+  )
+  (network
+    (net 3V3
+      (pins L1-2)
+    )
+    (net BUCK_SW
+      (pins L1-1)
+    )
+    (class kicad_default 3V3 ARM_SENSE BOOT_GPIO0 BUCK_BST BUCK_EN BUCK_FB
+      BUCK_PGOOD BUCK_RON BUCK_SW CC1 CC2 EN GND INH_A_TP INH_B_TP LIN_A LIN_A_RXD
+      LIN_A_TJA LIN_A_TXD LIN_B LIN_B_RXD LIN_B_TJA LIN_B_TXD LIN_EN LIN_EN_DRIVE
+      UART0_RX UART0_TX USB_D_MINUS USB_D_PLUS USB_VBUS VBAT_FILTERED VBAT_IN
+      VBAT_PROTECTED WAKE_A_N WAKE_B_N
+      (circuit
+        (use_via "Via[0-3]_600:300_um")
+      )
+      (rule
+        (width 200)
+        (clearance 200)
+      )
+    )
+  )
+  (wiring
+  )
+)
