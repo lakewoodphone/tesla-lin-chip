@@ -1,8 +1,11 @@
-# xiao-lin-bench
+# tesla-lin-chip
 
-Tesla LIN bench project using a Seeed XIAO ESP32-C3, APGDT001 LIN analyzer, TJA1021 transceiver module, and 3.3V/5V level shifter.
+Tesla LIN reverse-engineering and anti-nag chip project. Covers passive LIN capture, active frame injection, Model 3/Y/X steering wheel volume control, and the custom dual-LIN ESP32-S3 Rev A PCB (JLCPCB order).
 
-Start with `START_HERE.md` when resuming. It is the current handoff and points to the active evidence, wiring, commands, and hard stops.
+**Local path:** `C:\Users\ezabz\Code\tesla-lin-chip`
+**GitHub:** `https://github.com/lakewoodphone/tesla-lin-chip`
+
+Start with `START_HERE.md` when resuming. It is the canonical handoff and points to the active evidence, wiring, commands, and hard stops.
 
 For the implementation plan that makes the bench, passive car testing, and final active-capable chip more robust, read `IMPLEMENTATION_ROADMAP.md`.
 
@@ -222,3 +225,64 @@ cmd /c %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -STA -NoProfile -
 | `PermissionError` on COM4 | A serial monitor is holding the port; stop PlatformIO/terminal process |
 | Direct `send-apg-lin-frame.ps1` baud looks wrong | Use NetworkAnalyser-based tools for real validation |
 | Holding TXD low does not always pull LIN low forever | LIN dominant-timeout can release the bus; validate with real frames and ring buffer |
+
+## Repository Structure
+
+```
+tesla-lin-chip/
+├── README.md                     This file — project overview and wiring reference
+├── START_HERE.md                 Canonical current handoff — start here every session
+├── BENCH_EVIDENCE.md             Passive and active bench evidence summary
+├── ACTIVE_INJECTOR.md            Active TX bench wiring, operation, and diagnostics
+├── IMPLEMENTATION_ROADMAP.md     Full roadmap: bench → passive car → final chip
+├── NEXT_STEPS.md                 Current work plan
+├── TOOLS.md                      Tool reference
+├── platformio.ini                PlatformIO build config (passive default + active envs)
+│
+├── src/                          XIAO ESP32-C3 firmware
+│   ├── main.cpp                  v5.1 — build profiles, safe arm gate, BLE, ring buffer
+│   ├── car_passthrough.cpp       Dual-transceiver passthrough firmware prototype
+│   └── secrets.h.example         WiFi/API settings template
+│
+├── hardware/
+│   └── tesla-dual-lin-rev-a/     Rev A PCB — ESP32-S3-WROOM-1U-N8R8 + 2x TJA1021T/20
+│       ├── kicad/                KiCad schematic + PCB (tesla-dual-lin-rev-a.kicad_sch/pcb)
+│       ├── bom/                  BOM strategy, cost model, supplier shortlist
+│       ├── build/                Generated Gerbers, drill files
+│       ├── manufacturing/        JLCPCB order files
+│       ├── electrical/           Constraint files
+│       └── tests/                DRC/ERC reports
+│
+├── docs/
+│   ├── final-board-ordering-decision-2026-05-29.md  Rev A order decision
+│   ├── final-chip-architecture.md                   Dual-LIN active board architecture
+│   ├── model3y-steering-lin-2026-05-28.md           Model 3/Y confirmed ID map (0x2A left, 0x2B right)
+│   ├── model3y-passthrough-volume.md                Cut-wire passthrough architecture
+│   ├── bench-revalidation-2026-05-27.md             BLE fix + APG reseat proof
+│   ├── chip-sourcing-shortlist-2026-05-29.md        ESP32-S3 + TJA1021 supplier shortlist
+│   ├── secure-provisioning-anti-cloning-2026-05-29.md  nRF5340 anti-cloning design notes
+│   ├── single-board-rev-a-product-spec-2026-05-29.md   Rev A product spec
+│   ├── reports/                  Field analysis reports from vehicle visits
+│   └── archive/                  Historical passive/capture notes
+│
+├── research/
+│   ├── directives/               Research directives (ESP32, LIN, PCB, Tesla purchase)
+│   └── responses/                Research responses and synthesis documents
+│
+├── knowledge/
+│   └── hardware/                 Hardware knowledge base (TSL family, anti-nag landscape, BOM strategy)
+│
+├── tools/                        PowerShell + Python operational scripts
+│   ├── tesla-tsl5-lin-capture.ps1     LIN capture via FX2/Sigrok for TSL5 bench
+│   ├── tesla-tsl5-bench-readiness.ps1 TSL5 bench readiness check
+│   └── ... (see TOOLS.md for full list)
+│
+├── captures/
+│   ├── sigrok/                   Raw .sr Sigrok captures (FX2 device, Model X field sessions)
+│   └── lin-csv/                  (use logs/ for CSV captures from the bench)
+│
+├── logs/                         Bench CSV captures, active proof logs, bench evidence archives
+├── photos/                       Vehicle visit photos (Model X SCCM, steering wheel access points)
+├── audit-logs/                   Session audit logs (Tesla deal, bench setup sessions)
+└── boards/                       Board JSON definitions (ESP32-S3 N8R8)
+```

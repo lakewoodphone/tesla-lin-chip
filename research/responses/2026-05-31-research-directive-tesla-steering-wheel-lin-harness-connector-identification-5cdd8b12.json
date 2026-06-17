@@ -1,0 +1,351 @@
+{
+  "job_id": "5cdd8b12-7353-40c5-87aa-31c14ab3141a",
+  "directive": {
+    "id": "research-directive-tesla-steering-wheel-lin-harness-connector-identification",
+    "title": "Research Directive: Tesla Steering Wheel LIN Harness Connector Identification",
+    "domain": "legal",
+    "sensitivity": "standard",
+    "path": null,
+    "hash": "fc360852217ccd3a5303723e78f84a1247c7b1207d5ad7fddb62bdead966966f"
+  },
+  "result": {
+    "status": "complete",
+    "verifier_status": "passed",
+    "verifier_notes": null,
+    "model_used": "gpt-5.5",
+    "provider": "openai",
+    "content": "## Tesla steering-wheel LIN connector finding — Compass + Gemini\n\n### Team Compass — confirmed facts from Tesla public service/electrical docs\n\n**Confirmed: the Model 3/Y-style steering-wheel controls path is not a simple 3-pin connector in Tesla documentation; the relevant steering-wheel switch inline connector is shown as a 4-cavity inline connector with three populated signals.**\n\nTesla Model Y SOP6 electrical reference, Steering page, labels the connector as **“Steering Wheel Switch Inline”** and shows:\n\n> “Steering Wheel Switch Inline”  \n> “VBatt (out) — X178-1 High-Side Drive”  \n> “Ground — X178-2 Ground”  \n> “LIN — X178-4 LIN” ([service.tesla.com](https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf))\n\nSo, for 2023-era Model Y SOP6 at least:\n\n| Tesla ref | Function | Populated? |\n|---|---:|---:|\n| X178-1 | VBAT / high-side drive out | yes |\n| X178-2 | Ground | yes |\n| X178-3 | not shown in snippet as used for steering-wheel switch inline | likely unused |\n| X178-4 | LIN | yes |\n\n**Confirmed: the steering-wheel button controller itself is also shown as a 4-cavity device connector, with pins 1, 2, and 4 used.**\n\nTesla shows:\n\n> “Steering Wheel Button Controller Ground — X184-1 Ground”  \n> “Steering Wheel Button Controller Power — X184-2 High-Side Drive”  \n> “Steering Wheel Button Controller LIN — X184-4 LIN” ([service.tesla.com](https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf))\n\n**Confirmed: Tesla service procedures for 2017–2023 Model 3 and 2020–2024 Model Y refer to disconnecting the steering-wheel electrical harness, but do not expose connector family/pitch in the service manual text.**\n\nModel 3 service manual:\n\n> “Disconnect the steering wheel electrical wiring harness connector.” ([service.tesla.com](https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-A8654666-5B69-4082-ADE0-4373AE46C154.html?utm_source=openai))\n\nModel Y / Model 3 harness procedure:\n\n> “Disconnect the steering wheel electrical wiring harness from the connector.” ([service.tesla.com](https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-748469CF-09D5-4ECA-9234-255BFAAC6FFD.html?utm_source=openai))\n\n**Confirmed: Tesla’s electrical-reference system states that connector popups contain connector cavity/function/destination data, and that inline connector gender is terminal-type based.**\n\nTesla’s interactive schematic guide says:\n\n> “Click on pin numbers and connector blocks for connector reference information.”  \n> “open the Connector cavities section to see all the cavities with their function and destination” ([service.tesla.com](https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/html/index.html?expbackground=true&page=0))\n\nTesla’s printed electrical-reference notes say:\n\n> “Inline connectors with ‘M’ suffix have male, tab or pin terminals”  \n> “Inline connectors with ‘F’ suffix have female, receptacle or socket terminals” ([service.tesla.com](https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/pdf/index_print.pdf))\n\n### Team Gemini — connector-family identification status\n\n**Hard conclusion:** I could confirm the **Tesla logical connector identity and pin usage** — **X178 / 4-cavity / pins 1, 2, 4 = VBAT, GND, LIN** — but I could **not prove the exact physical connector family, pitch, latch/keying, or mating commercial part numbers for Model 3/Y X178/X184 from public sources in the available evidence.**\n\nThe public Tesla service pages and schematic snippets identify **X178** and **X184** and their cavities/functions, but the Model Y connector-reference page as fetched did not expose manufacturer/part-number detail for X178/X184. The search result for unrelated **Model X X178** showed a TE/AMP connector, but that is **not safe to apply to Model 3/Y** because X-number reuse across Tesla platforms is not proof of the same physical connector.\n\n**Therefore, the exact Tesla connector family/pitch/keying is unproven from public sources.**\n\n---\n\n## Answers to the research questions\n\n### 1. Exact connector used on Tesla Model 3/Y steering-wheel LIN harness?\n\n**Confirmed:** For Model Y SOP6 / 2023-era documentation, the steering-wheel controls inline connector is **Tesla X178**, called **“Steering Wheel Switch Inline.”** It carries **VBAT, GND, LIN** on cavities **1, 2, and 4**. ([service.tesla.com](https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf))\n\n**Not confirmed:** Exact OEM physical connector family, pitch, keying, latch geometry, and commercial housing/terminal MPNs for Model 3/Y X178/X184.\n\n**Model-year note:** Public Tesla electrical-reference index shows Model 3 SOP ranges changed over time, including SOP7 for Fremont 2022-01-17 to 2023-12-31 and SOP8 from 2024-01-01 to 2025-10-03; Model Y has multiple SOP revisions through 2026. That means connector changes are plausible across production revisions and should not be assumed stable without checking the target VIN/SOP. ([service.tesla.com](https://service.tesla.com/docs/Model3/ElectricalReference/index.html?utm_source=openai))\n\n### 2. Is the relevant inline connector 3-pin, 4-pin, 6-pin, or another count?\n\n**Confirmed for the steering-wheel switch inline path:** **4-cavity connector, 3 populated signals.**\n\n| Cavity | Signal | Tesla description |\n|---:|---|---|\n| 1 | VBAT / switched high-side power | “VBatt (out) — X178-1 High-Side Drive” |\n| 2 | Ground | “Ground — X178-2 Ground” |\n| 3 | no confirmed steering-wheel LIN signal in public snippet | likely unused / not used for this path |\n| 4 | LIN | “LIN — X178-4 LIN” |\n\nSource: Tesla Model Y SOP6 Steering schematic. ([service.tesla.com](https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf))\n\n**Do not implement as a 3-pin keyed Tesla-direct connector unless you have a physical harness sample proving the target car actually uses a 3-cavity housing.** The public Tesla schematic evidence points to **4 cavities with cavity 3 unused**, not a true 3-pin housing.\n\n### 3. Exact connector series, pitch, terminal family, latch/keying, PCB-side equivalent?\n\n**Confirmed:** Not available/proven from public sources gathered.\n\n**Inference:** This is likely an automotive wire-to-wire inline connector, not a PCB header series. Tesla service docs describe it as an inline steering-wheel harness connection, and the electrical-reference notes distinguish inline connector gender by terminal type. ([service.tesla.com](https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/pdf/index_print.pdf))\n\n**Unproven:**  \n- pitch  \n- OEM housing family  \n- terminal family  \n- latch/keying  \n- board-mount mate  \n- exact plug/receptacle MPNs\n\n### 4. Board-mount connector vs adapter pigtail strategy?\n\n**Recommendation: use short adapter pigtails, not direct Tesla-harness board mating, for Rev A.**\n\nReasoning:\n\n- Tesla public docs confirm the required electrical interface but not the purchasable physical connector details.\n- Steering-wheel area is mechanically constrained and safety-adjacent.\n- Directly mounting an unverified automotive inline mate on the PCB risks wrong keying, wrong gender, latch interference, or harness strain.\n- A pigtail lets Rev A use a known, cheap, assembleable PCB connector while preserving the ability to terminate the vehicle side with harvested/OEM Tesla connectors once physically verified.\n\n**Safest production architecture:**\n\n```text\nTesla car-side harness\n   ⇄ short adapter pigtail with verified Tesla mate\n   ⇄ board service connector J2\n\nBoard service connector J3\n   ⇄ short adapter pigtail with verified Tesla mate\n   ⇄ steering-wheel module/harness\n```\n\n---\n\n## Recommended Rev A implementation\n\n### Electrical mapping\n\nUse **4-circuit board connectors**, not 3-circuit, to preserve Tesla cavity numbering and avoid future respin if cavity 3 is physically present but unused.\n\n#### J2 — car-side input\n\n| Board pin | Tesla X178-equivalent cavity | Signal |\n|---:|---:|---|\n| 1 | 1 | VBAT_IN |\n| 2 | 2 | GND |\n| 3 | 3 | NC / reserved |\n| 4 | 4 | LIN_A |\n\n#### J3 — wheel-side output\n\n| Board pin | Tesla X184/X178-equivalent cavity | Signal |\n|---:|---:|---|\n| 1 | 1 or 2 depending final harness gender | VBAT_PROTECTED |\n| 2 | 2 or 1 depending final harness gender | GND |\n| 3 | 3 | NC / reserved |\n| 4 | 4 | LIN_B |\n\n**Important:** keep board silkscreen as **VBAT, GND, NC, LIN** and verify final physical Tesla cavity orientation on an actual harness before crimping pigtails.\n\n### Connector choice for Rev A board\n\n#### Preferred first-article connector family: Molex Micro-Fit 3.0, 4-circuit\n\nGood for hand assembly, field service, keyed/latching, widely stocked, more robust than JST-GH/PH, and commonly acceptable for low-volume builds.\n\n| Item | MPN | Use |\n|---|---|---|\n| Board vertical header, 4-circuit | **Molex 43650-0415** | J2/J3 PCB header |\n| Cable receptacle housing, 4-circuit | **Molex 43025-0400** | Pigtail board-side plug |\n| Female crimp terminal | **Molex 43030 series**, choose wire-gauge variant | Pigtail terminals |\n\n**Footprint to add now:**  \nUse KiCad Molex Micro-Fit 3.0 vertical 1x04 footprint or draw from datasheet. Reserve keepout for latch access and cable bend.\n\nRecommended board pinout:\n\n```text\nPin 1  VBAT\nPin 2  GND\nPin 3  NC / ID / reserved\nPin 4  LIN\n```\n\nAdd silkscreen triangle at pin 1 and text:\n\n```text\n1 VBAT\n2 GND\n3 NC\n4 LIN\n```\n\n### Alternative cheap/serviceable connector\n\nIf vertical height matters less than cost and availability, use **JST-VH 3.96 mm, 4-circuit**:\n\n| Item | MPN | Use |\n|---|---|---|\n| Board header | **JST B4B-VH** or **B4B-VH-FB-B** | PCB |\n| Housing | **JST VHR-4N** | Cable plug |\n| Terminal | **JST SVH-21T-P1.1** or gauge-appropriate VH terminal | Cable crimp |\n\nThis is cheap and easy, but less automotive-like than Micro-Fit and easier to mis-key unless boxed/keyed variants are used.\n\n---\n\n## Implementation decision\n\n### Add to Rev A now\n\n1. Replace each 1x03 2.54 mm header with a **4-circuit keyed/latching service connector footprint**.\n2. Recommended: **Molex Micro-Fit 3.0 vertical 1x04** for J2 and J3.\n3. Pin 3 should be routed to a test pad or left NC, but physically present.\n4. Add nearby 1.27/2.54 mm test pads for:\n   - VBAT_IN\n   - VBAT_PROTECTED\n   - GND\n   - LIN_A\n   - LIN_B\n5. Leave mechanical room for adapter pigtails and strain relief.\n\n### Do not do yet\n\n- Do **not** commit to a Tesla-direct board connector footprint.\n- Do **not** assume the Tesla connector is a 3-pin 2.54 mm, JST-XH, JST-GH, or Molex KK style.\n- Do **not** remove cavity 3 from the PCB interface; Tesla docs indicate a 4-cavity inline connector with cavity 3 unused for this LIN path.\n\n---\n\n## Confidence\n\n| Claim | Confidence |\n|---|---:|\n| Steering-wheel LIN/power/ground exists as Tesla-documented interface | High |\n| Relevant inline connector is X178 “Steering Wheel Switch Inline” | High |\n| X178 uses cavities 1, 2, and 4 for VBAT, GND, LIN | High |\n| It is physically a 4-cavity interface rather than true 3-pin | Medium-high |\n| Exact OEM connector family/pitch/keying/terminal MPN | Low / not proven |\n| Adapter-pigtail strategy is safest for Rev A | High |\n| Molex Micro-Fit 3.0 4-circuit is a good board-side service connector | Medium-high |\n\n## Bottom line\n\nPublic Tesla sources confirm the **electrical interface** as **4-cavity / 3-signal: pin 1 VBAT, pin 2 GND, pin 4 LIN** on the steering-wheel switch inline path. They do **not** publicly prove the exact Model 3/Y physical connector family or mating purchasable MPNs.\n\nFor Rev A, use **4-pin keyed board service connectors** and **adapter pigtails**. The production-safe footprint to add now is **Molex Micro-Fit 3.0 1x04**, with **pin 3 reserved/NC**, so the PCB does not need to know the Tesla OEM connector family until a physical harness is measured and matched.",
+    "citations": [
+      {
+        "title": "https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf",
+        "url": "https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf"
+      },
+      {
+        "title": "Steering Wheel (Remove and Install)",
+        "url": "https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-A8654666-5B69-4082-ADE0-4373AE46C154.html?utm_source=openai"
+      },
+      {
+        "title": "Harness - Steering Wheel (Remove and Replace)",
+        "url": "https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-748469CF-09D5-4ECA-9234-255BFAAC6FFD.html?utm_source=openai"
+      },
+      {
+        "title": "Schematics",
+        "url": "https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/html/index.html?expbackground=true&page=0"
+      },
+      {
+        "title": "https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/pdf/index_print.pdf",
+        "url": "https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/pdf/index_print.pdf"
+      },
+      {
+        "title": "Electrical Reference",
+        "url": "https://service.tesla.com/docs/Model3/ElectricalReference/index.html?utm_source=openai"
+      }
+    ],
+    "prompt_tokens": 51221,
+    "completion_tokens": 4087,
+    "reasoning_tokens": 875,
+    "citation_tokens": 0,
+    "search_count": 9,
+    "cost_usd": 0.494965
+  },
+  "raw_response": {
+    "id": "resp_02f356228993bf47006a1c7c6a93a4819fba3c7f4291bc2ea5",
+    "object": "response",
+    "created_at": 1780251754,
+    "status": "completed",
+    "background": true,
+    "billing": {
+      "payer": "developer"
+    },
+    "completed_at": 1780251835,
+    "error": null,
+    "frequency_penalty": 0.0,
+    "incomplete_details": null,
+    "instructions": null,
+    "max_output_tokens": 6000,
+    "max_tool_calls": 8,
+    "model": "gpt-5.5-2026-04-23",
+    "moderation": null,
+    "output": [
+      {
+        "id": "rs_02f356228993bf47006a1c7c6cc774819fb086837b7f1453bc",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_02f356228993bf47006a1c7c6d3e58819f9ab1841ff830bb72",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "Tesla Model 3 steering wheel LIN connector 3 pin clock spring harness connector",
+            "Tesla Model 3 steering wheel controls LIN harness connector pins VBAT GND LIN",
+            "Tesla Model 3 steering wheel harness connector clock spring 3 pin"
+          ],
+          "query": "Tesla Model 3 steering wheel LIN connector 3 pin clock spring harness connector"
+        }
+      },
+      {
+        "id": "rs_02f356228993bf47006a1c7c701244819f80a3e7a81a81af93",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_02f356228993bf47006a1c7c7029ec819fa698101f473f1c9f",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "open_page"
+        }
+      },
+      {
+        "id": "rs_02f356228993bf47006a1c7c7141cc819fbf5fe79934abf293",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_02f356228993bf47006a1c7c71f558819f8220c939e3ba8041",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "find_in_page",
+          "pattern": "Steering Wheel"
+        }
+      },
+      {
+        "id": "rs_02f356228993bf47006a1c7c7362ac819fbc7d8eed07291324",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_02f356228993bf47006a1c7c73d584819fb58e96105a64e0df",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "site:service.tesla.com/docs/Model3/ElectricalReference Steering Wheel LIN Tesla Model 3",
+            "site:service.tesla.com/docs/ModelY/ElectricalReference steering wheel LIN Tesla"
+          ],
+          "query": "site:service.tesla.com/docs/Model3/ElectricalReference Steering Wheel LIN Tesla Model 3"
+        }
+      },
+      {
+        "id": "rs_02f356228993bf47006a1c7c776a5c819f9aab02376f438e01",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_02f356228993bf47006a1c7c777b58819f851ad811ca4be4d7",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "open_page"
+        }
+      },
+      {
+        "id": "ws_02f356228993bf47006a1c7c7870f8819fa39f669ac62d86b7",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "find_in_page",
+          "pattern": "Steering Wheel Button Controller LIN"
+        }
+      },
+      {
+        "id": "rs_02f356228993bf47006a1c7c7aaaa4819fb861a91ac34467fe",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_02f356228993bf47006a1c7c7b9f34819fbdd2ff9b425458bc",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "Tesla X178 steering wheel switch inline connector X184 connector reference",
+            "\"X178\" \"Steering Wheel Switch Inline\" Tesla",
+            "\"X184\" \"Steering Wheel Button Controller\" Tesla connector"
+          ],
+          "query": "Tesla X178 steering wheel switch inline connector X184 connector reference"
+        }
+      },
+      {
+        "id": "rs_02f356228993bf47006a1c7c80677c819fa5034a84cc727bd7",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_02f356228993bf47006a1c7c807bec819f9e26f4c3645cc4fb",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "open_page"
+        }
+      },
+      {
+        "id": "rs_02f356228993bf47006a1c7c82c7b0819f9f1a898396ec6b93",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_02f356228993bf47006a1c7c83aaf4819fb7445157416a9999",
+        "type": "web_search_call",
+        "status": "searching",
+        "action": {
+          "type": "search",
+          "queries": [
+            "TE Connectivity 179631-2 connector pitch",
+            "AMP 179631-2 connector datasheet",
+            "TE 179631-2 connector"
+          ],
+          "query": "TE Connectivity 179631-2 connector pitch"
+        }
+      },
+      {
+        "id": "rs_02f356228993bf47006a1c7c851c1c819f86ec21d073130849",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "msg_02f356228993bf47006a1c7c8a6c5c819f8369a3ddf3711ad8",
+        "type": "message",
+        "status": "completed",
+        "content": [
+          {
+            "type": "output_text",
+            "annotations": [
+              {
+                "type": "url_citation",
+                "end_index": 762,
+                "start_index": 642,
+                "title": "",
+                "url": "https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 1500,
+                "start_index": 1380,
+                "title": "",
+                "url": "https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 1959,
+                "start_index": 1814,
+                "title": "Steering Wheel (Remove and Install)",
+                "url": "https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-A8654666-5B69-4082-ADE0-4373AE46C154.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 2224,
+                "start_index": 2079,
+                "title": "Harness - Steering Wheel (Remove and Replace)",
+                "url": "https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-748469CF-09D5-4ECA-9234-255BFAAC6FFD.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 2787,
+                "start_index": 2644,
+                "title": "Schematics",
+                "url": "https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/html/index.html?expbackground=true&page=0"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 3113,
+                "start_index": 2992,
+                "title": "",
+                "url": "https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/pdf/index_print.pdf"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 4513,
+                "start_index": 4393,
+                "title": "",
+                "url": "https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 5161,
+                "start_index": 5052,
+                "title": "Electrical Reference",
+                "url": "https://service.tesla.com/docs/Model3/ElectricalReference/index.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 5831,
+                "start_index": 5711,
+                "title": "",
+                "url": "https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 6650,
+                "start_index": 6529,
+                "title": "",
+                "url": "https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/pdf/index_print.pdf"
+              }
+            ],
+            "logprobs": [],
+            "text": "## Tesla steering-wheel LIN connector finding — Compass + Gemini\n\n### Team Compass — confirmed facts from Tesla public service/electrical docs\n\n**Confirmed: the Model 3/Y-style steering-wheel controls path is not a simple 3-pin connector in Tesla documentation; the relevant steering-wheel switch inline connector is shown as a 4-cavity inline connector with three populated signals.**\n\nTesla Model Y SOP6 electrical reference, Steering page, labels the connector as **“Steering Wheel Switch Inline”** and shows:\n\n> “Steering Wheel Switch Inline”  \n> “VBatt (out) — X178-1 High-Side Drive”  \n> “Ground — X178-2 Ground”  \n> “LIN — X178-4 LIN” ([service.tesla.com](https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf))\n\nSo, for 2023-era Model Y SOP6 at least:\n\n| Tesla ref | Function | Populated? |\n|---|---:|---:|\n| X178-1 | VBAT / high-side drive out | yes |\n| X178-2 | Ground | yes |\n| X178-3 | not shown in snippet as used for steering-wheel switch inline | likely unused |\n| X178-4 | LIN | yes |\n\n**Confirmed: the steering-wheel button controller itself is also shown as a 4-cavity device connector, with pins 1, 2, and 4 used.**\n\nTesla shows:\n\n> “Steering Wheel Button Controller Ground — X184-1 Ground”  \n> “Steering Wheel Button Controller Power — X184-2 High-Side Drive”  \n> “Steering Wheel Button Controller LIN — X184-4 LIN” ([service.tesla.com](https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf))\n\n**Confirmed: Tesla service procedures for 2017–2023 Model 3 and 2020–2024 Model Y refer to disconnecting the steering-wheel electrical harness, but do not expose connector family/pitch in the service manual text.**\n\nModel 3 service manual:\n\n> “Disconnect the steering wheel electrical wiring harness connector.” ([service.tesla.com](https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-A8654666-5B69-4082-ADE0-4373AE46C154.html?utm_source=openai))\n\nModel Y / Model 3 harness procedure:\n\n> “Disconnect the steering wheel electrical wiring harness from the connector.” ([service.tesla.com](https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-748469CF-09D5-4ECA-9234-255BFAAC6FFD.html?utm_source=openai))\n\n**Confirmed: Tesla’s electrical-reference system states that connector popups contain connector cavity/function/destination data, and that inline connector gender is terminal-type based.**\n\nTesla’s interactive schematic guide says:\n\n> “Click on pin numbers and connector blocks for connector reference information.”  \n> “open the Connector cavities section to see all the cavities with their function and destination” ([service.tesla.com](https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/html/index.html?expbackground=true&page=0))\n\nTesla’s printed electrical-reference notes say:\n\n> “Inline connectors with ‘M’ suffix have male, tab or pin terminals”  \n> “Inline connectors with ‘F’ suffix have female, receptacle or socket terminals” ([service.tesla.com](https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/pdf/index_print.pdf))\n\n### Team Gemini — connector-family identification status\n\n**Hard conclusion:** I could confirm the **Tesla logical connector identity and pin usage** — **X178 / 4-cavity / pins 1, 2, 4 = VBAT, GND, LIN** — but I could **not prove the exact physical connector family, pitch, latch/keying, or mating commercial part numbers for Model 3/Y X178/X184 from public sources in the available evidence.**\n\nThe public Tesla service pages and schematic snippets identify **X178** and **X184** and their cavities/functions, but the Model Y connector-reference page as fetched did not expose manufacturer/part-number detail for X178/X184. The search result for unrelated **Model X X178** showed a TE/AMP connector, but that is **not safe to apply to Model 3/Y** because X-number reuse across Tesla platforms is not proof of the same physical connector.\n\n**Therefore, the exact Tesla connector family/pitch/keying is unproven from public sources.**\n\n---\n\n## Answers to the research questions\n\n### 1. Exact connector used on Tesla Model 3/Y steering-wheel LIN harness?\n\n**Confirmed:** For Model Y SOP6 / 2023-era documentation, the steering-wheel controls inline connector is **Tesla X178**, called **“Steering Wheel Switch Inline.”** It carries **VBAT, GND, LIN** on cavities **1, 2, and 4**. ([service.tesla.com](https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf))\n\n**Not confirmed:** Exact OEM physical connector family, pitch, keying, latch geometry, and commercial housing/terminal MPNs for Model 3/Y X178/X184.\n\n**Model-year note:** Public Tesla electrical-reference index shows Model 3 SOP ranges changed over time, including SOP7 for Fremont 2022-01-17 to 2023-12-31 and SOP8 from 2024-01-01 to 2025-10-03; Model Y has multiple SOP revisions through 2026. That means connector changes are plausible across production revisions and should not be assumed stable without checking the target VIN/SOP. ([service.tesla.com](https://service.tesla.com/docs/Model3/ElectricalReference/index.html?utm_source=openai))\n\n### 2. Is the relevant inline connector 3-pin, 4-pin, 6-pin, or another count?\n\n**Confirmed for the steering-wheel switch inline path:** **4-cavity connector, 3 populated signals.**\n\n| Cavity | Signal | Tesla description |\n|---:|---|---|\n| 1 | VBAT / switched high-side power | “VBatt (out) — X178-1 High-Side Drive” |\n| 2 | Ground | “Ground — X178-2 Ground” |\n| 3 | no confirmed steering-wheel LIN signal in public snippet | likely unused / not used for this path |\n| 4 | LIN | “LIN — X178-4 LIN” |\n\nSource: Tesla Model Y SOP6 Steering schematic. ([service.tesla.com](https://service.tesla.com/docs/ModelY/ElectricalReference/prog-202/diagram/2023.2_ModelY-SOP6.pdf))\n\n**Do not implement as a 3-pin keyed Tesla-direct connector unless you have a physical harness sample proving the target car actually uses a 3-cavity housing.** The public Tesla schematic evidence points to **4 cavities with cavity 3 unused**, not a true 3-pin housing.\n\n### 3. Exact connector series, pitch, terminal family, latch/keying, PCB-side equivalent?\n\n**Confirmed:** Not available/proven from public sources gathered.\n\n**Inference:** This is likely an automotive wire-to-wire inline connector, not a PCB header series. Tesla service docs describe it as an inline steering-wheel harness connection, and the electrical-reference notes distinguish inline connector gender by terminal type. ([service.tesla.com](https://service.tesla.com/docs/Model3/ElectricalReference/prog-233/interactive/pdf/index_print.pdf))\n\n**Unproven:**  \n- pitch  \n- OEM housing family  \n- terminal family  \n- latch/keying  \n- board-mount mate  \n- exact plug/receptacle MPNs\n\n### 4. Board-mount connector vs adapter pigtail strategy?\n\n**Recommendation: use short adapter pigtails, not direct Tesla-harness board mating, for Rev A.**\n\nReasoning:\n\n- Tesla public docs confirm the required electrical interface but not the purchasable physical connector details.\n- Steering-wheel area is mechanically constrained and safety-adjacent.\n- Directly mounting an unverified automotive inline mate on the PCB risks wrong keying, wrong gender, latch interference, or harness strain.\n- A pigtail lets Rev A use a known, cheap, assembleable PCB connector while preserving the ability to terminate the vehicle side with harvested/OEM Tesla connectors once physically verified.\n\n**Safest production architecture:**\n\n```text\nTesla car-side harness\n   ⇄ short adapter pigtail with verified Tesla mate\n   ⇄ board service connector J2\n\nBoard service connector J3\n   ⇄ short adapter pigtail with verified Tesla mate\n   ⇄ steering-wheel module/harness\n```\n\n---\n\n## Recommended Rev A implementation\n\n### Electrical mapping\n\nUse **4-circuit board connectors**, not 3-circuit, to preserve Tesla cavity numbering and avoid future respin if cavity 3 is physically present but unused.\n\n#### J2 — car-side input\n\n| Board pin | Tesla X178-equivalent cavity | Signal |\n|---:|---:|---|\n| 1 | 1 | VBAT_IN |\n| 2 | 2 | GND |\n| 3 | 3 | NC / reserved |\n| 4 | 4 | LIN_A |\n\n#### J3 — wheel-side output\n\n| Board pin | Tesla X184/X178-equivalent cavity | Signal |\n|---:|---:|---|\n| 1 | 1 or 2 depending final harness gender | VBAT_PROTECTED |\n| 2 | 2 or 1 depending final harness gender | GND |\n| 3 | 3 | NC / reserved |\n| 4 | 4 | LIN_B |\n\n**Important:** keep board silkscreen as **VBAT, GND, NC, LIN** and verify final physical Tesla cavity orientation on an actual harness before crimping pigtails.\n\n### Connector choice for Rev A board\n\n#### Preferred first-article connector family: Molex Micro-Fit 3.0, 4-circuit\n\nGood for hand assembly, field service, keyed/latching, widely stocked, more robust than JST-GH/PH, and commonly acceptable for low-volume builds.\n\n| Item | MPN | Use |\n|---|---|---|\n| Board vertical header, 4-circuit | **Molex 43650-0415** | J2/J3 PCB header |\n| Cable receptacle housing, 4-circuit | **Molex 43025-0400** | Pigtail board-side plug |\n| Female crimp terminal | **Molex 43030 series**, choose wire-gauge variant | Pigtail terminals |\n\n**Footprint to add now:**  \nUse KiCad Molex Micro-Fit 3.0 vertical 1x04 footprint or draw from datasheet. Reserve keepout for latch access and cable bend.\n\nRecommended board pinout:\n\n```text\nPin 1  VBAT\nPin 2  GND\nPin 3  NC / ID / reserved\nPin 4  LIN\n```\n\nAdd silkscreen triangle at pin 1 and text:\n\n```text\n1 VBAT\n2 GND\n3 NC\n4 LIN\n```\n\n### Alternative cheap/serviceable connector\n\nIf vertical height matters less than cost and availability, use **JST-VH 3.96 mm, 4-circuit**:\n\n| Item | MPN | Use |\n|---|---|---|\n| Board header | **JST B4B-VH** or **B4B-VH-FB-B** | PCB |\n| Housing | **JST VHR-4N** | Cable plug |\n| Terminal | **JST SVH-21T-P1.1** or gauge-appropriate VH terminal | Cable crimp |\n\nThis is cheap and easy, but less automotive-like than Micro-Fit and easier to mis-key unless boxed/keyed variants are used.\n\n---\n\n## Implementation decision\n\n### Add to Rev A now\n\n1. Replace each 1x03 2.54 mm header with a **4-circuit keyed/latching service connector footprint**.\n2. Recommended: **Molex Micro-Fit 3.0 vertical 1x04** for J2 and J3.\n3. Pin 3 should be routed to a test pad or left NC, but physically present.\n4. Add nearby 1.27/2.54 mm test pads for:\n   - VBAT_IN\n   - VBAT_PROTECTED\n   - GND\n   - LIN_A\n   - LIN_B\n5. Leave mechanical room for adapter pigtails and strain relief.\n\n### Do not do yet\n\n- Do **not** commit to a Tesla-direct board connector footprint.\n- Do **not** assume the Tesla connector is a 3-pin 2.54 mm, JST-XH, JST-GH, or Molex KK style.\n- Do **not** remove cavity 3 from the PCB interface; Tesla docs indicate a 4-cavity inline connector with cavity 3 unused for this LIN path.\n\n---\n\n## Confidence\n\n| Claim | Confidence |\n|---|---:|\n| Steering-wheel LIN/power/ground exists as Tesla-documented interface | High |\n| Relevant inline connector is X178 “Steering Wheel Switch Inline” | High |\n| X178 uses cavities 1, 2, and 4 for VBAT, GND, LIN | High |\n| It is physically a 4-cavity interface rather than true 3-pin | Medium-high |\n| Exact OEM connector family/pitch/keying/terminal MPN | Low / not proven |\n| Adapter-pigtail strategy is safest for Rev A | High |\n| Molex Micro-Fit 3.0 4-circuit is a good board-side service connector | Medium-high |\n\n## Bottom line\n\nPublic Tesla sources confirm the **electrical interface** as **4-cavity / 3-signal: pin 1 VBAT, pin 2 GND, pin 4 LIN** on the steering-wheel switch inline path. They do **not** publicly prove the exact Model 3/Y physical connector family or mating purchasable MPNs.\n\nFor Rev A, use **4-pin keyed board service connectors** and **adapter pigtails**. The production-safe footprint to add now is **Molex Micro-Fit 3.0 1x04**, with **pin 3 reserved/NC**, so the PCB does not need to know the Tesla OEM connector family until a physical harness is measured and matched."
+          }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+      }
+    ],
+    "parallel_tool_calls": true,
+    "presence_penalty": 0.0,
+    "previous_response_id": null,
+    "prompt_cache_key": null,
+    "prompt_cache_retention": "24h",
+    "reasoning": {
+      "context": "current_turn",
+      "effort": "low",
+      "summary": null
+    },
+    "safety_identifier": null,
+    "service_tier": "default",
+    "store": true,
+    "temperature": 1.0,
+    "text": {
+      "format": {
+        "type": "text"
+      },
+      "verbosity": "medium"
+    },
+    "tool_choice": "auto",
+    "tools": [
+      {
+        "type": "web_search",
+        "return_token_budget": "default",
+        "search_context_size": "medium",
+        "user_location": {
+          "type": "approximate",
+          "city": null,
+          "country": "US",
+          "region": null,
+          "timezone": null
+        }
+      }
+    ],
+    "top_logprobs": 0,
+    "top_p": 0.98,
+    "truncation": "disabled",
+    "usage": {
+      "input_tokens": 51221,
+      "input_tokens_details": {
+        "cached_tokens": 4096
+      },
+      "output_tokens": 4087,
+      "output_tokens_details": {
+        "reasoning_tokens": 875
+      },
+      "total_tokens": 55308
+    },
+    "user": null,
+    "metadata": {}
+  }
+}

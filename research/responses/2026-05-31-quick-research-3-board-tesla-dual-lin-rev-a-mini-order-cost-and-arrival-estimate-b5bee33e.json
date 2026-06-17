@@ -1,0 +1,213 @@
+{
+  "job_id": "b5bee33e-315b-4d53-ac85-8310d29985e6",
+  "directive": {
+    "id": "quick-research-3-board-tesla-dual-lin-rev-a-mini-order-cost-and-arrival-estimate",
+    "title": "Quick Research: 3-board Tesla Dual LIN Rev A mini order cost and arrival estimate",
+    "domain": "legal",
+    "sensitivity": "standard",
+    "path": null,
+    "hash": "6ddd529e04b5d980eb08a01cf03f9744b2d7f4238e244bc506314fbf865a83ae"
+  },
+  "result": {
+    "status": "complete",
+    "verifier_status": "passed",
+    "verifier_notes": null,
+    "model_used": "gpt-5.5",
+    "provider": "openai",
+    "content": "## Quick estimate — 3-board Tesla Dual LIN Rev A mini order  \n**Date basis:** 2026-05-31. **Destination assumed:** NJ/NY, USA.  \n**Important:** an exact quote requires uploading **Gerbers + BOM + CPL/PNP** to JLCPCB/PCBWay; the ranges below are realistic pre-upload estimates.\n\n### Current vendor facts used\n\n- **JLCPCB PCBA:** JLCPCB documents Economic vs Standard PCBA capability, including **single-sided SMT / thru-hole** for Economic and 2/4/6-layer support; listed Economic PCBA build time is **1–3 days**, with Standard **≥4 days**, depending on options. ([jlcpcb.com](https://jlcpcb.com/capabilities/pcb-assembly-capabilities?utm_source=openai))  \n- JLCPCB says SMT assembly lead time starts after bare PCBs arrive at the SMT line, while they use parallel preparation during PCB fab; quoted online price is real-time and includes setup/stencil/labor/components as applicable. ([jlcpcb.com](https://jlcpcb.com/help/article/smt-service-lead-time-overview?utm_source=openai))  \n- JLCPCB notes through-hole support via wave soldering, but actual eligibility depends on the uploaded assembly data and parts. ([jlcpcb.com](https://jlcpcb.com/help/article/1098-pcb-assembly-faqs?utm_source=openai))  \n- JLCPCB shipping delivery estimates are explicitly **not guaranteed**, and international shipments may incur duties/taxes beyond the shipping charge. ([jlcpcb.com](https://jlcpcb.com/es/help/article/shipping-methods-and-delivery-time?utm_source=openai))  \n- **PCBWay fallback:** PCBWay advertises PCB assembly lead time of **3–5 days**; final PCBA pricing is quote/RFQ-driven. ([m.pcbway.com](https://m.pcbway.com/pcb-assembly.html?utm_source=openai))  \n\n---\n\n# Compass estimate — cost and arrival\n\n| Bucket | Low | Likely | High | Notes |\n|---|---:|---:|---:|---|\n| **Bare PCB fabrication only** | **$25** | **$45–70** | **$100–140** | 100 × 56 mm, 4-layer, ENIG, qty likely 5 minimum even if only 3 needed. ENIG and 4-layer push above “promo” pricing. |\n| **Vendor-assembled PCBA** | **$120** | **$170–260** | **$350–500** | Assumes most parts are LCSC/JLC-available, single-side assembly, no exotic substitutions, no major DFM issue. Includes assembly setup/stencil/labor + BOM. |\n| **Manual / secondary ops** | **$10** | **$25–60** | **$100–180** | If Micro-Fit THT connectors and/or DPDT switch are not placed by vendor: hand-solder 6–9 parts total across 3 boards. Higher end if done by paid tech/local shop. |\n| **Shipping / taxes / tariff buffer** | **$25** | **$45–90** | **$120–200** | Express shipping to NJ/NY usually dominates small orders. US import/tariff treatment can change; use vendor checkout total as source of truth. |\n| **Total bare PCB only, landed** | **$50** | **$90–160** | **$220–320** | For unassembled boards only. |\n| **Total assembled mini order, landed** | **$160** | **$240–410** | **$550–850** | Most realistic bench-test budget: **$300–450** if BOM is LCSC-friendly. |\n\n**Compass arrival estimate from order placement**\n\n- **JLCPCB bare PCB only:** likely **6–10 calendar days**, high-confidence window **5–14 calendar days**.  \n- **JLCPCB PCBA:** likely **8–14 calendar days**, high-confidence window **7–21 calendar days** if no engineering questions, no part stock issue, and express/DDP-style shipping is selected.  \n- **PCBWay PCBA fallback:** likely **10–18 calendar days**, high-confidence window **9–25 calendar days**, because assembly is more RFQ/sourcing dependent.\n\n---\n\n# Gemini estimate — cost and arrival\n\n| Scenario | Low | Likely | High | Delivery window |\n|---|---:|---:|---:|---|\n| **A. Bare PCB fab only, JLCPCB** | **$45 landed** | **$100–140 landed** | **$250+ landed** | **~1–2 weeks** |\n| **B. JLCPCB Economic/Standard PCBA, mostly turnkey** | **$180 landed** | **$280–450 landed** | **$700+ landed** | **~9–16 calendar days** |\n| **C. JLCPCB assembled SMT only + manual THT/switch** | **$170 landed + labor** | **$300–500 landed** | **$750+ landed** | **~9–17 days + 0–2 days rework** |\n| **D. PCBWay full assembly fallback** | **$300 landed** | **$450–750 landed** | **$1,000+ landed** | **~12–25 calendar days** |\n\n**Gemini notes**\n\n- For qty 3, the non-recurring setup/stencil/review/shipping costs dominate. The per-board BOM is probably not the main cost driver unless ESP32-S3-WROOM-1U, Molex connectors, or power parts are not in stock or require substitution.  \n- The two Molex Micro-Fit 3.0 **43650-0415** THT board connectors are the main assembly risk. JLCPCB may support THT/wave soldering, but whether these exact connectors are eligible depends on the uploaded BOM/CPL and their process constraints.  \n- If fastest bench testing matters more than a clean “production-like” assembly, let JLCPCB place all eligible SMT, then hand-install the Micro-Fit connectors and DPDT switch in-house.\n\n---\n\n## Recommended ordering path\n\n**Fastest reliable path:**  \n1. Upload to **JLCPCB PCBA first**, using **Economic PCBA** if the board and all selected parts qualify; otherwise use **Standard PCBA**.  \n2. Mark the **Micro-Fit connectors and DPDT switch as DNI / not assembled** if JLC rejects them or adds delay.  \n3. Order the THT connectors/switch separately from Digi-Key/Mouser/LCSC and hand-solder after boards arrive.  \n4. Use express shipping rather than postal/airmail for a bench-test build.\n\n**Practical budget to approve now:**  \n- **Bare PCB only:** approve **$150**.  \n- **3 assembled bench boards via JLCPCB with possible manual connector install:** approve **$450**.  \n- **Contingency / fallback via PCBWay:** approve up to **$750–900** if JLCPCB has BOM/process blockers.\n\n**Most realistic arrival if ordered today, Sunday May 31, 2026:**  \n- **JLCPCB bare PCB:** around **June 6–10, 2026**; conservative **by June 14, 2026**.  \n- **JLCPCB PCBA:** around **June 9–15, 2026**; conservative **by June 21, 2026**.  \n- **PCBWay fallback PCBA:** around **June 12–25, 2026**, depending on RFQ review and parts sourcing.",
+    "citations": [
+      {
+        "title": "PCB Manufacturing & Assembly Capabilities - JLCPCB",
+        "url": "https://jlcpcb.com/capabilities/pcb-assembly-capabilities?utm_source=openai"
+      },
+      {
+        "title": "SMT Service Lead Time Overview",
+        "url": "https://jlcpcb.com/help/article/smt-service-lead-time-overview?utm_source=openai"
+      },
+      {
+        "title": "PCB Assembly FAQs",
+        "url": "https://jlcpcb.com/help/article/1098-pcb-assembly-faqs?utm_source=openai"
+      },
+      {
+        "title": "Métodos de envío y tiempo de entrega",
+        "url": "https://jlcpcb.com/es/help/article/shipping-methods-and-delivery-time?utm_source=openai"
+      },
+      {
+        "title": "Surface Mount SMT PCB Assembly Service - PCBWay",
+        "url": "https://m.pcbway.com/pcb-assembly.html?utm_source=openai"
+      }
+    ],
+    "prompt_tokens": 15544,
+    "completion_tokens": 1953,
+    "reasoning_tokens": 261,
+    "citation_tokens": 0,
+    "search_count": 2,
+    "cost_usd": 0.16413999999999998
+  },
+  "raw_response": {
+    "id": "resp_091e0ced9cde97c4006a1c8afff8008193bfbf5608394aa993",
+    "object": "response",
+    "created_at": 1780255488,
+    "status": "completed",
+    "background": true,
+    "billing": {
+      "payer": "developer"
+    },
+    "completed_at": 1780255531,
+    "error": null,
+    "frequency_penalty": 0.0,
+    "incomplete_details": null,
+    "instructions": null,
+    "max_output_tokens": 6000,
+    "max_tool_calls": 8,
+    "model": "gpt-5.5-2026-04-23",
+    "moderation": null,
+    "output": [
+      {
+        "id": "rs_091e0ced9cde97c4006a1c8b01ffc88193992733311005dc4d",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_091e0ced9cde97c4006a1c8b0278bc81939be53959878d38e0",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "JLCPCB PCB assembly lead time shipping USA 2026",
+            "JLCPCB Economic PCBA capabilities through hole assembly",
+            "PCBWay PCB assembly lead time shipping USA"
+          ],
+          "query": "JLCPCB PCB assembly lead time shipping USA 2026"
+        }
+      },
+      {
+        "id": "rs_091e0ced9cde97c4006a1c8b04960881938d2f0ba62521fc05",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_091e0ced9cde97c4006a1c8b04da888193b91cfc310346d3b3",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "site:jlcpcb.com/help shipping methods delivery time USA JLCPCB",
+            "JLCPCB shipping methods delivery time DHL FedEx USA 2026",
+            "JLCPCB PCB fabrication lead time 4 layer ENIG"
+          ],
+          "query": "site:jlcpcb.com/help shipping methods delivery time USA JLCPCB"
+        }
+      },
+      {
+        "id": "rs_091e0ced9cde97c4006a1c8b07db408193b466ef0caab09c5a",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "msg_091e0ced9cde97c4006a1c8b098a8881938964622e4d45dc7d",
+        "type": "message",
+        "status": "completed",
+        "content": [
+          {
+            "type": "output_text",
+            "annotations": [
+              {
+                "type": "url_citation",
+                "end_index": 653,
+                "start_index": 562,
+                "title": "PCB Manufacturing & Assembly Capabilities - JLCPCB",
+                "url": "https://jlcpcb.com/capabilities/pcb-assembly-capabilities?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 980,
+                "start_index": 884,
+                "title": "SMT Service Lead Time Overview",
+                "url": "https://jlcpcb.com/help/article/smt-service-lead-time-overview?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 1199,
+                "start_index": 1111,
+                "title": "PCB Assembly FAQs",
+                "url": "https://jlcpcb.com/help/article/1098-pcb-assembly-faqs?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 1456,
+                "start_index": 1353,
+                "title": "Métodos de envío y tiempo de entrega",
+                "url": "https://jlcpcb.com/es/help/article/shipping-methods-and-delivery-time?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 1654,
+                "start_index": 1580,
+                "title": "Surface Mount SMT PCB Assembly Service - PCBWay",
+                "url": "https://m.pcbway.com/pcb-assembly.html?utm_source=openai"
+              }
+            ],
+            "logprobs": [],
+            "text": "## Quick estimate — 3-board Tesla Dual LIN Rev A mini order  \n**Date basis:** 2026-05-31. **Destination assumed:** NJ/NY, USA.  \n**Important:** an exact quote requires uploading **Gerbers + BOM + CPL/PNP** to JLCPCB/PCBWay; the ranges below are realistic pre-upload estimates.\n\n### Current vendor facts used\n\n- **JLCPCB PCBA:** JLCPCB documents Economic vs Standard PCBA capability, including **single-sided SMT / thru-hole** for Economic and 2/4/6-layer support; listed Economic PCBA build time is **1–3 days**, with Standard **≥4 days**, depending on options. ([jlcpcb.com](https://jlcpcb.com/capabilities/pcb-assembly-capabilities?utm_source=openai))  \n- JLCPCB says SMT assembly lead time starts after bare PCBs arrive at the SMT line, while they use parallel preparation during PCB fab; quoted online price is real-time and includes setup/stencil/labor/components as applicable. ([jlcpcb.com](https://jlcpcb.com/help/article/smt-service-lead-time-overview?utm_source=openai))  \n- JLCPCB notes through-hole support via wave soldering, but actual eligibility depends on the uploaded assembly data and parts. ([jlcpcb.com](https://jlcpcb.com/help/article/1098-pcb-assembly-faqs?utm_source=openai))  \n- JLCPCB shipping delivery estimates are explicitly **not guaranteed**, and international shipments may incur duties/taxes beyond the shipping charge. ([jlcpcb.com](https://jlcpcb.com/es/help/article/shipping-methods-and-delivery-time?utm_source=openai))  \n- **PCBWay fallback:** PCBWay advertises PCB assembly lead time of **3–5 days**; final PCBA pricing is quote/RFQ-driven. ([m.pcbway.com](https://m.pcbway.com/pcb-assembly.html?utm_source=openai))  \n\n---\n\n# Compass estimate — cost and arrival\n\n| Bucket | Low | Likely | High | Notes |\n|---|---:|---:|---:|---|\n| **Bare PCB fabrication only** | **$25** | **$45–70** | **$100–140** | 100 × 56 mm, 4-layer, ENIG, qty likely 5 minimum even if only 3 needed. ENIG and 4-layer push above “promo” pricing. |\n| **Vendor-assembled PCBA** | **$120** | **$170–260** | **$350–500** | Assumes most parts are LCSC/JLC-available, single-side assembly, no exotic substitutions, no major DFM issue. Includes assembly setup/stencil/labor + BOM. |\n| **Manual / secondary ops** | **$10** | **$25–60** | **$100–180** | If Micro-Fit THT connectors and/or DPDT switch are not placed by vendor: hand-solder 6–9 parts total across 3 boards. Higher end if done by paid tech/local shop. |\n| **Shipping / taxes / tariff buffer** | **$25** | **$45–90** | **$120–200** | Express shipping to NJ/NY usually dominates small orders. US import/tariff treatment can change; use vendor checkout total as source of truth. |\n| **Total bare PCB only, landed** | **$50** | **$90–160** | **$220–320** | For unassembled boards only. |\n| **Total assembled mini order, landed** | **$160** | **$240–410** | **$550–850** | Most realistic bench-test budget: **$300–450** if BOM is LCSC-friendly. |\n\n**Compass arrival estimate from order placement**\n\n- **JLCPCB bare PCB only:** likely **6–10 calendar days**, high-confidence window **5–14 calendar days**.  \n- **JLCPCB PCBA:** likely **8–14 calendar days**, high-confidence window **7–21 calendar days** if no engineering questions, no part stock issue, and express/DDP-style shipping is selected.  \n- **PCBWay PCBA fallback:** likely **10–18 calendar days**, high-confidence window **9–25 calendar days**, because assembly is more RFQ/sourcing dependent.\n\n---\n\n# Gemini estimate — cost and arrival\n\n| Scenario | Low | Likely | High | Delivery window |\n|---|---:|---:|---:|---|\n| **A. Bare PCB fab only, JLCPCB** | **$45 landed** | **$100–140 landed** | **$250+ landed** | **~1–2 weeks** |\n| **B. JLCPCB Economic/Standard PCBA, mostly turnkey** | **$180 landed** | **$280–450 landed** | **$700+ landed** | **~9–16 calendar days** |\n| **C. JLCPCB assembled SMT only + manual THT/switch** | **$170 landed + labor** | **$300–500 landed** | **$750+ landed** | **~9–17 days + 0–2 days rework** |\n| **D. PCBWay full assembly fallback** | **$300 landed** | **$450–750 landed** | **$1,000+ landed** | **~12–25 calendar days** |\n\n**Gemini notes**\n\n- For qty 3, the non-recurring setup/stencil/review/shipping costs dominate. The per-board BOM is probably not the main cost driver unless ESP32-S3-WROOM-1U, Molex connectors, or power parts are not in stock or require substitution.  \n- The two Molex Micro-Fit 3.0 **43650-0415** THT board connectors are the main assembly risk. JLCPCB may support THT/wave soldering, but whether these exact connectors are eligible depends on the uploaded BOM/CPL and their process constraints.  \n- If fastest bench testing matters more than a clean “production-like” assembly, let JLCPCB place all eligible SMT, then hand-install the Micro-Fit connectors and DPDT switch in-house.\n\n---\n\n## Recommended ordering path\n\n**Fastest reliable path:**  \n1. Upload to **JLCPCB PCBA first**, using **Economic PCBA** if the board and all selected parts qualify; otherwise use **Standard PCBA**.  \n2. Mark the **Micro-Fit connectors and DPDT switch as DNI / not assembled** if JLC rejects them or adds delay.  \n3. Order the THT connectors/switch separately from Digi-Key/Mouser/LCSC and hand-solder after boards arrive.  \n4. Use express shipping rather than postal/airmail for a bench-test build.\n\n**Practical budget to approve now:**  \n- **Bare PCB only:** approve **$150**.  \n- **3 assembled bench boards via JLCPCB with possible manual connector install:** approve **$450**.  \n- **Contingency / fallback via PCBWay:** approve up to **$750–900** if JLCPCB has BOM/process blockers.\n\n**Most realistic arrival if ordered today, Sunday May 31, 2026:**  \n- **JLCPCB bare PCB:** around **June 6–10, 2026**; conservative **by June 14, 2026**.  \n- **JLCPCB PCBA:** around **June 9–15, 2026**; conservative **by June 21, 2026**.  \n- **PCBWay fallback PCBA:** around **June 12–25, 2026**, depending on RFQ review and parts sourcing."
+          }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+      }
+    ],
+    "parallel_tool_calls": true,
+    "presence_penalty": 0.0,
+    "previous_response_id": null,
+    "prompt_cache_key": null,
+    "prompt_cache_retention": "24h",
+    "reasoning": {
+      "context": "current_turn",
+      "effort": "low",
+      "summary": null
+    },
+    "safety_identifier": null,
+    "service_tier": "default",
+    "store": true,
+    "temperature": 1.0,
+    "text": {
+      "format": {
+        "type": "text"
+      },
+      "verbosity": "medium"
+    },
+    "tool_choice": "auto",
+    "tools": [
+      {
+        "type": "web_search",
+        "return_token_budget": "default",
+        "search_context_size": "medium",
+        "user_location": {
+          "type": "approximate",
+          "city": null,
+          "country": "US",
+          "region": null,
+          "timezone": null
+        }
+      }
+    ],
+    "top_logprobs": 0,
+    "top_p": 0.98,
+    "truncation": "disabled",
+    "usage": {
+      "input_tokens": 15544,
+      "input_tokens_details": {
+        "cached_tokens": 4096
+      },
+      "output_tokens": 1953,
+      "output_tokens_details": {
+        "reasoning_tokens": 261
+      },
+      "total_tokens": 17497
+    },
+    "user": null,
+    "metadata": {}
+  }
+}

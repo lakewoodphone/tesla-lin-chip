@@ -1,4 +1,4 @@
-# Tesla LIN Bench - Start Here
+# tesla-lin-chip — Start Here
 
 Last updated: 2026-05-29 - dual-LIN final board order decision added
 
@@ -28,7 +28,7 @@ Vehicle-side work is paused until the steering wheel controls recover from the w
 Active project path:
 
 ```text
-C:\Users\ezabz\Code\xiao-lin-bench
+C:\Users\ezabz\Code\tesla-lin-chip
 ```
 
 Clean snapshot archive, excluding build output, logs, and local `src/secrets.h`:

@@ -1,0 +1,451 @@
+{
+  "job_id": "62723b8e-d83d-41a6-8c49-8dc4f78a742b",
+  "directive": {
+    "id": "quick-research-jlc-lcsc-part-matches-for-tesla-dual-lin-rev-a-quote-bom",
+    "title": "Quick Research: JLC/LCSC Part Matches for Tesla Dual LIN Rev A Quote BOM",
+    "domain": "legal",
+    "sensitivity": "standard",
+    "path": null,
+    "hash": "21ac67bdb10a4e30aafc7b3129412d3cb012ca7a0ae7a672732d4ef0c8c92e8c"
+  },
+  "result": {
+    "status": "complete",
+    "verifier_status": "passed",
+    "verifier_notes": null,
+    "model_used": "gpt-5.5",
+    "provider": "openai",
+    "content": "## Quick result — JLC/LCSC matches for missing SMT BOM rows  \n**Date checked:** 2026-06-01.  \n**Scope note:** I only list an LCSC number where I found supporting evidence. “Basic/Common/Extended” is often not visible in public LCSC search snippets; where not directly confirmed, I mark it **unknown** or **likely**.\n\n| BOM row | Recommended LCSC part | Match notes | JLC status | Confidence |\n|---|---:|---|---|---|\n| **C_3V3 — 22uF 10V, C_1206_3216Metric** | **C108717** | FH **1206X226M100NT**; 22uF, 10V, X5R, 1206 ceramic MLCC. Exact value/package/voltage; OK for 3V3 bulk, but expect DC-bias derating. ([lcsc.com](https://www.lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_22uF-226-20-10V_C108717.html?utm_source=openai)) | Unknown; likely assembly-available, may be Extended | **High** |\n| **C_BST1, C_U1_DEC1, C_U2_DEC1, C_U3_DEC1, C_U4_DEC1 — 100nF 50V, C_0603_1608Metric** | **C91183** | Yageo **CC0603JRX7R9BB104**; 100nF, 50V, X7R, 0603. Exact value/package/voltage; good decoupler. ([lcsc.com](https://www.lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_100nF-104-5-50V_C91183.html?utm_source=openai)) | Unknown; common commodity, likely Basic/Common but not confirmed | **High** |\n| **C_EN1 — 1uF 10V, C_0603_1608Metric** | **C15849** | Samsung **CL10A105KB8NNNC**; public LCSC category listing shows 1uF, 50V, X5R, 0603. This exceeds 10V rating and matches footprint. ([lcsc.com](https://www.lcsc.com/category/1142.html?utm_source=openai)) | Unknown; likely Common/Extended | **High** |\n| **C_IN1 — 10uF 50V, C_1206_3216Metric** | **C13585** | 10uF, 50V, X5R, 1206 MLCC per LCSC capacitor listing. Exact value/package/voltage. For vehicle input, OK as ceramic bulk but should not be the only surge/hold-up element. ([lcsc.com](https://www.lcsc.com/flashSale/capacitors_312.html?utm_source=openai)) | Unknown; likely Extended | **Medium-High** |\n| **D1 — SMBJ24A/26A TVS, D_SMB** | **C224017** preferred; **C493201** acceptable cheaper alt | Littelfuse **SMBJ24A**, LCSC C224017: 24V VRWM, 29.5V breakdown, unidirectional, SMB/DO-214AA family; reputable brand for vehicle-power protection. SMC C493201 is also SMBJ24A, SMB(DO-214AA), 24VWM, 38.9VC, 600W. ([lcsc.com](https://www.lcsc.com/product-detail/C224017.html?utm_source=openai)) | Likely Extended | **High** for C224017 footprint/value; **Medium** for system-level suitability |\n| **D2 — LIN_A ESD, D_SOD-323** | **C20345390** if orderable/assembly-supported | TI **ESD1LIN24-Q1** datasheet via LCSC: automotive 24V, 1-channel ESD, **SOD-323/DYF**, intended for LIN-style 24V protection. This is the best safety-quality match found, but public result was datasheet rather than full product page/stock. ([datasheet.lcsc.com](https://datasheet.lcsc.com/datasheet/pdf/4d54fbbecc9b9f427e0d3e5c10499982.pdf?productCode=C20345390&utm_source=openai)) | Unknown; likely Extended/manual review | **Medium** |\n| **D3 — LIN_B ESD, D_SOD-323** | **C20345390** if orderable/assembly-supported | Same as D2. Use same part on both LIN lines for symmetric protection. ([datasheet.lcsc.com](https://datasheet.lcsc.com/datasheet/pdf/4d54fbbecc9b9f427e0d3e5c10499982.pdf?productCode=C20345390&utm_source=openai)) | Unknown; likely Extended/manual review | **Medium** |\n| **D4 — USB ESD, SOT-23-6** | **C138714** preferred if selecting TI; **C2827646** lower-cost clone/alt | TI **TPD4E05U06DQAR**, LCSC listing in category shows **C138714**, 4-channel, 5.5V VRWM, low-cap ESD, SOT-23-6-class USB/high-speed protection; TECH PUBLIC C2827646 has same MPN string and specs but not TI. ([lcsc.com](https://lcsc.com/products/ESD-and-Surge-Protection-TVS-ESD_526_page4.html?utm_source=openai)) | C138714 likely Hot/Common; confirm in JLC cart | **Medium-High** |\n| **F1 — 1812 PPTC, Fuse_1812_4532Metric** | **C913244** | Bourns **MF-MSMF050/40X-2**, package 1812. This is a reputable PPTC family; exact hold/trip/current must be checked against your input current budget before locking. ([lcsc.com](https://www.lcsc.com/product-detail/C913244.html?utm_source=openai)) | Unknown; likely Extended | **Medium** |\n| **FB1 — 1206 input ferrite, L_1206_3216Metric** | **C845119** preferred; **C127295** alt | Vishay **ILHB1206ER601V**, 600Ω@100MHz, 1206, 2.5A, 70mΩ; strong input ferrite choice. TAI-TECH C127295 is 600Ω@100MHz, 1206, 1A, 100mΩ. ([lcsc.com](https://www.lcsc.com/product-detail/C845119.html?utm_source=openai)) | Unknown; likely Extended | **High** |\n| **J1 — USB-C service, HRO TYPE-C-31-M-12 footprint** | **C165948** | Korean Hroparts **TYPE-C-31-M-12**, exact MPN/footprint family; LCSC shows 16P SMD USB-C receptacle and high stock. This is the KiCad HRO footprint match. ([lcsc.com](https://www.lcsc.com/product-detail/C165948.html?utm_source=openai)) | Likely Common/Extended; confirm in JLC cart | **High** |\n| **L1 — 10uH shielded, L_Bourns_SRU5016_5.2x5.2mm** | **Blank — manual review** | I found Bourns SRU5016 family evidence and SRU5016-100Y specs from distributors, but not a confident LCSC product page/part number. Do **not** auto-substitute a generic 5x5 inductor without checking pad geometry, saturation current, DCR, and LM5164 current ripple. ([bourns.com](https://bourns.com/docs/technical-documents/technical-library/inductive-components/publications/Bourns_IC_Product_Application_xref_guide.pdf?sfvrsn=4&utm_source=openai)) | Needs manual JLC/LCSC match | **Low** |\n| **Q1 — AO4407A-class reverse PFET, SOIC-8_3.9x4.9mm_P1.27mm** | **C16072** | AOS **AO4407A**, P-channel MOSFET, 30V, 12A, SOIC-8; exact named part and footprint class. For vehicle input reverse protection, verify 30V VDS margin versus your surge strategy; TVS must clamp appropriately. ([lcsc.com](https://www.lcsc.com/product-detail/MOSFET_Alpha-Omega-Semicon-AOS-AO4407A_C16072.html?utm_source=openai)) | Unknown; likely Extended | **High** for part match; **Medium** for vehicle margin |\n| **100k 0603 resistor row** | **C25803** | UNI-ROYAL **0603WAF1003T5E**; external indexed data tied to LCSC datasheet shows 100kΩ, 100mW, 75V, ±1%, 0603. ([flux.ai](https://www.flux.ai/hoopla/0603waf1003t5e-7wn4s?utm_source=openai)) | Likely Basic/Common commodity; not directly confirmed | **Medium-High** |\n| **10k 0603 resistor row** | **C25804** | UNI-ROYAL **0603WAF1002T5E**; multiple indexed references tie C25804 to 10kΩ, 0603, ±1% thick-film. ([lcsc.com](https://lcsc.com/flashSale/resistors_308.html?utm_source=openai)) | Likely Basic/Common commodity; not directly confirmed | **High** |\n| **R_BUCK_RON1 — 200k prelim 0603** | **C25811** | UNI-ROYAL **0603WAF2003T5E**; LCSC brand page shows 200kΩ, ±1%, 100mW, 75V, 0603 thick-film. ([lcsc.com](https://www.lcsc.com/brand/1199-99.html?utm_source=openai)) | Likely Basic/Common commodity; not directly confirmed | **High** |\n| **5.1k 0603 resistor row** | **C101083** | LIZ **CR0603FA5101G**; 5.1kΩ, ±1%, 100mW, 0603 thick-film. Suitable for USB-C CC Rd if these are the 5.1k parts. ([lcsc.com](https://www.lcsc.com/product-detail/chip-resistor-surface-mount_liz-elec-cr0603fa5101g_C101083.html?utm_source=openai)) | Unknown; likely common commodity | **High** |\n| **R_FB_TOP1 — 174k 0603** | **C482778** | Yageo **RC0603FR-07174KL**; 174kΩ, 100mW, 75V, ±1%, 0603. Exact E96 feedback value. ([lcsc.com](https://www.lcsc.com/product-detail/Chip-Resistor-Surface-Mount_YAGEO-RC0603FR-07174KL_C482778.html?utm_source=openai)) | Likely Extended/Common; not confirmed | **High** |\n| **10R 0603 resistor row** | **C22859** | UNI-ROYAL **0603WAF100JT5E**; indexed references tie C22859 to 10Ω, 0603, ±1%, 100mW. ([flux.ai](https://www.flux.ai/vasy_skral/0603waf100jt5e.md?utm_source=openai)) | Likely Basic/Common commodity; not directly confirmed | **High** |\n| **U4 — LM5164DDA 3V3 buck, HSOP-8/PowerPAD DDA** | **C477928** | TI **LM5164DDAR**; LCSC/TI datasheet shows LM5164DDAR, SO PowerPAD, package drawing **DDA**, 8 pins; matches HSOP/SO-8 PowerPAD DDA footprint. Public Flux/JLC-style component page labels it Extended. ([datasheet.lcsc.com](https://datasheet.lcsc.com/datasheet/pdf/0adc8e389ed3e6197be57b9940aa6370.pdf?productCode=C477928&utm_source=openai)) | **Extended confirmed by indexed component page** | **High** |\n\n## Compass / Gemini split recommendations\n\n### Compass recommendation set — conservative/protection-weighted\n- Use **Littelfuse C224017** for D1 rather than lowest-cost SMBJ24A.\n- Use **TI ESD1LIN24-Q1 C20345390** for both LIN ESD positions only if JLC confirms it is orderable and fits SOD-323.\n- Use **TI TPD4E05U06DQAR C138714** for USB ESD if available, rather than the TECH PUBLIC C2827646 clone.\n- Keep **L1 blank** until JLC/LCSC confirms an exact SRU5016-100Y or pad-compatible 5.2×5.2mm inductor with adequate saturation current.\n\n### Gemini recommendation set — bench-test/assembly-friendly\n- Passive commodity rows can be safely locked with the listed UNI-ROYAL/Yageo/Samsung/LIZ parts for first bench PCBAs.\n- For FB1, prefer **C845119 Vishay** because it has better current rating than the 1A TAI-TECH option.\n- For Q1, **C16072 AO4407A** is an exact part match, but system safety depends on D1 clamp behavior and expected vehicle transient profile.\n- Let JLC auto-match only the rows where footprint/value are standard **and** the BOM row is non-safety-critical; do not auto-match D1/D2/D3/D4/F1/L1/U4.",
+    "citations": [
+      {
+        "title": "1206X226M100NT | FH | Price | In Stock | LCSC Electronics",
+        "url": "https://www.lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_22uF-226-20-10V_C108717.html?utm_source=openai"
+      },
+      {
+        "title": "CC0603JRX7R9BB104 | YAGEO | Price | In Stock | LCSC Electronics",
+        "url": "https://www.lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_100nF-104-5-50V_C91183.html?utm_source=openai"
+      },
+      {
+        "title": "Ceramic Capacitors | Electronic Components Distributor | LCSC Electronics",
+        "url": "https://www.lcsc.com/category/1142.html?utm_source=openai"
+      },
+      {
+        "title": "Flash Sale | Electronic Parts Deals | LCSC Electronics",
+        "url": "https://www.lcsc.com/flashSale/capacitors_312.html?utm_source=openai"
+      },
+      {
+        "title": "SMBJ24A | Littelfuse | Price | In Stock | LCSC Electronics",
+        "url": "https://www.lcsc.com/product-detail/C224017.html?utm_source=openai"
+      },
+      {
+        "title": "ESD1LIN24-Q1, ESD751-Q1, ESD761-Q1",
+        "url": "https://datasheet.lcsc.com/datasheet/pdf/4d54fbbecc9b9f427e0d3e5c10499982.pdf?productCode=C20345390&utm_source=openai"
+      },
+      {
+        "title": "ESD and Surge Protection (TVS/ESD) | Electronic Components Distributor | LCSC Electronics",
+        "url": "https://lcsc.com/products/ESD-and-Surge-Protection-TVS-ESD_526_page4.html?utm_source=openai"
+      },
+      {
+        "title": "MF-MSMF050/40X-2 | BOURNS | Price | In Stock | LCSC Electronics",
+        "url": "https://www.lcsc.com/product-detail/C913244.html?utm_source=openai"
+      },
+      {
+        "title": "ILHB1206ER601V | VISHAY | Price | In Stock | LCSC Electronics",
+        "url": "https://www.lcsc.com/product-detail/C845119.html?utm_source=openai"
+      },
+      {
+        "title": "TYPE-C-31-M-12 | Korean Hroparts Elec | Price | In Stock | LCSC Electronics",
+        "url": "https://www.lcsc.com/product-detail/C165948.html?utm_source=openai"
+      },
+      {
+        "title": "Bourns\n® Inductors\nProduct Selection Guide • Appli",
+        "url": "https://bourns.com/docs/technical-documents/technical-library/inductive-components/publications/Bourns_IC_Product_Application_xref_guide.pdf?sfvrsn=4&utm_source=openai"
+      },
+      {
+        "title": "AO4407A | AOS | Price | In Stock | LCSC Electronics",
+        "url": "https://www.lcsc.com/product-detail/MOSFET_Alpha-Omega-Semicon-AOS-AO4407A_C16072.html?utm_source=openai"
+      },
+      {
+        "title": "Schematic Symbol for 0603WAF1003T5E: -55℃~+155℃ 100kΩ 100mW 75V...",
+        "url": "https://www.flux.ai/hoopla/0603waf1003t5e-7wn4s?utm_source=openai"
+      },
+      {
+        "title": "Flash Sale | Electronic Parts Deals | LCSC Electronics",
+        "url": "https://lcsc.com/flashSale/resistors_308.html?utm_source=openai"
+      },
+      {
+        "title": "UNI-ROYAL Chip Resistor - Surface Mount | LCSC Electronics",
+        "url": "https://www.lcsc.com/brand/1199-99.html?utm_source=openai"
+      },
+      {
+        "title": "CR0603FA5101G | LIZ | Price | In Stock | LCSC Electronics",
+        "url": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_liz-elec-cr0603fa5101g_C101083.html?utm_source=openai"
+      },
+      {
+        "title": "RC0603FR-07174KL | YAGEO | Price | In Stock | LCSC Electronics",
+        "url": "https://www.lcsc.com/product-detail/Chip-Resistor-Surface-Mount_YAGEO-RC0603FR-07174KL_C482778.html?utm_source=openai"
+      },
+      {
+        "title": "Loading · Flux",
+        "url": "https://www.flux.ai/vasy_skral/0603waf100jt5e.md?utm_source=openai"
+      },
+      {
+        "title": "LM5164 100-V Input, 1-A Synchronous Buck DC/DC Converter With Ultra-Low IQ datasheet (Rev. A)",
+        "url": "https://datasheet.lcsc.com/datasheet/pdf/0adc8e389ed3e6197be57b9940aa6370.pdf?productCode=C477928&utm_source=openai"
+      }
+    ],
+    "prompt_tokens": 48645,
+    "completion_tokens": 3575,
+    "reasoning_tokens": 779,
+    "citation_tokens": 0,
+    "search_count": 7,
+    "cost_usd": 0.443845
+  },
+  "raw_response": {
+    "id": "resp_03725742e24717ae006a1d25d8c2f481979233385add9aabdf",
+    "object": "response",
+    "created_at": 1780295128,
+    "status": "completed",
+    "background": true,
+    "billing": {
+      "payer": "developer"
+    },
+    "completed_at": 1780295195,
+    "error": null,
+    "frequency_penalty": 0.0,
+    "incomplete_details": null,
+    "instructions": null,
+    "max_output_tokens": 6000,
+    "max_tool_calls": 8,
+    "model": "gpt-5.5-2026-04-23",
+    "moderation": null,
+    "output": [
+      {
+        "id": "rs_03725742e24717ae006a1d25db65bc8197a9befae33504872e",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_03725742e24717ae006a1d25dc5dd481979ced3c53bec629e0",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "site:lcsc.com 22uF 10V 1206 X5R LCSC C",
+            "site:lcsc.com 100nF 50V 0603 X7R LCSC C",
+            "site:lcsc.com LM5164DDA LCSC",
+            "site:lcsc.com HRO TYPE-C-31-M-12 LCSC"
+          ],
+          "query": "site:lcsc.com 22uF 10V 1206 X5R LCSC C"
+        }
+      },
+      {
+        "id": "ws_03725742e24717ae006a1d25debdd08197b36b581672a7f211",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "site:lcsc.com 10uF 50V 1206 X7R LCSC C",
+            "site:lcsc.com SMBJ24A LCSC",
+            "site:lcsc.com SOD-323 ESD LIN bus 24V LCSC",
+            "site:lcsc.com USB ESD SOT-23-6 LCSC"
+          ],
+          "query": "site:lcsc.com 10uF 50V 1206 X7R LCSC C"
+        }
+      },
+      {
+        "id": "ws_03725742e24717ae006a1d25e12c4c8197bc59f338ea8160bc",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "site:lcsc.com MF-MSMF050 1812 PPTC LCSC",
+            "site:lcsc.com 1206 ferrite bead 600 ohm LCSC",
+            "site:lcsc.com 10uH shielded inductor 5.2x5.2 LCSC",
+            "site:lcsc.com AO4407A LCSC SOIC-8"
+          ],
+          "query": "site:lcsc.com MF-MSMF050 1812 PPTC LCSC"
+        }
+      },
+      {
+        "id": "ws_03725742e24717ae006a1d25e455808197b21a07c68c60ad41",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "site:lcsc.com 0603 100k resistor 1% C25803",
+            "site:lcsc.com 0603 10k resistor 1% C25804",
+            "site:lcsc.com 0603 5.1k resistor 1% LCSC",
+            "site:lcsc.com 0603 174k resistor 1% LCSC"
+          ],
+          "query": "site:lcsc.com 0603 100k resistor 1% C25803"
+        }
+      },
+      {
+        "id": "ws_03725742e24717ae006a1d25e6929c8197823819b29ec39402",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "LCSC C25803 100k 0603 resistor",
+            "LCSC C25804 10k 0603 resistor",
+            "LCSC C22859 200k 0603 resistor",
+            "LCSC C22859 0603 200k"
+          ],
+          "query": "LCSC C25803 100k 0603 resistor"
+        }
+      },
+      {
+        "id": "ws_03725742e24717ae006a1d25eb899c81979f787d924b34b3c2",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "LCSC 1uF 10V 0603 X7R C15849",
+            "LCSC 10uF 50V 1206 X7R C13585",
+            "LCSC 0603 200k 1% resistor UNI-ROYAL C25811",
+            "LCSC 10R 0603 resistor C22859"
+          ],
+          "query": "LCSC 1uF 10V 0603 X7R C15849"
+        }
+      },
+      {
+        "id": "rs_03725742e24717ae006a1d25ef12e08197b48e9da5ae5966bf",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "ws_03725742e24717ae006a1d25ef22e081979fdb1232270cd38b",
+        "type": "web_search_call",
+        "status": "completed",
+        "action": {
+          "type": "search",
+          "queries": [
+            "LCSC TPD4E05U06 SOT-23-6 USB ESD",
+            "LCSC SRU5016 10uH Bourns",
+            "LCSC LM5164DDAR C477928",
+            "LCSC ESD1LIN24-Q1 C20345390"
+          ],
+          "query": "LCSC TPD4E05U06 SOT-23-6 USB ESD"
+        }
+      },
+      {
+        "id": "rs_03725742e24717ae006a1d25f589008197a574702acbb2ff9f",
+        "type": "reasoning",
+        "summary": []
+      },
+      {
+        "id": "msg_03725742e24717ae006a1d25f5c6c48197b18d304c1cced161",
+        "type": "message",
+        "status": "completed",
+        "content": [
+          {
+            "type": "output_text",
+            "annotations": [
+              {
+                "type": "url_citation",
+                "end_index": 746,
+                "start_index": 607,
+                "title": "1206X226M100NT | FH | Price | In Stock | LCSC Electronics",
+                "url": "https://www.lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_22uF-226-20-10V_C108717.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 1152,
+                "start_index": 1014,
+                "title": "CC0603JRX7R9BB104 | YAGEO | Price | In Stock | LCSC Electronics",
+                "url": "https://www.lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_100nF-104-5-50V_C91183.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 1492,
+                "start_index": 1421,
+                "title": "Ceramic Capacitors | Electronic Components Distributor | LCSC Electronics",
+                "url": "https://www.lcsc.com/category/1142.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 1850,
+                "start_index": 1768,
+                "title": "Flash Sale | Electronic Parts Deals | LCSC Electronics",
+                "url": "https://www.lcsc.com/flashSale/capacitors_312.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 2287,
+                "start_index": 2207,
+                "title": "SMBJ24A | Littelfuse | Price | In Stock | LCSC Electronics",
+                "url": "https://www.lcsc.com/product-detail/C224017.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 2852,
+                "start_index": 2711,
+                "title": "ESD1LIN24-Q1, ESD751-Q1, ESD761-Q1",
+                "url": "https://datasheet.lcsc.com/datasheet/pdf/4d54fbbecc9b9f427e0d3e5c10499982.pdf?productCode=C20345390&utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 3202,
+                "start_index": 3061,
+                "title": "ESD1LIN24-Q1, ESD751-Q1, ESD761-Q1",
+                "url": "https://datasheet.lcsc.com/datasheet/pdf/4d54fbbecc9b9f427e0d3e5c10499982.pdf?productCode=C20345390&utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 3677,
+                "start_index": 3572,
+                "title": "ESD and Surge Protection (TVS/ESD) | Electronic Components Distributor | LCSC Electronics",
+                "url": "https://lcsc.com/products/ESD-and-Surge-Protection-TVS-ESD_526_page4.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 4052,
+                "start_index": 3972,
+                "title": "MF-MSMF050/40X-2 | BOURNS | Price | In Stock | LCSC Electronics",
+                "url": "https://www.lcsc.com/product-detail/C913244.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 4405,
+                "start_index": 4325,
+                "title": "ILHB1206ER601V | VISHAY | Price | In Stock | LCSC Electronics",
+                "url": "https://www.lcsc.com/product-detail/C845119.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 4752,
+                "start_index": 4672,
+                "title": "TYPE-C-31-M-12 | Korean Hroparts Elec | Price | In Stock | LCSC Electronics",
+                "url": "https://www.lcsc.com/product-detail/C165948.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 5343,
+                "start_index": 5160,
+                "title": "Bourns\n® Inductors\nProduct Selection Guide • Appli",
+                "url": "https://bourns.com/docs/technical-documents/technical-library/inductive-components/publications/Bourns_IC_Product_Application_xref_guide.pdf?sfvrsn=4&utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 5792,
+                "start_index": 5674,
+                "title": "AO4407A | AOS | Price | In Stock | LCSC Electronics",
+                "url": "https://www.lcsc.com/product-detail/MOSFET_Alpha-Omega-Semicon-AOS-AO4407A_C16072.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 6112,
+                "start_index": 6034,
+                "title": "Schematic Symbol for 0603WAF1003T5E: -55℃~+155℃ 100kΩ 100mW 75V...",
+                "url": "https://www.flux.ai/hoopla/0603waf1003t5e-7wn4s?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 6409,
+                "start_index": 6332,
+                "title": "Flash Sale | Electronic Parts Deals | LCSC Electronics",
+                "url": "https://lcsc.com/flashSale/resistors_308.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 6695,
+                "start_index": 6624,
+                "title": "UNI-ROYAL Chip Resistor - Surface Mount | LCSC Electronics",
+                "url": "https://www.lcsc.com/brand/1199-99.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 7054,
+                "start_index": 6923,
+                "title": "CR0603FA5101G | LIZ | Price | In Stock | LCSC Electronics",
+                "url": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_liz-elec-cr0603fa5101g_C101083.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 7362,
+                "start_index": 7231,
+                "title": "RC0603FR-07174KL | YAGEO | Price | In Stock | LCSC Electronics",
+                "url": "https://www.lcsc.com/product-detail/Chip-Resistor-Surface-Mount_YAGEO-RC0603FR-07174KL_C482778.html?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 7624,
+                "start_index": 7545,
+                "title": "Loading · Flux",
+                "url": "https://www.flux.ai/vasy_skral/0603waf100jt5e.md?utm_source=openai"
+              },
+              {
+                "type": "url_citation",
+                "end_index": 8100,
+                "start_index": 7961,
+                "title": "LM5164 100-V Input, 1-A Synchronous Buck DC/DC Converter With Ultra-Low IQ datasheet (Rev. A)",
+                "url": "https://datasheet.lcsc.com/datasheet/pdf/0adc8e389ed3e6197be57b9940aa6370.pdf?productCode=C477928&utm_source=openai"
+              }
+            ],
+            "logprobs": [],
+            "text": "## Quick result — JLC/LCSC matches for missing SMT BOM rows  \n**Date checked:** 2026-06-01.  \n**Scope note:** I only list an LCSC number where I found supporting evidence. “Basic/Common/Extended” is often not visible in public LCSC search snippets; where not directly confirmed, I mark it **unknown** or **likely**.\n\n| BOM row | Recommended LCSC part | Match notes | JLC status | Confidence |\n|---|---:|---|---|---|\n| **C_3V3 — 22uF 10V, C_1206_3216Metric** | **C108717** | FH **1206X226M100NT**; 22uF, 10V, X5R, 1206 ceramic MLCC. Exact value/package/voltage; OK for 3V3 bulk, but expect DC-bias derating. ([lcsc.com](https://www.lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_22uF-226-20-10V_C108717.html?utm_source=openai)) | Unknown; likely assembly-available, may be Extended | **High** |\n| **C_BST1, C_U1_DEC1, C_U2_DEC1, C_U3_DEC1, C_U4_DEC1 — 100nF 50V, C_0603_1608Metric** | **C91183** | Yageo **CC0603JRX7R9BB104**; 100nF, 50V, X7R, 0603. Exact value/package/voltage; good decoupler. ([lcsc.com](https://www.lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_100nF-104-5-50V_C91183.html?utm_source=openai)) | Unknown; common commodity, likely Basic/Common but not confirmed | **High** |\n| **C_EN1 — 1uF 10V, C_0603_1608Metric** | **C15849** | Samsung **CL10A105KB8NNNC**; public LCSC category listing shows 1uF, 50V, X5R, 0603. This exceeds 10V rating and matches footprint. ([lcsc.com](https://www.lcsc.com/category/1142.html?utm_source=openai)) | Unknown; likely Common/Extended | **High** |\n| **C_IN1 — 10uF 50V, C_1206_3216Metric** | **C13585** | 10uF, 50V, X5R, 1206 MLCC per LCSC capacitor listing. Exact value/package/voltage. For vehicle input, OK as ceramic bulk but should not be the only surge/hold-up element. ([lcsc.com](https://www.lcsc.com/flashSale/capacitors_312.html?utm_source=openai)) | Unknown; likely Extended | **Medium-High** |\n| **D1 — SMBJ24A/26A TVS, D_SMB** | **C224017** preferred; **C493201** acceptable cheaper alt | Littelfuse **SMBJ24A**, LCSC C224017: 24V VRWM, 29.5V breakdown, unidirectional, SMB/DO-214AA family; reputable brand for vehicle-power protection. SMC C493201 is also SMBJ24A, SMB(DO-214AA), 24VWM, 38.9VC, 600W. ([lcsc.com](https://www.lcsc.com/product-detail/C224017.html?utm_source=openai)) | Likely Extended | **High** for C224017 footprint/value; **Medium** for system-level suitability |\n| **D2 — LIN_A ESD, D_SOD-323** | **C20345390** if orderable/assembly-supported | TI **ESD1LIN24-Q1** datasheet via LCSC: automotive 24V, 1-channel ESD, **SOD-323/DYF**, intended for LIN-style 24V protection. This is the best safety-quality match found, but public result was datasheet rather than full product page/stock. ([datasheet.lcsc.com](https://datasheet.lcsc.com/datasheet/pdf/4d54fbbecc9b9f427e0d3e5c10499982.pdf?productCode=C20345390&utm_source=openai)) | Unknown; likely Extended/manual review | **Medium** |\n| **D3 — LIN_B ESD, D_SOD-323** | **C20345390** if orderable/assembly-supported | Same as D2. Use same part on both LIN lines for symmetric protection. ([datasheet.lcsc.com](https://datasheet.lcsc.com/datasheet/pdf/4d54fbbecc9b9f427e0d3e5c10499982.pdf?productCode=C20345390&utm_source=openai)) | Unknown; likely Extended/manual review | **Medium** |\n| **D4 — USB ESD, SOT-23-6** | **C138714** preferred if selecting TI; **C2827646** lower-cost clone/alt | TI **TPD4E05U06DQAR**, LCSC listing in category shows **C138714**, 4-channel, 5.5V VRWM, low-cap ESD, SOT-23-6-class USB/high-speed protection; TECH PUBLIC C2827646 has same MPN string and specs but not TI. ([lcsc.com](https://lcsc.com/products/ESD-and-Surge-Protection-TVS-ESD_526_page4.html?utm_source=openai)) | C138714 likely Hot/Common; confirm in JLC cart | **Medium-High** |\n| **F1 — 1812 PPTC, Fuse_1812_4532Metric** | **C913244** | Bourns **MF-MSMF050/40X-2**, package 1812. This is a reputable PPTC family; exact hold/trip/current must be checked against your input current budget before locking. ([lcsc.com](https://www.lcsc.com/product-detail/C913244.html?utm_source=openai)) | Unknown; likely Extended | **Medium** |\n| **FB1 — 1206 input ferrite, L_1206_3216Metric** | **C845119** preferred; **C127295** alt | Vishay **ILHB1206ER601V**, 600Ω@100MHz, 1206, 2.5A, 70mΩ; strong input ferrite choice. TAI-TECH C127295 is 600Ω@100MHz, 1206, 1A, 100mΩ. ([lcsc.com](https://www.lcsc.com/product-detail/C845119.html?utm_source=openai)) | Unknown; likely Extended | **High** |\n| **J1 — USB-C service, HRO TYPE-C-31-M-12 footprint** | **C165948** | Korean Hroparts **TYPE-C-31-M-12**, exact MPN/footprint family; LCSC shows 16P SMD USB-C receptacle and high stock. This is the KiCad HRO footprint match. ([lcsc.com](https://www.lcsc.com/product-detail/C165948.html?utm_source=openai)) | Likely Common/Extended; confirm in JLC cart | **High** |\n| **L1 — 10uH shielded, L_Bourns_SRU5016_5.2x5.2mm** | **Blank — manual review** | I found Bourns SRU5016 family evidence and SRU5016-100Y specs from distributors, but not a confident LCSC product page/part number. Do **not** auto-substitute a generic 5x5 inductor without checking pad geometry, saturation current, DCR, and LM5164 current ripple. ([bourns.com](https://bourns.com/docs/technical-documents/technical-library/inductive-components/publications/Bourns_IC_Product_Application_xref_guide.pdf?sfvrsn=4&utm_source=openai)) | Needs manual JLC/LCSC match | **Low** |\n| **Q1 — AO4407A-class reverse PFET, SOIC-8_3.9x4.9mm_P1.27mm** | **C16072** | AOS **AO4407A**, P-channel MOSFET, 30V, 12A, SOIC-8; exact named part and footprint class. For vehicle input reverse protection, verify 30V VDS margin versus your surge strategy; TVS must clamp appropriately. ([lcsc.com](https://www.lcsc.com/product-detail/MOSFET_Alpha-Omega-Semicon-AOS-AO4407A_C16072.html?utm_source=openai)) | Unknown; likely Extended | **High** for part match; **Medium** for vehicle margin |\n| **100k 0603 resistor row** | **C25803** | UNI-ROYAL **0603WAF1003T5E**; external indexed data tied to LCSC datasheet shows 100kΩ, 100mW, 75V, ±1%, 0603. ([flux.ai](https://www.flux.ai/hoopla/0603waf1003t5e-7wn4s?utm_source=openai)) | Likely Basic/Common commodity; not directly confirmed | **Medium-High** |\n| **10k 0603 resistor row** | **C25804** | UNI-ROYAL **0603WAF1002T5E**; multiple indexed references tie C25804 to 10kΩ, 0603, ±1% thick-film. ([lcsc.com](https://lcsc.com/flashSale/resistors_308.html?utm_source=openai)) | Likely Basic/Common commodity; not directly confirmed | **High** |\n| **R_BUCK_RON1 — 200k prelim 0603** | **C25811** | UNI-ROYAL **0603WAF2003T5E**; LCSC brand page shows 200kΩ, ±1%, 100mW, 75V, 0603 thick-film. ([lcsc.com](https://www.lcsc.com/brand/1199-99.html?utm_source=openai)) | Likely Basic/Common commodity; not directly confirmed | **High** |\n| **5.1k 0603 resistor row** | **C101083** | LIZ **CR0603FA5101G**; 5.1kΩ, ±1%, 100mW, 0603 thick-film. Suitable for USB-C CC Rd if these are the 5.1k parts. ([lcsc.com](https://www.lcsc.com/product-detail/chip-resistor-surface-mount_liz-elec-cr0603fa5101g_C101083.html?utm_source=openai)) | Unknown; likely common commodity | **High** |\n| **R_FB_TOP1 — 174k 0603** | **C482778** | Yageo **RC0603FR-07174KL**; 174kΩ, 100mW, 75V, ±1%, 0603. Exact E96 feedback value. ([lcsc.com](https://www.lcsc.com/product-detail/Chip-Resistor-Surface-Mount_YAGEO-RC0603FR-07174KL_C482778.html?utm_source=openai)) | Likely Extended/Common; not confirmed | **High** |\n| **10R 0603 resistor row** | **C22859** | UNI-ROYAL **0603WAF100JT5E**; indexed references tie C22859 to 10Ω, 0603, ±1%, 100mW. ([flux.ai](https://www.flux.ai/vasy_skral/0603waf100jt5e.md?utm_source=openai)) | Likely Basic/Common commodity; not directly confirmed | **High** |\n| **U4 — LM5164DDA 3V3 buck, HSOP-8/PowerPAD DDA** | **C477928** | TI **LM5164DDAR**; LCSC/TI datasheet shows LM5164DDAR, SO PowerPAD, package drawing **DDA**, 8 pins; matches HSOP/SO-8 PowerPAD DDA footprint. Public Flux/JLC-style component page labels it Extended. ([datasheet.lcsc.com](https://datasheet.lcsc.com/datasheet/pdf/0adc8e389ed3e6197be57b9940aa6370.pdf?productCode=C477928&utm_source=openai)) | **Extended confirmed by indexed component page** | **High** |\n\n## Compass / Gemini split recommendations\n\n### Compass recommendation set — conservative/protection-weighted\n- Use **Littelfuse C224017** for D1 rather than lowest-cost SMBJ24A.\n- Use **TI ESD1LIN24-Q1 C20345390** for both LIN ESD positions only if JLC confirms it is orderable and fits SOD-323.\n- Use **TI TPD4E05U06DQAR C138714** for USB ESD if available, rather than the TECH PUBLIC C2827646 clone.\n- Keep **L1 blank** until JLC/LCSC confirms an exact SRU5016-100Y or pad-compatible 5.2×5.2mm inductor with adequate saturation current.\n\n### Gemini recommendation set — bench-test/assembly-friendly\n- Passive commodity rows can be safely locked with the listed UNI-ROYAL/Yageo/Samsung/LIZ parts for first bench PCBAs.\n- For FB1, prefer **C845119 Vishay** because it has better current rating than the 1A TAI-TECH option.\n- For Q1, **C16072 AO4407A** is an exact part match, but system safety depends on D1 clamp behavior and expected vehicle transient profile.\n- Let JLC auto-match only the rows where footprint/value are standard **and** the BOM row is non-safety-critical; do not auto-match D1/D2/D3/D4/F1/L1/U4."
+          }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+      }
+    ],
+    "parallel_tool_calls": true,
+    "presence_penalty": 0.0,
+    "previous_response_id": null,
+    "prompt_cache_key": null,
+    "prompt_cache_retention": "24h",
+    "reasoning": {
+      "context": "current_turn",
+      "effort": "low",
+      "summary": null
+    },
+    "safety_identifier": null,
+    "service_tier": "default",
+    "store": true,
+    "temperature": 1.0,
+    "text": {
+      "format": {
+        "type": "text"
+      },
+      "verbosity": "medium"
+    },
+    "tool_choice": "auto",
+    "tools": [
+      {
+        "type": "web_search",
+        "return_token_budget": "default",
+        "search_context_size": "medium",
+        "user_location": {
+          "type": "approximate",
+          "city": null,
+          "country": "US",
+          "region": null,
+          "timezone": null
+        }
+      }
+    ],
+    "top_logprobs": 0,
+    "top_p": 0.98,
+    "truncation": "disabled",
+    "usage": {
+      "input_tokens": 48645,
+      "input_tokens_details": {
+        "cached_tokens": 4608
+      },
+      "output_tokens": 3575,
+      "output_tokens_details": {
+        "reasoning_tokens": 779
+      },
+      "total_tokens": 52220
+    },
+    "user": null,
+    "metadata": {}
+  }
+}
