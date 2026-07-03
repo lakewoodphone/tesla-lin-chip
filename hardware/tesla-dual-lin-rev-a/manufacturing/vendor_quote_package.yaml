@@ -22,6 +22,12 @@ required_uploads:
   - build/quote/jlcpcb-mini-order-2026-06-01/quote-notes.yaml
   - fab notes YAML/PDF equivalent
   - assembly policy with DNI/manual items marked
+rev_b_quote_blockers_added_2026_06_16:
+  - Do not quote/order Rev B until docs/rev-b-quality-gate-2026-06-16.md is complete.
+  - Include passing tools/check-rev-b-layout-gates.ps1 output in the quote package.
+  - Include USB-C outward/reachable service-access 3D or mechanical proof artifact in the quote package.
+  - Default Rev B outline target is 60x35mm; fallback max is 70x42mm unless owner approves larger.
+  - No non-test component may overlap, block, or sit within the protected clearance around test pads.
 paid_order_2026_06_01:
   vendor: JLCPCB
   process: Standard PCBA, top side only, parts by customer/JLC matched library
@@ -59,6 +65,8 @@ do_not_quote_until:
   - LM5164 RON/frequency, ripple network, inductor, and capacitor values verified with TI calculator/WEBENCH
   - MASS ORDER BLOCKER: D4/L1 post-order package mismatch production-closed; D4 package-supplier lock revalidated and L1 first-article SRU5016-100Y/C5760316 either proves thermal/current margin or is replaced with a higher-current production inductor/footprint before mass ordering
   - board has real component placement and DRC-clean layout
+  - physical layout gate passes with no footprint center overlaps no blocked test pads and an approved Rev B package outline
+  - USB-C service access is proven outward/reachable with a saved mechanical artifact
   - LIN_EN_DRIVE/LIN_EN gate represented in schematic with physical safe position
 paid_order_resolution:
   - JLCPCB Economic was rejected for this assembled prototype because U1 ESP32-S3-WROOM-1U-N8R8 showed Standard-only in JLC part matching.

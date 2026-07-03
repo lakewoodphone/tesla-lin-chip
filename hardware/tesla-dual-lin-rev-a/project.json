@@ -1,6 +1,6 @@
 {
     "project_id": "tesla-dual-lin-rev-a",
-    "status": "first_article_jlcpcb_order_paid_under_review",
+    "status": "first_article_received_usb_c_inaccessible_bench_bringup_via_test_pads_rev_b_required",
     "cad_target": "KiCad 10.x CLI workflow",
     "manufacturing_target": {
         "pilot_quantity": 5,
@@ -33,10 +33,15 @@
         "LM5164 RON/frequency, ripple network, inductor, capacitor, and EN/UVLO values verified with TI calculator/WEBENCH before production release",
         "MASS ORDER BLOCKER: mass ordering is blocked until the D4/L1 post-order package mismatch is closed for production: D4 package-supplier lock rechecked and L1 SRU5016-100Y/C5760316 either proves thermal/current margin in bench data or is replaced with a higher-current production inductor/footprint",
         "ESP32-S3 module footprint manually compared against Espressif land pattern",
-        "bench dual-LIN passthrough wiring validated with two transceivers"
+        "bench dual-LIN passthrough wiring validated with two transceivers",
+        "REV B ORDER BLOCKER: docs/rev-b-quality-gate-2026-06-16.md must pass before any next board order; this includes outward/reachable USB-C service access proof, no footprint/test-pad overlaps, board outline at or below the approved package target, KiCad ERC/DRC, 3D/mechanical review, and tools/check-rev-b-layout-gates.ps1 passing"
     ],
     "known_non_blocking_first_article_followups": [
         "First JLCPCB Standard PCBA order placed 2026-06-01 for 5 assembled boards; total paid was $153.71 and file review was pending at order creation.",
+        "First-article boards arrived 2026-06-16; photos are archived under photos/rev-a-first-article-2026-06-16/ and reviewed in docs/rev-a-first-article-2026-06-16.md.",
+        "Rev A is bench electrical bring-up hardware, not product-form packaging; received assembly is visually massive, the functional outline is still 100x56mm, and Rev B needs mechanical/layout rework before any production-shaped order.",
+        "USB-C receptacle opening faces inward toward the board instead of outward toward a serviceable edge; owner confirmed it is not really accessible. Do not force USB-C on Rev A. Use the TP1-TP9 test-pad row for bench service/recovery if needed, and Rev B must rotate/move/replace the connector after deciding the installed orientation and verifying the exit direction in 3D.",
+        "TP3 is overlapped/blocked by F1 on Rev A: F1, the 1812 PPTC part that may be marked R050, is centered at the same x=16,y=50 coordinate as the intended VBAT_PROTECTED test pad. Treat TP3 as inaccessible; use F1 pad 2 only for careful protected-VBAT probing, and move/remove/relabel this test point in Rev B.",
         "100x56mm board preserves both connector interfaces and reduces board area versus the original 100x60mm package; further compact cost-down remains a separate layout iteration",
         "70x42mm compact attempt was not DRC-clean; compact layout needs a deliberate placement/routing iteration",
         "J2/J3 are populated Molex Micro-Fit 3.0 4-circuit service connectors with pin 3 reserved to match the Tesla-documented 4-cavity VBAT/GND/NC/LIN interface; exact Tesla OEM connector mate remains an adapter-pigtail physical-inspection follow-up",

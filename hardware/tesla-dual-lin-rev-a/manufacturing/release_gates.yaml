@@ -29,6 +29,10 @@ gate_2_layout_release:
     - TVS/ESD parts placed at harness and USB entry points
     - U.FL/antenna access and keepout reviewed mechanically
     - bottom pogo pads unobstructed and matched to fixture pitch
+    - no test pad is overlapped blocked shadowed or within 2.0mm center distance of a non-test component
+    - USB-C receptacle opening faces outward on a reachable service edge or service notch with 3D/mechanical proof artifact saved
+    - Rev B physical layout gate passes via tools/check-rev-b-layout-gates.ps1 before any quote upload
+    - board outline is at or below approved package target, default 70x42mm max unless owner approves larger
     - silkscreen marks safe/arm, car-side, wheel-side, serial, and revision
     - KiCad ERC and DRC pass with no ignored safety-relevant violations
 
@@ -37,6 +41,8 @@ gate_3_quote_and_dfm:
   required:
     - BOM supplier IDs verified in chosen vendor library
     - CPL generated and spot-checked against board orientation
+    - physical layout gate output is included in quote package and shows PASS
+    - USB service-access proof artifact is included in quote package
     - PCBA vendor confirms ESP32 module placement and USB-C connector footprint
     - harness connectors either identified for assembly or explicitly moved to secondary manual operation
     - quote package includes fab notes, assembly policy, BOM, CPL, Gerbers, drill, schematic PDF, and test plan

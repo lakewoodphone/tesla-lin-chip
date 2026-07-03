@@ -40,11 +40,11 @@ Practical implication: native wheel buttons work only if the cache/proxy is heal
 ## Build
 
 ```powershell
-cd C:\Users\ezabz\Code\xiao-lin-bench
-python -m platformio run -e car_passthrough
+cd C:\Users\ezabz\Code\tesla-lin-chip
+python -m platformio run -e rev_a_active_ble
 ```
 
-Full build script now includes it:
+Full build script now includes both Rev A passthrough targets:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build-all-envs.ps1
@@ -54,10 +54,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\build-all-envs.ps1
 
 | Side | RX | TX | Purpose |
 |---|---:|---:|---|
-| Car harness side | GPIO5 / D3 | GPIO4 / D2 | Respond to the vehicle LIN master |
-| Steering wheel side | GPIO20 / D7 | GPIO21 / D6 | Poll the steering wheel module |
+| Car harness side | GPIO4 | GPIO5 | Respond to the vehicle LIN master |
+| Steering wheel side | GPIO6 | GPIO7 | Poll the steering wheel module |
+| LIN enable | GPIO8 | - | Enable/disable LIN transceiver output |
+| Physical arm sense | GPIO9 | - | Active-high safety input |
 
-These defaults assume a second LIN transceiver and should be confirmed against the actual XIAO pinout and wiring before flashing for hardware tests.
+These defaults are for the Rev A ESP32-S3 dual-LIN PCB. The older XIAO passthrough prototype used different pins and is no longer the current active hardware target.
 
 ## Commands
 
@@ -74,7 +76,13 @@ vol:up[:count]       Queue left-wheel volume-up frames, default count 6
 vol:down[:count]     Queue left-wheel volume-down frames, default count 6
 vol:click[:count]    Queue left-wheel click frames
 vol:idle[:count]     Queue idle frames
+nag:once             Queue one up/down anti-nag pair
+nag:on               Enable recurring up/down anti-nag pairs
+nag:off              Disable recurring anti-nag and clear one-shot state
+nag:status           Print anti-nag state
+nag:interval:<ms>    Set recurring interval, clamped 5000-300000 ms
 inject:clear         Clear pending injection
+reset                Reboot the ESP32-S3
 ```
 
 Example bench command flow:

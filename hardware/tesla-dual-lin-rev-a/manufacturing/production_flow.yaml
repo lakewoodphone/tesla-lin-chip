@@ -14,6 +14,8 @@ pilot_build:
     - 15 percent spare passives/protection parts or vendor attrition allowance
 incoming_inspection:
   - visual inspection for connector orientation, ESP32 module alignment, USB-C solder joints, and TVS placement
+  - confirm USB-C opening is reachable and faces outward on the intended service edge; reject inward-facing or inaccessible service connectors
+  - confirm all test pads are visible and unobstructed; reject any board where a component sits on a test pad
   - resistance check for VBAT_PROTECTED to GND before powering
   - current-limited 12V power-up with physical arm safe/off
   - verify 3V3 rail voltage and idle current
@@ -27,6 +29,8 @@ programming_sequence:
   - run LIN B receive/transmit bench check only with arm on
   - run safe-state regression with reset, blank-firmware simulation where practical, and arm-off state
 reject_criteria:
+  - USB-C service connector inaccessible or facing inward
+  - any component overlaps blocks or obscures a required test pad
   - any LIN TX activity with physical arm safe/off
   - 3V3 rail outside tolerance or thermal runaway on 12V input
   - USB recovery unavailable

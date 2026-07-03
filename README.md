@@ -5,7 +5,24 @@ Tesla LIN reverse-engineering and anti-nag chip project. Covers passive LIN capt
 **Local path:** `C:\Users\ezabz\Code\tesla-lin-chip`
 **GitHub:** `https://github.com/lakewoodphone/tesla-lin-chip`
 
-Start with `START_HERE.md` when resuming. It is the canonical handoff and points to the active evidence, wiring, commands, and hard stops.
+Start with `START_HERE.md` when resuming. It now points to the current Rev A ESP32-S3 dual-LIN Model 3 active anti-nag path. Older XIAO/APG discovery notes are preserved under `docs/archive/legacy-xiao-2026-06-17/` and should be treated as historical evidence, not the active operating surface.
+
+Current first-read docs:
+
+```text
+START_HERE.md
+NEXT_STEPS.md
+TOOLS.md
+docs/README.md
+docs/active/rev-a-model3-active-anti-nag.md
+docs/active/model3-capture-data-index.md
+```
+
+Current Rev A helper:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\rev-a-active-model3.ps1 -Action Preflight
+```
 
 For the implementation plan that makes the bench, passive car testing, and final active-capable chip more robust, read `IMPLEMENTATION_ROADMAP.md`.
 

@@ -338,11 +338,13 @@ def check_manufacturing_inputs() -> None:
         "tools/export_kicad_outputs.ps1",
         "tools/estimate_rev_a_cost.py",
         "tools/rev_a_first_article_check.py",
+        "tools/check_physical_layout_gates.py",
+        "../../docs/rev-b-quality-gate-2026-06-16.md",
     ):
         require((ROOT / relative_path).exists(), f"missing manufacturing/export input: {relative_path}")
 
     repo_root = ROOT.parents[1]
-    for relative_path in ("tools/estimate-rev-a-cost.ps1", "tools/rev-a-first-article-check.ps1"):
+    for relative_path in ("tools/estimate-rev-a-cost.ps1", "tools/rev-a-first-article-check.ps1", "tools/check-rev-b-layout-gates.ps1"):
         require((repo_root / relative_path).exists(), f"missing repo tool wrapper: {relative_path}")
 
     assembly_rows = load_csv(ROOT / "manufacturing" / "assembly_policy.csv")
@@ -382,6 +384,14 @@ def check_manufacturing_inputs() -> None:
             and "higher-current" in text,
             f"missing D4/L1 mass-order blocker in {relative_path}",
         )
+
+    gate_text = (ROOT / "manufacturing" / "release_gates.yaml").read_text(encoding="utf-8")
+    for required_text in (
+        "tools/check-rev-b-layout-gates.ps1",
+        "USB-C receptacle opening faces outward",
+        "no test pad is overlapped blocked shadowed",
+    ):
+        require(required_text in gate_text, f"release gates missing Rev B physical gate text: {required_text}")
 
 
 def check_kicad_seed() -> None:

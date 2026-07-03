@@ -4,6 +4,10 @@
 #include <HardwareSerial.h>
 #include <esp_system.h>
 
+#ifdef BLE_ENABLED
+#include <NimBLEDevice.h>
+#endif
+
 #ifndef FIRMWARE_VERSION
 #define FIRMWARE_VERSION "v5.2-passthrough-dev"
 #endif
@@ -42,7 +46,7 @@
 #define CACHE_COUNT 64
 
 HardwareSerial LIN_CAR(1);
-HardwareSerial LIN_WHEEL(0);
+HardwareSerial LIN_WHEEL(2);  // UART2: leaves Serial/UART0 on GPIO43/44 (TP6/TP7)
 
 enum HeaderState { H_IDLE, H_SYNC, H_PID };
 
@@ -80,6 +84,11 @@ static uint32_t inhibitedFrames = 0;
 static int leftInjectDirection = 0;
 static int leftInjectRemaining = 0;
 static uint8_t leftCounter = 0;
+static bool antiNagEnabled = false;
+static bool antiNagSingleCycle = false;
+static uint32_t antiNagLastInjectionMs = 0;
+static uint32_t antiNagIntervalMs = 15000;   // fire every 15s
+static int antiNagPhase = 0;  // 0=up next, 1=down next
 static uint32_t lastPollMs = 0;
 static uint8_t pollIndex = 0;
 static const uint8_t POLL_IDS[] = {0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D};
@@ -207,6 +216,20 @@ static void seedCache() {
   id2d.len = sizeof(d2c);
   id2d.checksum = linChecksum(makeProtectedId(0x2D), id2d.data, id2d.len, true);
   id2d.valid = true;
+
+  CachedFrame &id29 = cache[0x29];
+  const uint8_t d29[5] = {0x00, 0x00, 0x24, 0x0C, 0x9D};
+  memcpy(id29.data, d29, sizeof(d29));
+  id29.len = sizeof(d29);
+  id29.checksum = linChecksum(makeProtectedId(0x29), id29.data, id29.len, true);
+  id29.valid = true;
+
+  CachedFrame &id2b = cache[0x2B];
+  const uint8_t d2b[6] = {0x0C, 0x00, 0x04, 0x6C, 0x81, 0x07};
+  memcpy(id2b.data, d2b, sizeof(d2b));
+  id2b.len = sizeof(d2b);
+  id2b.checksum = linChecksum(makeProtectedId(0x2B), id2b.data, id2b.len, true);
+  id2b.valid = true;
 }
 
 static bool txAllowed() {
@@ -381,10 +404,12 @@ static void processCommand() {
     return;
   }
   if (strcmp(cmdBuf, "config") == 0 || strcmp(cmdBuf, "stats") == 0) {
-    Serial.printf("cmd: config build=%s armed=%s bridge=%s car_headers=%lu responses=%lu misses=%lu injected=%lu inhibited=%lu wheel_polls=%lu wheel_good=%lu wheel_bad=%lu syncErr=%lu pending=%d\n",
+    Serial.printf("cmd: config build=%s armed=%s bridge=%s nag=%s nag_interval_ms=%lu car_headers=%lu responses=%lu misses=%lu injected=%lu inhibited=%lu wheel_polls=%lu wheel_good=%lu wheel_bad=%lu syncErr=%lu pending=%d inj_dir=%d\n",
       BUILD_PROFILE,
       armed ? "yes" : "no",
       bridgeEnabled ? "yes" : "no",
+      antiNagEnabled ? "yes" : "no",
+      (unsigned long)antiNagIntervalMs,
       (unsigned long)carParser.headers,
       (unsigned long)carResponses,
       (unsigned long)carMisses,
@@ -394,7 +419,8 @@ static void processCommand() {
       (unsigned long)wheelGood,
       (unsigned long)wheelBad,
       (unsigned long)carParser.syncErrors,
-      leftInjectRemaining);
+      leftInjectRemaining,
+      leftInjectDirection);
     return;
   }
   if (strcmp(cmdBuf, "safe:arm") == 0) {
@@ -413,6 +439,7 @@ static void processCommand() {
   if (strcmp(cmdBuf, "safe:off") == 0) {
     armed = false;
     leftInjectRemaining = 0;
+    antiNagSingleCycle = false;
     activeSessionStartMs = 0;
     setLinEnable(false);
     Serial.println("cmd: safe=off armed=no pending=0");
@@ -459,8 +486,271 @@ static void processCommand() {
     Serial.println("cmd: inject cleared");
     return;
   }
+  if (strcmp(cmdBuf, "nag:on") == 0) {
+    antiNagEnabled = true;
+    antiNagLastInjectionMs = 0;
+    antiNagPhase = 0;
+    Serial.printf("cmd: nag=enabled interval=%lums\n", (unsigned long)antiNagIntervalMs);
+    return;
+  }
+  if (strcmp(cmdBuf, "nag:off") == 0) {
+    antiNagEnabled = false;
+    antiNagSingleCycle = false;
+    antiNagPhase = 0;
+    Serial.println("cmd: nag=disabled");
+    return;
+  }
+  if (strcmp(cmdBuf, "nag:once") == 0) {
+    if (!txAllowed()) {
+      Serial.println("cmd: nag:once blocked (not armed or bridge off)");
+      return;
+    }
+    antiNagSingleCycle = true;
+    antiNagPhase = 0;
+    antiNagLastInjectionMs = 0;
+    Serial.println("cmd: nag:once firing up then down");
+    return;
+  }
+  if (strcmp(cmdBuf, "nag:status") == 0) {
+    Serial.printf("cmd: nag=%s once=%s phase=%d interval=%lums last_injection=%lums_ago\n",
+      antiNagEnabled ? "enabled" : "disabled",
+      antiNagSingleCycle ? "yes" : "no",
+      antiNagPhase,
+      (unsigned long)antiNagIntervalMs,
+      antiNagLastInjectionMs ? (unsigned long)(millis() - antiNagLastInjectionMs) : 0UL);
+    return;
+  }
+  if (strncmp(cmdBuf, "nag:interval:", 13) == 0) {
+    unsigned long ms = strtoul(cmdBuf + 13, nullptr, 10);
+    if (ms < 5000) ms = 5000;
+    if (ms > 300000) ms = 300000;
+    antiNagIntervalMs = ms;
+    if (antiNagEnabled) antiNagLastInjectionMs = 0;
+    Serial.printf("cmd: nag interval=%lums\n", (unsigned long)antiNagIntervalMs);
+    return;
+  }
+  if (strcmp(cmdBuf, "reset") == 0) {
+    Serial.println("cmd: reset rebooting ESP32...");
+    delay(200);
+    ESP.restart();
+    return;
+  }
 
   Serial.printf("cmd: unknown '%s'\n", cmdBuf);
+}
+
+#ifdef BLE_ENABLED
+// ---- BLE passthrough config service ----
+#define PT_BLE_SVC_UUID      "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define PT_BLE_CHAR_ARM_UUID "beb5483e-36e1-4688-b7f5-ea07361b26b0"
+#define PT_BLE_CHAR_BRG_UUID "beb5483e-36e1-4688-b7f5-ea07361b26b1"
+#define PT_BLE_CHAR_VOL_UUID "beb5483e-36e1-4688-b7f5-ea07361b26b2"
+#define PT_BLE_CHAR_STS_UUID "beb5483e-36e1-4688-b7f5-ea07361b26b3"
+#define PT_BLE_CHAR_CAP_UUID "beb5483e-36e1-4688-b7f5-ea07361b26b4"
+#define PT_BLE_CHAR_NAG_UUID "beb5483e-36e1-4688-b7f5-ea07361b26b5"
+
+static NimBLEServer         *ptBleServer  = nullptr;
+static NimBLEService        *ptBleService = nullptr;
+static NimBLECharacteristic *ptBleArm     = nullptr;
+static NimBLECharacteristic *ptBleBridge  = nullptr;
+static NimBLECharacteristic *ptBleVol     = nullptr;
+static NimBLECharacteristic *ptBleStatus  = nullptr;
+static NimBLECharacteristic *ptBleNag     = nullptr;
+static bool ptBleConnected   = false;
+static bool ptBleAdvPending  = true;
+static uint32_t ptBleLastAdvMs = 0;
+
+static void updatePtBleStatus() {
+  if (!ptBleStatus) return;
+  char buf[200];
+  snprintf(buf, sizeof(buf),
+    "armed=%s bridge=%s nag=%s nag_interval_ms=%lu car_hdr=%lu resp=%lu miss=%lu inj=%lu inh=%lu wpoll=%lu wgood=%lu wbad=%lu pending=%d dir=%d",
+    armed ? "yes" : "no",
+    bridgeEnabled ? "yes" : "no",
+    antiNagEnabled ? "yes" : "no",
+    (unsigned long)antiNagIntervalMs,
+    (unsigned long)carParser.headers,
+    (unsigned long)carResponses,
+    (unsigned long)carMisses,
+    (unsigned long)injectedFrames,
+    (unsigned long)inhibitedFrames,
+    (unsigned long)wheelPolls,
+    (unsigned long)wheelGood,
+    (unsigned long)wheelBad,
+    leftInjectRemaining,
+    leftInjectDirection);
+  ptBleStatus->setValue(buf);
+  if (ptBleConnected) ptBleStatus->notify();
+}
+
+class PtBleCallbacks : public NimBLECharacteristicCallbacks {
+  void onWrite(NimBLECharacteristic *pChar, NimBLEConnInfo &connInfo) override {
+    std::string val = pChar->getValue();
+    if (val.empty()) return;
+
+    if (pChar == ptBleArm) {
+      if (val == "arm") {
+        if (!physicalArmIsOn()) {
+          pChar->setValue("off");
+          Serial.println("BLE: arm blocked (physical arm off)");
+        } else {
+          armed = true;
+          activeSessionStartMs = millis();
+          setLinEnable(true);
+          pChar->setValue("armed");
+          Serial.println("BLE: armed");
+        }
+      } else {
+        armed = false;
+        leftInjectRemaining = 0;
+        activeSessionStartMs = 0;
+        setLinEnable(false);
+        pChar->setValue("off");
+        Serial.println("BLE: disarmed");
+      }
+      updatePtBleStatus();
+    } else if (pChar == ptBleBridge) {
+      bridgeEnabled = (val == "on");
+      pChar->setValue(bridgeEnabled ? "on" : "off");
+      Serial.printf("BLE: bridge=%s\n", bridgeEnabled ? "on" : "off");
+      updatePtBleStatus();
+    } else if (pChar == ptBleVol) {
+      const char *p = val.c_str();
+      char action[12] = {0};
+      uint8_t i = 0;
+      while (*p && *p != ':' && i < 11) action[i++] = *p++;
+      int count = 6;
+      if (*p == ':') count = atoi(p + 1);
+      if (count < 1) count = 1;
+      if (count > 64) count = 64;
+      if (strcmp(action, "up") == 0) leftInjectDirection = 1;
+      else if (strcmp(action, "down") == 0) leftInjectDirection = -1;
+      else if (strcmp(action, "click") == 0) leftInjectDirection = 2;
+      else if (strcmp(action, "idle") == 0) leftInjectDirection = 0;
+      else { pChar->setValue("err"); return; }
+      leftInjectRemaining = count;
+      Serial.printf("BLE: vol=%s pending=%d\n", action, leftInjectRemaining);
+      updatePtBleStatus();
+    } else if (pChar == ptBleNag) {
+      if (val == "on") {
+        antiNagEnabled = true;
+        antiNagLastInjectionMs = 0;
+        antiNagPhase = 0;
+        ptBleNag->setValue("on");
+        Serial.printf("BLE: nag=enabled interval=%lums\n", (unsigned long)antiNagIntervalMs);
+      } else if (val == "off") {
+        antiNagEnabled = false;
+        antiNagPhase = 0;
+        ptBleNag->setValue("off");
+        Serial.println("BLE: nag=disabled");
+      } else {
+        unsigned long ms = strtoul(val.c_str(), nullptr, 10);
+        if (ms >= 5000 && ms <= 300000) {
+          antiNagIntervalMs = ms;
+          if (antiNagEnabled) antiNagLastInjectionMs = 0;
+          char buf[16];
+          snprintf(buf, sizeof(buf), "%lu", ms);
+          ptBleNag->setValue(buf);
+          Serial.printf("BLE: nag interval=%lums\n", (unsigned long)antiNagIntervalMs);
+        }
+      }
+      updatePtBleStatus();
+    }
+  }
+};
+
+class PtBleServerCallbacks : public NimBLEServerCallbacks {
+  void onConnect(NimBLEServer *, NimBLEConnInfo &) override {
+    ptBleConnected = true;
+    Serial.println("BLE: connected");
+    updatePtBleStatus();
+  }
+  void onDisconnect(NimBLEServer *, NimBLEConnInfo &, int) override {
+    ptBleConnected = false;
+    Serial.println("BLE: disconnected");
+    ptBleAdvPending = true;
+    ptBleLastAdvMs = 0;
+  }
+};
+
+static void initPtBle() {
+  NimBLEDevice::init("TeslaPassthrough");
+  delay(100);
+  ptBleServer = NimBLEDevice::createServer();
+  ptBleServer->setCallbacks(new PtBleServerCallbacks());
+  ptBleService = ptBleServer->createService(PT_BLE_SVC_UUID);
+
+  ptBleArm = ptBleService->createCharacteristic(PT_BLE_CHAR_ARM_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE);
+  ptBleArm->setCallbacks(new PtBleCallbacks());
+  ptBleArm->setValue("off");
+
+  ptBleBridge = ptBleService->createCharacteristic(PT_BLE_CHAR_BRG_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE);
+  ptBleBridge->setCallbacks(new PtBleCallbacks());
+  ptBleBridge->setValue("on");
+
+  ptBleVol = ptBleService->createCharacteristic(PT_BLE_CHAR_VOL_UUID,
+    NIMBLE_PROPERTY::WRITE);
+  ptBleVol->setCallbacks(new PtBleCallbacks());
+
+  ptBleStatus = ptBleService->createCharacteristic(PT_BLE_CHAR_STS_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
+
+  ptBleNag = ptBleService->createCharacteristic(PT_BLE_CHAR_NAG_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE);
+  ptBleNag->setCallbacks(new PtBleCallbacks());
+  ptBleNag->setValue("off");
+
+  NimBLECharacteristic *ptBleCaps = ptBleService->createCharacteristic(
+    PT_BLE_CHAR_CAP_UUID, NIMBLE_PROPERTY::READ);
+  ptBleCaps->setValue(
+    "arm=arm/off;bridge=on/off;nag=on/off/interval_ms;vol=up/down/click/idle[:count];"
+    "status=read_notify;build=" BUILD_PROFILE ";fw=" FIRMWARE_VERSION);
+
+  ptBleService->start();
+  updatePtBleStatus();
+
+  NimBLEAdvertising *ad = NimBLEDevice::getAdvertising();
+  ad->addServiceUUID(PT_BLE_SVC_UUID);
+  ad->setMinInterval(0x20);
+  ad->setMaxInterval(0x40);
+  ptBleAdvPending = true;
+}
+
+static void servicePtBleAdv(uint32_t now) {
+  if (ptBleConnected) return;
+  if (!ptBleAdvPending) return;
+  if (now - ptBleLastAdvMs < 2000) return;
+  ptBleLastAdvMs = now;
+  NimBLEAdvertising *ad = NimBLEDevice::getAdvertising();
+  if (!ad->isAdvertising()) {
+    ad->start();
+    Serial.println("BLE: advertising");
+  }
+  ptBleAdvPending = false;
+}
+#endif // BLE_ENABLED
+
+static void serviceAntiNag(uint32_t now) {
+  if (!antiNagEnabled && !antiNagSingleCycle) return;
+  if (!txAllowed()) return;
+  if (leftInjectRemaining > 0) return;
+
+  bool intervalDue = antiNagLastInjectionMs == 0 || now - antiNagLastInjectionMs >= antiNagIntervalMs;
+  if (!antiNagSingleCycle && antiNagPhase == 0 && !intervalDue) return;
+
+  if (antiNagPhase == 0) {
+    antiNagPhase = 1;
+    leftInjectDirection = 1;   // up
+    leftInjectRemaining = 1;
+  } else if (antiNagPhase == 1) {
+    antiNagPhase = 0;
+    leftInjectDirection = -1;  // down
+    leftInjectRemaining = 1;
+    antiNagLastInjectionMs = now;
+    antiNagSingleCycle = false;
+  }
 }
 
 static void serviceSerial() {
@@ -486,10 +776,14 @@ void setup() {
   delay(1200);
   Serial.printf("LIN passthrough %s build=%s reset=%s\n", FIRMWARE_VERSION, BUILD_PROFILE, resetReasonLabel());
   Serial.printf("car RX=%d TX=%d wheel RX=%d TX=%d lin_en=%d arm_sense=%d baud=%d\n", CAR_RX_PIN, CAR_TX_PIN, WHEEL_RX_PIN, WHEEL_TX_PIN, LIN_EN_PIN, ARM_SENSE_PIN, LIN_BAUD);
-  Serial.println("Commands: version config stats safe:arm safe:off bridge:on/off cache vol:up[:count] vol:down[:count] inject:clear");
+  Serial.println("Commands: version config stats safe:arm safe:off bridge:on/off nag:on/off/once/status nag:interval:<ms> cache vol:up[:count] vol:down[:count] vol:click[:count] inject:clear reset");
   seedCache();
   LIN_CAR.begin(LIN_BAUD, SERIAL_8N1, CAR_RX_PIN, CAR_TX_PIN);
   LIN_WHEEL.begin(LIN_BAUD, SERIAL_8N1, WHEEL_RX_PIN, WHEEL_TX_PIN);
+#ifdef BLE_ENABLED
+  initPtBle();
+  Serial.println("BLE: init done");
+#endif
 }
 
 void loop() {
@@ -497,6 +791,10 @@ void loop() {
   serviceSerial();
   serviceCarHeaders();
   serviceWheelPoller();
+  serviceAntiNag(now);
+#ifdef BLE_ENABLED
+  servicePtBleAdv(now);
+#endif
 
   if (now - lastHeartbeatMs >= 1000) {
     lastHeartbeatMs = now;
@@ -511,6 +809,9 @@ void loop() {
       (unsigned long)wheelPolls,
       (unsigned long)wheelBad,
       leftInjectRemaining);
+#ifdef BLE_ENABLED
+    updatePtBleStatus();
+#endif
   }
 }
 
